@@ -115,7 +115,7 @@ export async function updateSettings(
   return handleResponse(response);
 }
 
-export async function getLibrary(): Promise<{ entries: LibraryEntryWithAnime[] }> {
+export async function getLibrary(): Promise<{ entries: LibraryEntryWithAnime[]; items?: LibraryEntryWithAnime[] }> {
   const headers = await getAuthHeaders();
   const response = await fetch("/api/me/library", { headers });
   return handleResponse(response);
@@ -152,3 +152,44 @@ export async function getMyCalendar(): Promise<{ items: CalendarAnimeItem[] }> {
   const response = await fetch("/api/me/calendar", { headers });
   return handleResponse(response);
 }
+
+// Generic API wrapper for simple use cases
+export const api = {
+  async get<T = unknown>(url: string): Promise<T> {
+    const headers = await getAuthHeaders();
+    const response = await fetch(url, { headers });
+    return handleResponse<T>(response);
+  },
+  async post<T = unknown>(url: string, body?: unknown): Promise<T> {
+    const headers = await getAuthHeaders();
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...headers,
+      },
+      body: body ? JSON.stringify(body) : undefined,
+    });
+    return handleResponse<T>(response);
+  },
+  async patch<T = unknown>(url: string, body?: unknown): Promise<T> {
+    const headers = await getAuthHeaders();
+    const response = await fetch(url, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        ...headers,
+      },
+      body: body ? JSON.stringify(body) : undefined,
+    });
+    return handleResponse<T>(response);
+  },
+  async delete<T = unknown>(url: string): Promise<T> {
+    const headers = await getAuthHeaders();
+    const response = await fetch(url, {
+      method: "DELETE",
+      headers,
+    });
+    return handleResponse<T>(response);
+  },
+};
