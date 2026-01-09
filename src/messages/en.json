@@ -1,0 +1,186 @@
+{
+  "common": {
+    "appName": "Kiniro List",
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "retry": "Retry",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "search": "Search",
+    "noResults": "No results found",
+    "login": "Login",
+    "logout": "Logout",
+    "loginWithGoogle": "Login with Google",
+    "loginRequired": "Please login to access this page",
+    "goToLogin": "Go to Login"
+  },
+  "nav": {
+    "home": "Home",
+    "search": "Search",
+    "calendar": "Calendar",
+    "calendarNow": "Current Season",
+    "calendarUpcoming": "Upcoming",
+    "schedule": "Weekly Schedule",
+    "profile": "Profile",
+    "library": "My Library",
+    "myCalendar": "My Calendar",
+    "settings": "Settings"
+  },
+  "theme": {
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System",
+    "toggle": "Toggle theme"
+  },
+  "language": {
+    "en": "English",
+    "es": "Español",
+    "select": "Select language"
+  },
+  "home": {
+    "title": "Welcome to Kiniro List",
+    "subtitle": "Track your anime, never miss an episode",
+    "browseCalendar": "Browse Calendar",
+    "viewSchedule": "View Schedule",
+    "searchAnime": "Search Anime",
+    "features": {
+      "track": "Track Your Anime",
+      "trackDesc": "Keep track of what you're watching, plan to watch, and have completed.",
+      "calendar": "Personal Calendar",
+      "calendarDesc": "See when your favorite shows air with personalized notifications.",
+      "discover": "Discover New Shows",
+      "discoverDesc": "Browse seasonal anime and find your next favorite series."
+    }
+  },
+  "search": {
+    "title": "Search Anime",
+    "placeholder": "Search for anime...",
+    "searching": "Searching...",
+    "resultsFor": "Results for \"{query}\"",
+    "noQuery": "Enter a search term to find anime"
+  },
+  "anime": {
+    "episodes": "{count} episodes",
+    "unknownEpisodes": "? episodes",
+    "genres": "Genres",
+    "status": "Status",
+    "season": "Season",
+    "format": "Format",
+    "addToLibrary": "Add to Library",
+    "updateLibrary": "Update Status",
+    "removeFromLibrary": "Remove from Library",
+    "viewOnAniList": "View on AniList",
+    "nextEpisode": "Next Episode",
+    "episode": "Episode {number}",
+    "adult": "Adult"
+  },
+  "status": {
+    "FINISHED": "Finished",
+    "RELEASING": "Airing",
+    "NOT_YET_RELEASED": "Not Yet Released",
+    "CANCELLED": "Cancelled",
+    "HIATUS": "On Hiatus"
+  },
+  "format": {
+    "TV": "TV",
+    "TV_SHORT": "TV Short",
+    "MOVIE": "Movie",
+    "SPECIAL": "Special",
+    "OVA": "OVA",
+    "ONA": "ONA",
+    "MUSIC": "Music"
+  },
+  "libraryStatus": {
+    "watching": "Watching",
+    "planned": "Plan to Watch",
+    "completed": "Completed",
+    "paused": "Paused",
+    "dropped": "Dropped"
+  },
+  "calendar": {
+    "now": "Current Season",
+    "upcoming": "Upcoming Season",
+    "season": "{season} {year}",
+    "WINTER": "Winter",
+    "SPRING": "Spring",
+    "SUMMER": "Summer",
+    "FALL": "Fall"
+  },
+  "schedule": {
+    "title": "Weekly Schedule",
+    "weekdays": {
+      "0": "Sunday",
+      "1": "Monday",
+      "2": "Tuesday",
+      "3": "Wednesday",
+      "4": "Thursday",
+      "5": "Friday",
+      "6": "Saturday"
+    }
+  },
+  "airing": {
+    "airs_in": "Airs in {time}",
+    "airs_today": "Airs Today",
+    "aired": "Already Aired",
+    "unknown": "Unknown",
+    "episode": "Ep. {number}"
+  },
+  "profile": {
+    "title": "My Profile",
+    "email": "Email",
+    "timezone": "Timezone",
+    "calendarView": "Calendar View",
+    "preferences": "Preferences",
+    "quickLinks": "Quick Links"
+  },
+  "library": {
+    "title": "My Library",
+    "empty": "Your library is empty",
+    "emptyDesc": "Add anime to your library to track your progress",
+    "addNotes": "Add notes",
+    "notes": "Notes",
+    "pinned": "Pinned",
+    "filterByStatus": "Filter by status",
+    "allStatuses": "All statuses"
+  },
+  "myCalendar": {
+    "title": "My Calendar",
+    "empty": "No upcoming episodes",
+    "emptyDesc": "Add anime to your watching list to see their schedule here"
+  },
+  "settings": {
+    "title": "Settings",
+    "timezone": "Timezone",
+    "timezoneDesc": "Your local timezone for airing times",
+    "language": "Language",
+    "languageDesc": "Display language for the app",
+    "theme": "Theme",
+    "themeDesc": "Choose light, dark, or system theme",
+    "calendarView": "Default Calendar View",
+    "calendarViewDesc": "How to display your personal calendar",
+    "weekly": "Weekly",
+    "season": "By Season",
+    "filters": "Filters",
+    "filtersDesc": "Content filtering preferences",
+    "hideAdult": "Hide adult content",
+    "onlyWatching": "Only show watching in calendar",
+    "saved": "Settings saved successfully",
+    "saveError": "Failed to save settings"
+  },
+  "errors": {
+    "generic": "Something went wrong",
+    "network": "Network error. Please try again.",
+    "unauthorized": "Please login to continue",
+    "notFound": "Page not found",
+    "rateLimit": "Too many requests. Please wait {seconds} seconds.",
+    "serverError": "Server error. Please try again later."
+  },
+  "pagination": {
+    "previous": "Previous",
+    "next": "Next",
+    "page": "Page {current} of {total}"
+  }
+}

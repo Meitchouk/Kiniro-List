@@ -1,0 +1,186 @@
+{
+  "common": {
+    "appName": "Kiniro List",
+    "loading": "Cargando...",
+    "error": "Ocurrió un error",
+    "retry": "Reintentar",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "add": "Agregar",
+    "search": "Buscar",
+    "noResults": "No se encontraron resultados",
+    "login": "Iniciar sesión",
+    "logout": "Cerrar sesión",
+    "loginWithGoogle": "Iniciar sesión con Google",
+    "loginRequired": "Por favor inicia sesión para acceder a esta página",
+    "goToLogin": "Ir a iniciar sesión"
+  },
+  "nav": {
+    "home": "Inicio",
+    "search": "Buscar",
+    "calendar": "Calendario",
+    "calendarNow": "Temporada Actual",
+    "calendarUpcoming": "Próximamente",
+    "schedule": "Horario Semanal",
+    "profile": "Perfil",
+    "library": "Mi Biblioteca",
+    "myCalendar": "Mi Calendario",
+    "settings": "Configuración"
+  },
+  "theme": {
+    "light": "Claro",
+    "dark": "Oscuro",
+    "system": "Sistema",
+    "toggle": "Cambiar tema"
+  },
+  "language": {
+    "en": "English",
+    "es": "Español",
+    "select": "Seleccionar idioma"
+  },
+  "home": {
+    "title": "Bienvenido a Kiniro List",
+    "subtitle": "Sigue tu anime, nunca te pierdas un episodio",
+    "browseCalendar": "Ver Calendario",
+    "viewSchedule": "Ver Horario",
+    "searchAnime": "Buscar Anime",
+    "features": {
+      "track": "Sigue Tu Anime",
+      "trackDesc": "Mantén un registro de lo que estás viendo, planeas ver y has completado.",
+      "calendar": "Calendario Personal",
+      "calendarDesc": "Mira cuándo se emiten tus series favoritas con notificaciones personalizadas.",
+      "discover": "Descubre Nuevas Series",
+      "discoverDesc": "Explora el anime de temporada y encuentra tu próxima serie favorita."
+    }
+  },
+  "search": {
+    "title": "Buscar Anime",
+    "placeholder": "Buscar anime...",
+    "searching": "Buscando...",
+    "resultsFor": "Resultados para \"{query}\"",
+    "noQuery": "Ingresa un término de búsqueda para encontrar anime"
+  },
+  "anime": {
+    "episodes": "{count} episodios",
+    "unknownEpisodes": "? episodios",
+    "genres": "Géneros",
+    "status": "Estado",
+    "season": "Temporada",
+    "format": "Formato",
+    "addToLibrary": "Agregar a Biblioteca",
+    "updateLibrary": "Actualizar Estado",
+    "removeFromLibrary": "Eliminar de Biblioteca",
+    "viewOnAniList": "Ver en AniList",
+    "nextEpisode": "Próximo Episodio",
+    "episode": "Episodio {number}",
+    "adult": "Adulto"
+  },
+  "status": {
+    "FINISHED": "Finalizado",
+    "RELEASING": "En emisión",
+    "NOT_YET_RELEASED": "No estrenado",
+    "CANCELLED": "Cancelado",
+    "HIATUS": "En pausa"
+  },
+  "format": {
+    "TV": "TV",
+    "TV_SHORT": "TV Corto",
+    "MOVIE": "Película",
+    "SPECIAL": "Especial",
+    "OVA": "OVA",
+    "ONA": "ONA",
+    "MUSIC": "Música"
+  },
+  "libraryStatus": {
+    "watching": "Viendo",
+    "planned": "Planeado",
+    "completed": "Completado",
+    "paused": "Pausado",
+    "dropped": "Abandonado"
+  },
+  "calendar": {
+    "now": "Temporada Actual",
+    "upcoming": "Próxima Temporada",
+    "season": "{season} {year}",
+    "WINTER": "Invierno",
+    "SPRING": "Primavera",
+    "SUMMER": "Verano",
+    "FALL": "Otoño"
+  },
+  "schedule": {
+    "title": "Horario Semanal",
+    "weekdays": {
+      "0": "Domingo",
+      "1": "Lunes",
+      "2": "Martes",
+      "3": "Miércoles",
+      "4": "Jueves",
+      "5": "Viernes",
+      "6": "Sábado"
+    }
+  },
+  "airing": {
+    "airs_in": "Emite en {time}",
+    "airs_today": "Emite Hoy",
+    "aired": "Ya Emitido",
+    "unknown": "Desconocido",
+    "episode": "Ep. {number}"
+  },
+  "profile": {
+    "title": "Mi Perfil",
+    "email": "Correo electrónico",
+    "timezone": "Zona horaria",
+    "calendarView": "Vista de calendario",
+    "preferences": "Preferencias",
+    "quickLinks": "Enlaces rápidos"
+  },
+  "library": {
+    "title": "Mi Biblioteca",
+    "empty": "Tu biblioteca está vacía",
+    "emptyDesc": "Agrega anime a tu biblioteca para seguir tu progreso",
+    "addNotes": "Agregar notas",
+    "notes": "Notas",
+    "pinned": "Fijado",
+    "filterByStatus": "Filtrar por estado",
+    "allStatuses": "Todos los estados"
+  },
+  "myCalendar": {
+    "title": "Mi Calendario",
+    "empty": "No hay próximos episodios",
+    "emptyDesc": "Agrega anime a tu lista de viendo para ver su horario aquí"
+  },
+  "settings": {
+    "title": "Configuración",
+    "timezone": "Zona horaria",
+    "timezoneDesc": "Tu zona horaria local para los horarios de emisión",
+    "language": "Idioma",
+    "languageDesc": "Idioma de la aplicación",
+    "theme": "Tema",
+    "themeDesc": "Elige tema claro, oscuro o del sistema",
+    "calendarView": "Vista de Calendario Predeterminada",
+    "calendarViewDesc": "Cómo mostrar tu calendario personal",
+    "weekly": "Semanal",
+    "season": "Por Temporada",
+    "filters": "Filtros",
+    "filtersDesc": "Preferencias de filtrado de contenido",
+    "hideAdult": "Ocultar contenido adulto",
+    "onlyWatching": "Solo mostrar viendo en calendario",
+    "saved": "Configuración guardada exitosamente",
+    "saveError": "Error al guardar la configuración"
+  },
+  "errors": {
+    "generic": "Algo salió mal",
+    "network": "Error de red. Por favor intenta de nuevo.",
+    "unauthorized": "Por favor inicia sesión para continuar",
+    "notFound": "Página no encontrada",
+    "rateLimit": "Demasiadas solicitudes. Por favor espera {seconds} segundos.",
+    "serverError": "Error del servidor. Por favor intenta más tarde."
+  },
+  "pagination": {
+    "previous": "Anterior",
+    "next": "Siguiente",
+    "page": "Página {current} de {total}"
+  }
+}
