@@ -1,4 +1,5 @@
 import { ActionButton } from "@/components/common";
+import { Typography, Stack, Flex } from "@/components/ds";
 import { Calendar, Clock, Search } from "lucide-react";
 
 interface HeroSectionProps {
@@ -20,14 +21,14 @@ export function HeroSection({
     searchAnime,
 }: HeroSectionProps) {
     return (
-        <section className="flex flex-col items-center justify-center gap-6 py-12 text-center md:py-20">
-            <h1 className="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl">
+        <Stack as="section" align="center" justify="center" gap={6} className="py-12 text-center md:py-20">
+            <Typography variant="h1" className="text-4xl sm:text-5xl md:text-6xl">
                 <span className="text-primary">{appName}</span>
-            </h1>
-            <p className="max-w-2xl text-lg text-muted-foreground sm:text-xl">
+            </Typography>
+            <Typography variant="subtitle1" colorScheme="secondary" className="max-w-2xl sm:text-xl">
                 {subtitle}
-            </p>
-            <div className="flex flex-wrap justify-center gap-4">
+            </Typography>
+            <Flex wrap="wrap" justify="center" gap={4}>
                 <ActionButton 
                     variant="primary" 
                     href="/calendar/now" 
@@ -49,7 +50,7 @@ export function HeroSection({
                 >
                     {searchAnime}
                 </ActionButton>
-            </div>
-        </section>
+            </Flex>
+        </Stack>
     );
 }

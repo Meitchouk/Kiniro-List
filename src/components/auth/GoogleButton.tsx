@@ -1,15 +1,15 @@
 "use client";
 
 import Image from "next/image";
-import { Button } from "@/components/ui/button";
 import {
+    Button,
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuLabel,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@/components/ds";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
