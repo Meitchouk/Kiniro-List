@@ -23,7 +23,7 @@ export function GoogleButton({ className }: { className?: string }) {
         try {
             await signIn();
         } catch (err: unknown) {
-            const error = err as any;
+            const error = err as { code?: string; message?: string };
             const code = error?.code || "unknown";
             const message = error?.message || "";
             
