@@ -1,6 +1,7 @@
 "use client";
 
 import { toast } from "sonner";
+import { fetchWithLoading } from "@/lib/fetchInterceptor";
 import type {
   AnimeListResponse,
   AnimeDetailResponse,
@@ -48,12 +49,12 @@ export async function searchAnime(
   page: number = 1
 ): Promise<AnimeListResponse> {
   const params = new URLSearchParams({ q: query, page: String(page) });
-  const response = await fetch(`/api/anime/search?${params}`);
+  const response = await fetchWithLoading(`/api/anime/search?${params}`);
   return handleResponse(response);
 }
 
 export async function getAnimeDetail(id: number): Promise<AnimeDetailResponse> {
-  const response = await fetch(`/api/anime/${id}`);
+  const response = await fetchWithLoading(`/api/anime/${id}`);
   return handleResponse(response);
 }
 
@@ -61,7 +62,7 @@ export async function getCurrentSeason(
   page: number = 1
 ): Promise<AnimeListResponse & { season: MediaSeason; year: number }> {
   const params = new URLSearchParams({ page: String(page) });
-  const response = await fetch(`/api/calendar/now?${params}`);
+  const response = await fetchWithLoading(`/api/calendar/now?${params}`);
   return handleResponse(response);
 }
 
@@ -69,7 +70,7 @@ export async function getUpcomingSeason(
   page: number = 1
 ): Promise<AnimeListResponse & { season: MediaSeason; year: number }> {
   const params = new URLSearchParams({ page: String(page) });
-  const response = await fetch(`/api/calendar/upcoming?${params}`);
+  const response = await fetchWithLoading(`/api/calendar/upcoming?${params}`);
   return handleResponse(response);
 }
 
@@ -83,12 +84,12 @@ export async function getSeason(
     season,
     page: String(page),
   });
-  const response = await fetch(`/api/calendar/season?${params}`);
+  const response = await fetchWithLoading(`/api/calendar/season?${params}`);
   return handleResponse(response);
 }
 
 export async function getWeeklySchedule(): Promise<WeeklyScheduleResponse> {
-  const response = await fetch("/api/schedule/weekly");
+  const response = await fetchWithLoading("/api/schedule/weekly");
   return handleResponse(response);
 }
 
@@ -96,7 +97,7 @@ export async function getWeeklySchedule(): Promise<WeeklyScheduleResponse> {
 
 export async function getCurrentUser(): Promise<UserResponse> {
   const headers = await getAuthHeaders();
-  const response = await fetch("/api/me", { headers });
+  const response = await fetchWithLoading("/api/me", { headers });
   return handleResponse(response);
 }
 
@@ -104,7 +105,7 @@ export async function updateSettings(
   settings: SettingsUpdateRequest
 ): Promise<{ success: boolean }> {
   const headers = await getAuthHeaders();
-  const response = await fetch("/api/me/settings", {
+  const response = await fetchWithLoading("/api/me/settings", {
     method: "PATCH",
     headers: {
       "Content-Type": "application/json",
@@ -117,7 +118,7 @@ export async function updateSettings(
 
 export async function getLibrary(): Promise<{ entries: LibraryEntryWithAnime[]; items?: LibraryEntryWithAnime[] }> {
   const headers = await getAuthHeaders();
-  const response = await fetch("/api/me/library", { headers });
+  const response = await fetchWithLoading("/api/me/library", { headers });
   return handleResponse(response);
 }
 
@@ -125,7 +126,7 @@ export async function upsertLibraryEntry(
   entry: LibraryUpsertRequest
 ): Promise<{ success: boolean }> {
   const headers = await getAuthHeaders();
-  const response = await fetch("/api/me/library", {
+  const response = await fetchWithLoading("/api/me/library", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -140,7 +141,7 @@ export async function deleteLibraryEntry(
   animeId: number
 ): Promise<{ success: boolean }> {
   const headers = await getAuthHeaders();
-  const response = await fetch(`/api/me/library/${animeId}`, {
+  const response = await fetchWithLoading(`/api/me/library/${animeId}`, {
     method: "DELETE",
     headers,
   });
@@ -149,7 +150,7 @@ export async function deleteLibraryEntry(
 
 export async function getMyCalendar(): Promise<{ items: CalendarAnimeItem[] }> {
   const headers = await getAuthHeaders();
-  const response = await fetch("/api/me/calendar", { headers });
+  const response = await fetchWithLoading("/api/me/calendar", { headers });
   return handleResponse(response);
 }
 
@@ -157,12 +158,12 @@ export async function getMyCalendar(): Promise<{ items: CalendarAnimeItem[] }> {
 export const api = {
   async get<T = unknown>(url: string): Promise<T> {
     const headers = await getAuthHeaders();
-    const response = await fetch(url, { headers });
+    const response = await fetchWithLoading(url, { headers });
     return handleResponse<T>(response);
   },
   async post<T = unknown>(url: string, body?: unknown): Promise<T> {
     const headers = await getAuthHeaders();
-    const response = await fetch(url, {
+    const response = await fetchWithLoading(url, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -174,7 +175,7 @@ export const api = {
   },
   async patch<T = unknown>(url: string, body?: unknown): Promise<T> {
     const headers = await getAuthHeaders();
-    const response = await fetch(url, {
+    const response = await fetchWithLoading(url, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
@@ -186,7 +187,7 @@ export const api = {
   },
   async delete<T = unknown>(url: string): Promise<T> {
     const headers = await getAuthHeaders();
-    const response = await fetch(url, {
+    const response = await fetchWithLoading(url, {
       method: "DELETE",
       headers,
     });

@@ -45,15 +45,13 @@ export function AnimeCard({ anime, showBadges = true }: AnimeCardProps) {
             </div>
           )}
         </div>
-        <CardContent className="p-3">
-          <h3 className="line-clamp-2 text-sm font-medium leading-tight">
+        <CardContent className="p-3 h-32 flex flex-col">
+          <h3 className="line-clamp-3 text-sm font-medium leading-tight flex-1">
             {title}
           </h3>
-          {anime.episodes && (
-            <p className="mt-1 text-xs text-muted-foreground">
-              {t("anime.episodes", { count: anime.episodes })}
-            </p>
-          )}
+          <p className="mt-1 text-xs text-muted-foreground h-4">
+            {anime.episodes ? t("anime.episodes", { count: anime.episodes }) : "\u00A0"}
+          </p>
         </CardContent>
       </Card>
     </Link>

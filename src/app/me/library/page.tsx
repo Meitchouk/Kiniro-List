@@ -107,7 +107,7 @@ export default function LibraryPage() {
               />
             ) : (
               <div className="w-full h-full bg-muted flex items-center justify-center">
-                <span className="text-muted-foreground text-xs">No image</span>
+                <span className="text-muted-foreground text-xs">{t('common.noImage')}</span>
               </div>
             )}
           </div>

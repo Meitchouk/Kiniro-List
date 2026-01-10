@@ -11,11 +11,16 @@
     "add": "Add",
     "search": "Search",
     "noResults": "No results found",
+    "noImage": "No image",
     "login": "Login",
     "logout": "Logout",
+    "logoutSuccess": "Logged out successfully",
+    "logoutError": "Sign out failed. Please try again.",
+    "loginWith": "Sign in with",
     "loginWithGoogle": "Login with Google",
     "loginRequired": "Please login to access this page",
-    "goToLogin": "Go to Login"
+    "goToLogin": "Go to Login",
+    "languageSaveError": "Failed to save language preference"
   },
   "nav": {
     "home": "Home",
@@ -75,7 +80,19 @@
     "viewOnAniList": "View on AniList",
     "nextEpisode": "Next Episode",
     "episode": "Episode {number}",
-    "adult": "Adult"
+    "adult": "Adult",
+    "synopsis": "Synopsis",
+    "statistics": "Statistics",
+    "score": "Score",
+    "popularity": "Popularity",
+    "favourites": "Favourites",
+    "duration": "Duration",
+    "studios": "Studios",
+    "trailer": "Trailer",
+    "externalLinks": "Links",
+    "tags": "Tags",
+    "relations": "Related Anime",
+    "recommendations": "Recommendations"
   },
   "status": {
     "FINISHED": "Finished",
@@ -91,7 +108,25 @@
     "SPECIAL": "Special",
     "OVA": "OVA",
     "ONA": "ONA",
-    "MUSIC": "Music"
+    "MUSIC": "Music",
+    "MANGA": "Manga",
+    "NOVEL": "Novel",
+    "ONE_SHOT": "One Shot"
+  },
+  "relationType": {
+    "ADAPTATION": "Adaptation",
+    "PREQUEL": "Prequel",
+    "SEQUEL": "Sequel",
+    "PARENT": "Parent Story",
+    "SIDE_STORY": "Side Story",
+    "CHARACTER": "Character",
+    "SUMMARY": "Summary",
+    "ALTERNATIVE": "Alternative",
+    "SPIN_OFF": "Spin-off",
+    "OTHER": "Other",
+    "SOURCE": "Source",
+    "COMPILATION": "Compilation",
+    "CONTAINS": "Contains"
   },
   "libraryStatus": {
     "watching": "Watching",
@@ -209,12 +244,15 @@
     "saveError": "Failed to save settings"
   },
   "errors": {
+    "authConfigNotFound": "Google Sign-In is not enabled in Firebase Authentication. Enable it in Authentication > Sign-in method.",
+    "authProviderDisabled": "The Google provider is disabled. Enable it in Firebase Authentication.",
     "generic": "Something went wrong",
     "network": "Network error. Please try again.",
     "unauthorized": "Please login to continue",
     "notFound": "Page not found",
     "rateLimit": "Too many requests. Please wait {seconds} seconds.",
-    "serverError": "Server error. Please try again later."
+    "serverError": "Server error. Please try again later.",
+    "retry": "Retry"
   },
   "pagination": {
     "previous": "Previous",

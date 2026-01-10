@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { LogIn, LogOut, User, Settings, Library, Calendar } from "lucide-react";
+import { LogOut, User, Settings, Library, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -14,38 +14,24 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useTranslations } from "next-intl";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { toast } from "sonner";
+import { GoogleButton } from "@/components/auth/GoogleButton";
 
 export function UserMenu() {
   const t = useTranslations();
-  const { user, signIn, logOut } = useAuth();
-
-  const handleSignIn = async () => {
-    try {
-      await signIn();
-      toast.success(t("common.login") + " successful!");
-    } catch (error) {
-      console.error("Sign in failed:", error);
-      toast.error("Sign in failed. Please try again.");
-    }
-  };
+  const { user, logOut } = useAuth();
 
   const handleSignOut = async () => {
     try {
       await logOut();
-      toast.success(t("common.logout") + " successful!");
+      toast.success(t("common.logoutSuccess"));
     } catch (error) {
       console.error("Sign out failed:", error);
-      toast.error("Sign out failed. Please try again.");
+      toast.error(t("common.logoutError"));
     }
   };
 
   if (!user) {
-    return (
-      <Button variant="outline" size="sm" onClick={handleSignIn}>
-        <LogIn className="mr-2 h-4 w-4" />
-        {t("common.login")}
-      </Button>
-    );
+    return <GoogleButton />;
   }
 
   return (

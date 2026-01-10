@@ -1,7 +1,7 @@
 // Server-only AniList GraphQL client
 import type { AniListMedia, MediaSeason, PaginationInfo } from "@/lib/types";
 
-const ANILIST_API = "https://graphql.anilist.co";
+const ANILIST_API = process.env.ANILIST_API || "";
 
 interface GraphQLResponse<T> {
   data: T;
@@ -127,11 +127,94 @@ query ($id: Int!) {
     genres
     season
     seasonYear
+    startDate {
+      year
+      month
+      day
+    }
+    endDate {
+      year
+      month
+      day
+    }
     status
     episodes
+    duration
     format
     isAdult
     siteUrl
+    averageScore
+    meanScore
+    popularity
+    favourites
+    source
+    hashtag
+    studios {
+      nodes {
+        id
+        name
+        isAnimationStudio
+      }
+    }
+    externalLinks {
+      id
+      url
+      site
+      type
+      language
+      color
+      icon
+    }
+    streamingEpisodes {
+      title
+      thumbnail
+      url
+      site
+    }
+    trailer {
+      id
+      site
+      thumbnail
+    }
+    tags {
+      id
+      name
+      rank
+      isMediaSpoiler
+    }
+    relations {
+      edges {
+        node {
+          id
+          title {
+            romaji
+            english
+          }
+          coverImage {
+            large
+          }
+          format
+          type
+        }
+        relationType
+      }
+    }
+    recommendations {
+      nodes {
+        mediaRecommendation {
+          id
+          title {
+            romaji
+            english
+          }
+          coverImage {
+            large
+          }
+          format
+          averageScore
+        }
+      }
+    }
     nextAiringEpisode {
       airingAt
       episode

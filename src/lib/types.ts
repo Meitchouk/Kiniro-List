@@ -32,17 +32,100 @@ export interface AniListMedia {
   genres?: string[] | null;
   season?: MediaSeason | null;
   seasonYear?: number | null;
+  startDate?: {
+    year?: number | null;
+    month?: number | null;
+    day?: number | null;
+  } | null;
+  endDate?: {
+    year?: number | null;
+    month?: number | null;
+    day?: number | null;
+  } | null;
   status?: MediaStatus | null;
   episodes?: number | null;
+  duration?: number | null;
   format?: MediaFormat | null;
   isAdult?: boolean | null;
   siteUrl?: string | null;
+  averageScore?: number | null;
+  meanScore?: number | null;
+  popularity?: number | null;
+  favourites?: number | null;
+  source?: string | null;
+  hashtag?: string | null;
+  studios?: {
+    nodes: {
+      id: number;
+      name: string;
+      isAnimationStudio: boolean;
+    }[];
+  } | null;
+  externalLinks?: ExternalLink[] | null;
+  streamingEpisodes?: StreamingEpisode[] | null;
+  trailer?: {
+    id?: string | null;
+    site?: string | null;
+    thumbnail?: string | null;
+  } | null;
+  tags?: MediaTag[] | null;
+  relations?: {
+    edges: RelationEdge[];
+  } | null;
+  recommendations?: {
+    nodes: RecommendationNode[];
+  } | null;
   nextAiringEpisode?: NextAiringEpisode | null;
   airingSchedule?: {
     nodes: Array<{
       airingAt: number;
       episode: number;
     }>;
+  };
+}
+
+export interface ExternalLink {
+  id: number;
+  url: string;
+  site: string;
+  type?: string | null;
+  language?: string | null;
+  color?: string | null;
+  icon?: string | null;
+}
+
+export interface StreamingEpisode {
+  title?: string | null;
+  thumbnail?: string | null;
+  url?: string | null;
+  site?: string | null;
+}
+
+export interface MediaTag {
+  id: number;
+  name: string;
+  rank?: number | null;
+  isMediaSpoiler?: boolean | null;
+}
+
+export interface RelationEdge {
+  node: {
+    id: number;
+    title: MediaTitle;
+    coverImage: MediaCoverImage;
+    format?: string | null;
+    type?: string | null;
+  };
+  relationType?: string | null;
+}
+
+export interface RecommendationNode {
+  mediaRecommendation: {
+    id: number;
+    title: MediaTitle;
+    coverImage: MediaCoverImage;
+    format?: string | null;
+    averageScore?: number | null;
   };
 }
 
@@ -123,6 +206,44 @@ export interface AnimeListResponse {
 }
 
 export interface AnimeDetailResponse extends AnimeCache {
+  startDate?: {
+    year?: number | null;
+    month?: number | null;
+    day?: number | null;
+  } | null;
+  endDate?: {
+    year?: number | null;
+    month?: number | null;
+    day?: number | null;
+  } | null;
+  duration?: number | null;
+  averageScore?: number | null;
+  meanScore?: number | null;
+  popularity?: number | null;
+  favourites?: number | null;
+  sourceType?: string | null;
+  hashtag?: string | null;
+  studios?: {
+    nodes: {
+      id: number;
+      name: string;
+      isAnimationStudio: boolean;
+    }[];
+  } | null;
+  externalLinks?: ExternalLink[] | null;
+  streamingEpisodes?: StreamingEpisode[] | null;
+  trailer?: {
+    id?: string | null;
+    site?: string | null;
+    thumbnail?: string | null;
+  } | null;
+  tags?: MediaTag[] | null;
+  relations?: {
+    edges: RelationEdge[];
+  } | null;
+  recommendations?: {
+    nodes: RecommendationNode[];
+  } | null;
   nextAiringAt?: string | null;
   nextEpisodeNumber?: number | null;
 }

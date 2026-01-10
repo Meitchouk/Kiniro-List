@@ -20,7 +20,7 @@ const locales = [
 
 export function LanguageSwitcher() {
   const router = useRouter();
-  const t = useTranslations("language");
+  const t = useTranslations();
   const { user, getAuthHeaders } = useAuth();
 
   const handleLocaleChange = async (locale: string) => {
@@ -41,7 +41,7 @@ export function LanguageSwitcher() {
         });
       } catch (error) {
         console.error("Failed to save locale preference:", error);
-        toast.error("Failed to save language preference");
+        toast.error(t("common.languageSaveError"));
       }
     }
 
@@ -54,7 +54,7 @@ export function LanguageSwitcher() {
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon">
           <Globe className="h-5 w-5" />
-          <span className="sr-only">{t("select")}</span>
+          <span className="sr-only">{t("language.select")}</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">

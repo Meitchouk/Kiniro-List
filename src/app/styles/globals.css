@@ -67,11 +67,39 @@
   --ring: 45 93% 47%;
 }
 
-* {
-  @apply border-border;
-}
-
 body {
   @apply bg-background text-foreground;
   font-feature-settings: "rlig" 1, "calt" 1;
+}
+
+/* Google One Tap */
+#credential_picker_container {
+  background-color: transparent !important;
+  z-index: 9999 !important; /* Asegura que esté por encima de todo */
+}
+
+#credential_picker_container iframe {
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  color-scheme: auto !important; /* Ayuda a que el navegador respete el tema */
+}
+
+@media (min-width: 1024px) {
+  #credential_picker_container {
+    top: 64px !important;
+  }
+}
+
+/* Loading Bar Animation */
+@keyframes loading-bar {
+  0% {
+    transform: translateX(-100%);
+  }
+  50% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
 }

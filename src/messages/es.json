@@ -11,11 +11,16 @@
     "add": "Agregar",
     "search": "Buscar",
     "noResults": "No se encontraron resultados",
+    "noImage": "Sin imagen",
     "login": "Iniciar sesión",
     "logout": "Cerrar sesión",
+    "logoutSuccess": "Sesión cerrada exitosamente",
+    "logoutError": "Error al cerrar sesión. Inténtalo de nuevo.",
+    "loginWith": "Iniciar sesión con",
     "loginWithGoogle": "Iniciar sesión con Google",
     "loginRequired": "Por favor inicia sesión para acceder a esta página",
-    "goToLogin": "Ir a iniciar sesión"
+    "goToLogin": "Ir a iniciar sesión",
+    "languageSaveError": "Error al guardar preferencia de idioma"
   },
   "nav": {
     "home": "Inicio",
@@ -75,7 +80,19 @@
     "viewOnAniList": "Ver en AniList",
     "nextEpisode": "Próximo Episodio",
     "episode": "Episodio {number}",
-    "adult": "Adulto"
+    "adult": "Adulto",
+    "synopsis": "Sinopsis",
+    "statistics": "Estadísticas",
+    "score": "Puntuación",
+    "popularity": "Popularidad",
+    "favourites": "Favoritos",
+    "duration": "Duración",
+    "studios": "Estudios",
+    "trailer": "Tráiler",
+    "externalLinks": "Enlaces",
+    "tags": "Etiquetas",
+    "relations": "Anime Relacionado",
+    "recommendations": "Recomendaciones"
   },
   "status": {
     "FINISHED": "Finalizado",
@@ -91,7 +108,25 @@
     "SPECIAL": "Especial",
     "OVA": "OVA",
     "ONA": "ONA",
-    "MUSIC": "Música"
+    "MUSIC": "Música",
+    "MANGA": "Manga",
+    "NOVEL": "Novela",
+    "ONE_SHOT": "One Shot"
+  },
+  "relationType": {
+    "ADAPTATION": "Adaptación",
+    "PREQUEL": "Precuela",
+    "SEQUEL": "Secuela",
+    "PARENT": "Historia Principal",
+    "SIDE_STORY": "Historia Paralela",
+    "CHARACTER": "Personaje",
+    "SUMMARY": "Resumen",
+    "ALTERNATIVE": "Alternativa",
+    "SPIN_OFF": "Spin-off",
+    "OTHER": "Otro",
+    "SOURCE": "Fuente",
+    "COMPILATION": "Recopilación",
+    "CONTAINS": "Contiene"
   },
   "libraryStatus": {
     "watching": "Viendo",
@@ -209,12 +244,15 @@
     "saveError": "Error al guardar la configuración"
   },
   "errors": {
+    "authConfigNotFound": "Google Sign-In no está habilitado en Firebase Authentication. Actívalo en Authentication > Sign-in method.",
+    "authProviderDisabled": "El proveedor de Google está deshabilitado. Habilítalo en Firebase Authentication.",
     "generic": "Algo salió mal",
     "network": "Error de red. Por favor intenta de nuevo.",
     "unauthorized": "Por favor inicia sesión para continuar",
     "notFound": "Página no encontrada",
     "rateLimit": "Demasiadas solicitudes. Por favor espera {seconds} segundos.",
-    "serverError": "Error del servidor. Por favor intenta más tarde."
+    "serverError": "Error del servidor. Por favor intenta más tarde.",
+    "retry": "Reintentar"
   },
   "pagination": {
     "previous": "Anterior",
