@@ -2,7 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { Button, Grid, Stack, Typography } from "@/components/ds";
 import { Settings, Library, Calendar } from "lucide-react";
 
 interface QuickNavItem {
@@ -27,15 +27,17 @@ export function ProfileQuickNav() {
   const t = useTranslations();
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+    <Grid cols={1} smCols={3} gap={4}>
       {navItems.map((item) => (
         <Link key={item.href} href={item.href}>
-          <Button variant="outline" className="w-full h-20 flex flex-col gap-2">
-            {icons[item.href]}
-            <span>{t(item.labelKey)}</span>
+          <Button variant="outline" className="w-full h-20">
+            <Stack align="center" gap={2}>
+              {icons[item.href]}
+              <Typography variant="body2">{t(item.labelKey)}</Typography>
+            </Stack>
           </Button>
         </Link>
       ))}
-    </div>
+    </Grid>
   );
 }

@@ -3,9 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Card, CardContent, Badge, Button, Typography, Flex } from "@/components/ds";
 import { LibraryStatusSelect } from "@/components/anime/LibraryStatusSelect";
 import { Trash2 } from "lucide-react";
 import type { LibraryStatus, LibraryEntryWithAnime } from "@/lib/types";
@@ -54,22 +52,22 @@ export function LibraryItemCard({
         </Link>
         <CardContent className="flex-1 p-3">
           <Link href={`/anime/${item.animeId}`}>
-            <h3 className="font-medium text-sm line-clamp-2 hover:text-primary transition-colors">
+            <Typography variant="body2" weight="medium" className="line-clamp-2 hover:text-primary transition-colors">
               {title}
-            </h3>
+            </Typography>
           </Link>
-          <div className="flex items-center gap-2 mt-1 mb-2">
+          <Flex align="center" gap={2} className="mt-1 mb-2">
             {item.anime?.format && (
               <Badge variant="outline" className="text-xs">
                 {item.anime.format}
               </Badge>
             )}
             {item.anime?.episodes && (
-              <span className="text-xs text-muted-foreground">
+              <Typography variant="caption" colorScheme="secondary">
                 {item.anime.episodes} {t("anime.episodes", { count: item.anime.episodes })}
-              </span>
+              </Typography>
             )}
-          </div>
+          </Flex>
           <div className="flex items-center gap-2">
             <LibraryStatusSelect
               value={item.status as LibraryStatus}

@@ -2,8 +2,19 @@
 
 import { useTranslations } from "next-intl";
 import { User } from "firebase/auth";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+  Typography,
+  Grid,
+  Stack,
+} from "@/components/ds";
 import { User as UserIcon } from "lucide-react";
 
 interface UserSettings {
@@ -41,26 +52,26 @@ export function ProfileHeaderCard({ user, userData }: ProfileHeaderCardProps) {
         </div>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <p className="text-sm text-muted-foreground">{t("settings.timezone")}</p>
-            <p className="font-medium">{userData?.timezone || "UTC"}</p>
-          </div>
-          <div>
-            <p className="text-sm text-muted-foreground">{t("settings.language")}</p>
-            <p className="font-medium">
+        <Grid cols={2} gap={4}>
+          <Stack>
+            <Typography variant="caption" colorScheme="secondary">{t("settings.timezone")}</Typography>
+            <Typography variant="body2" weight="medium">{userData?.timezone || "UTC"}</Typography>
+          </Stack>
+          <Stack>
+            <Typography variant="caption" colorScheme="secondary">{t("settings.language")}</Typography>
+            <Typography variant="body2" weight="medium">
               {userData?.locale === "es" ? "Español" : "English"}
-            </p>
-          </div>
-          <div>
-            <p className="text-sm text-muted-foreground">{t("settings.theme")}</p>
-            <p className="font-medium capitalize">{userData?.theme || "system"}</p>
-          </div>
-          <div>
-            <p className="text-sm text-muted-foreground">{t("settings.calendarView")}</p>
-            <p className="font-medium capitalize">{userData?.calendarView || "weekly"}</p>
-          </div>
-        </div>
+            </Typography>
+          </Stack>
+          <Stack>
+            <Typography variant="caption" colorScheme="secondary">{t("settings.theme")}</Typography>
+            <Typography variant="body2" weight="medium" className="capitalize">{userData?.theme || "system"}</Typography>
+          </Stack>
+          <Stack>
+            <Typography variant="caption" colorScheme="secondary">{t("settings.calendarView")}</Typography>
+            <Typography variant="body2" weight="medium" className="capitalize">{userData?.calendarView || "weekly"}</Typography>
+          </Stack>
+        </Grid>
       </CardContent>
     </Card>
   );

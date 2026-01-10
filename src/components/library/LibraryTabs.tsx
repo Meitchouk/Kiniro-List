@@ -1,9 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger, Badge, Card, CardContent, Typography, Grid } from "@/components/ds";
 import { LibraryItemCard } from "./LibraryItemCard";
 import type { LibraryStatus, LibraryEntryWithAnime } from "@/lib/types";
 
@@ -56,13 +54,13 @@ export function LibraryTabs({
           {getItemsByStatus(status).length === 0 ? (
             <Card>
               <CardContent className="py-8 text-center">
-                <p className="text-muted-foreground">
+                <Typography variant="body2" colorScheme="secondary">
                   {t("library.emptyStatus", { status: t(`library.${status}`) })}
-                </p>
+                </Typography>
               </CardContent>
             </Card>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <Grid cols={1} mdCols={2} lgCols={3} gap={4}>
               {getItemsByStatus(status).map((item) => (
                 <LibraryItemCard
                   key={item.animeId}
@@ -73,7 +71,7 @@ export function LibraryTabs({
                   isDeleting={isDeleting}
                 />
               ))}
-            </div>
+            </Grid>
           )}
         </TabsContent>
       ))}
