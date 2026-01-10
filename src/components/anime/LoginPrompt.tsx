@@ -2,13 +2,13 @@
 
 import { useTranslations } from "next-intl";
 import { GoogleButton } from "@/components/auth/GoogleButton";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, Center } from "@/components/ds";
 
 export function LoginPrompt() {
   const t = useTranslations("common");
 
   return (
-    <div className="flex min-h-[50vh] items-center justify-center">
+    <Center className="min-h-[50vh]">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <CardTitle>{t("loginRequired")}</CardTitle>
@@ -17,6 +17,6 @@ export function LoginPrompt() {
           <GoogleButton />
         </CardContent>
       </Card>
-    </div>
+    </Center>
   );
 }

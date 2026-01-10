@@ -31,11 +31,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Force refresh to avoid stale tokens after sign-in
       const token = await firebaseUser.getIdToken(true);
       const timezone = getTimezone();
-      const locale = document.cookie
-        .split("; ")
-        .find((row) => row.startsWith("NEXT_LOCALE="))
-        ?.split("=")[1] || "en";
-      
+      const locale =
+        document.cookie
+          .split("; ")
+          .find((row) => row.startsWith("NEXT_LOCALE="))
+          ?.split("=")[1] || "en";
+
       const response = await fetch("/api/me", {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -78,7 +79,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
 
     return () => unsubscribe();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const signIn = async () => {
@@ -108,9 +109,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const getAuthHeaders = async (
-    options?: { forceRefresh?: boolean }
-  ): Promise<Record<string, string>> => {
+  const getAuthHeaders = async (options?: {
+    forceRefresh?: boolean;
+  }): Promise<Record<string, string>> => {
     const token = await getIdToken(options?.forceRefresh);
     const timezone = userData?.timezone || getTimezone();
     const locale = userData?.locale || "en";

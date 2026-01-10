@@ -3,25 +3,20 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import type { AnimeCache } from "@/lib/types";
+import { Card, CardContent, Badge, Typography } from "@/components/ds";
 import { getLocalizedTitle } from "@/lib/utils/text";
-
-interface AnimeCardProps {
-  anime: AnimeCache;
-  showBadges?: boolean;
-}
+import type { AnimeCardProps } from "@/lib/types";
 
 export function AnimeCard({ anime, showBadges = true }: AnimeCardProps) {
   const t = useTranslations();
 
   const title = getLocalizedTitle(anime.title);
   const coverImage = anime.coverImage.extraLarge || anime.coverImage.large || "/placeholder.png";
+  const slug = anime.slug || "";
 
   return (
-    <Link href={`/anime/${anime.id}`}>
-      <Card className="group overflow-hidden transition-all hover:shadow-lg hover:-translate-y-1">
+    <Link href={`/anime/${slug}`}>
+      <Card className="group w-full overflow-hidden transition-all hover:-translate-y-1 hover:shadow-lg">
         <div className="relative aspect-3/4 overflow-hidden">
           <Image
             src={coverImage}
@@ -45,13 +40,13 @@ export function AnimeCard({ anime, showBadges = true }: AnimeCardProps) {
             </div>
           )}
         </div>
-        <CardContent className="p-3 h-32 flex flex-col">
-          <h3 className="line-clamp-3 text-sm font-medium leading-tight flex-1">
+        <CardContent className="flex h-32 flex-col p-3">
+          <Typography variant="body2" weight="medium" className="line-clamp-3 flex-1 leading-tight">
             {title}
-          </h3>
-          <p className="mt-1 text-xs text-muted-foreground h-4">
+          </Typography>
+          <Typography variant="caption" colorScheme="secondary" className="mt-1 h-4">
             {anime.episodes ? t("anime.episodes", { count: anime.episodes }) : "\u00A0"}
-          </p>
+          </Typography>
         </CardContent>
       </Card>
     </Link>

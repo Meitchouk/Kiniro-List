@@ -2,7 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { AlertCircle, RefreshCw } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button, Typography, IconWrapper, Stack } from "@/components/ds";
 
 interface ErrorBannerProps {
   message?: string;
@@ -13,17 +13,17 @@ export function ErrorBanner({ message, onRetry }: ErrorBannerProps) {
   const t = useTranslations("errors");
 
   return (
-    <div className="flex flex-col items-center justify-center gap-4 py-12">
-      <AlertCircle className="h-12 w-12 text-destructive" />
-      <p className="text-lg font-medium text-muted-foreground">
+    <Stack align="center" justify="center" gap={4} className="py-12">
+      <IconWrapper icon={AlertCircle} size="xl" colorScheme="destructive" />
+      <Typography variant="h6" colorScheme="secondary">
         {message || t("generic")}
-      </p>
+      </Typography>
       {onRetry && (
         <Button variant="outline" onClick={onRetry}>
           <RefreshCw className="mr-2 h-4 w-4" />
           {t("retry")}
         </Button>
       )}
-    </div>
+    </Stack>
   );
 }

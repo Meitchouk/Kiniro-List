@@ -3,18 +3,20 @@ import { requireAuth, AuthError } from "@/lib/auth/serverAuth";
 import { checkRateLimit, rateLimitResponse } from "@/lib/ratelimit";
 import { getAdminFirestore } from "@/lib/firebase/admin";
 import { Timestamp } from "firebase-admin/firestore";
-import { getBatchAiringInfo } from "@/lib/anilist/client";
-import { 
-  getManyAnimeFromCache, 
+import { getBatchAiringInfo, getBatchAnimeInfo } from "@/lib/anilist/client";
+import {
+  getManyAnimeFromCache,
   getManyAiringFromCache,
-  upsertManyAiringCache 
+  upsertManyAiringCache,
+  upsertManyAnimeCache,
 } from "@/lib/firestore/cache";
 import { getAiringStatusLabel, getSecondsToAir } from "@/lib/utils/date";
-import type { 
-  UserDocument, 
-  LibraryEntry, 
+import type {
+  UserDocument,
+  LibraryEntry,
   CalendarAnimeItem,
-  AnimeAiringCache 
+  AnimeAiringCache,
+  AnimeCache,
 } from "@/lib/types";
 
 export async function GET(request: NextRequest) {
@@ -53,7 +55,7 @@ export async function GET(request: NextRequest) {
 
     // Get library entries
     let libraryQuery = db.collection("users").doc(uid).collection("library");
-    
+
     // Filter by watching if enabled
     if (userData.filters.onlyWatching) {
       libraryQuery = libraryQuery.where("status", "==", "watching") as typeof libraryQuery;
@@ -86,21 +88,76 @@ export async function GET(request: NextRequest) {
     // Get anime metadata from cache
     const animeCache = await getManyAnimeFromCache(animeIds);
 
-    // Get airing info from cache
-    const airingCache = await getManyAiringFromCache(animeIds);
-
-    // Find IDs that need fresh airing info
-    const staleAiringIds = animeIds.filter((id) => {
+    // Find anime that are missing from cache, don't have status info, or don't have streamingLinks
+    const missingOrStaleIds = animeIds.filter((id) => {
       const anime = animeCache.get(id);
-      // Only fetch for releasing anime
-      return anime?.status === "RELEASING" && !airingCache.has(id);
+      return (
+        !anime ||
+        anime.status === undefined ||
+        anime.status === null ||
+        anime.streamingLinks === undefined
+      );
     });
+
+    // Fetch missing anime from AniList and update cache
+    if (missingOrStaleIds.length > 0) {
+      const freshAnime = await getBatchAnimeInfo(missingOrStaleIds);
+      if (freshAnime.length > 0) {
+        await upsertManyAnimeCache(freshAnime);
+
+        // Update local cache with fresh data
+        for (const media of freshAnime) {
+          // Extract streaming links
+          const streamingLinks =
+            media.externalLinks
+              ?.filter((link) => link.type === "STREAMING")
+              .map((link) => ({ site: link.site, url: link.url, icon: link.icon })) || [];
+
+          const cacheEntry: AnimeCache = {
+            id: media.id,
+            title: media.title,
+            coverImage: media.coverImage,
+            bannerImage: media.bannerImage,
+            description: media.description,
+            genres: media.genres || [],
+            season: media.season,
+            seasonYear: media.seasonYear,
+            status: media.status,
+            episodes: media.episodes,
+            format: media.format,
+            isAdult: media.isAdult || false,
+            siteUrl: media.siteUrl,
+            streamingLinks,
+            source: "anilist",
+            updatedAt: new Date(),
+          };
+          animeCache.set(media.id, cacheEntry);
+        }
+      }
+    }
+
+    // Filter to only anime that are RELEASING (currently airing)
+    const releasingAnimeIds = animeIds.filter((id) => {
+      const anime = animeCache.get(id);
+      return anime?.status === "RELEASING";
+    });
+
+    // If no releasing anime, return empty calendar
+    if (releasingAnimeIds.length === 0) {
+      return NextResponse.json({ items: [] });
+    }
+
+    // Get airing info from cache for releasing anime
+    const airingCache = await getManyAiringFromCache(releasingAnimeIds);
+
+    // Find IDs that need fresh airing info (not in cache or stale)
+    const staleAiringIds = releasingAnimeIds.filter((id) => !airingCache.has(id));
 
     // Batch fetch fresh airing info for stale entries
     if (staleAiringIds.length > 0) {
       const freshAiring = await getBatchAiringInfo(staleAiringIds);
       await upsertManyAiringCache(freshAiring);
-      
+
       // Update local cache
       for (const [id, data] of freshAiring) {
         if (data) {
@@ -116,12 +173,15 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Build calendar items
+    // Build calendar items - only include RELEASING anime
     const items: CalendarAnimeItem[] = [];
 
     for (const entry of libraryEntries) {
       const anime = animeCache.get(entry.animeId);
       if (!anime) continue;
+
+      // Only include RELEASING anime in the calendar
+      if (anime.status !== "RELEASING") continue;
 
       // Filter adult content if enabled
       if (userData.filters.hideAdult && anime.isAdult) continue;

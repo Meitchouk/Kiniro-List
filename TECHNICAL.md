@@ -3,11 +3,12 @@
 ## Table of Contents
 1. [Tech Stack](#tech-stack)
 2. [Project Structure](#project-structure)
-3. [Setup Instructions](#setup-instructions)
-4. [Environment Variables](#environment-variables)
-5. [API Endpoints](#api-endpoints)
-6. [Caching Strategy](#caching-strategy)
-7. [Architecture](#architecture)
+3. [Design System](#design-system)
+4. [Setup Instructions](#setup-instructions)
+5. [Environment Variables](#environment-variables)
+6. [API Endpoints](#api-endpoints)
+7. [Caching Strategy](#caching-strategy)
+8. [Architecture](#architecture)
 
 ---
 
@@ -135,6 +136,304 @@ kiniro-list/
 ├── TECHNICAL.md
 ├── LICENSE
 └── .env.example
+```
+
+---
+
+## Design System
+
+The project includes a centralized Design System located at `src/components/ds/`. It provides reusable, accessible components and design tokens to ensure visual consistency across the application.
+
+### Structure
+
+```
+src/components/ds/
+├── index.ts                    # Main barrel export
+├── foundations/
+│   ├── index.ts
+│   └── tokens.ts               # Design tokens (colors, spacing, typography)
+├── atoms/                      # Basic building blocks
+│   ├── index.ts
+│   ├── Typography.tsx          # Text component with variants
+│   ├── Box.tsx                 # Layout primitives (Box, Flex, Stack, Center, Container)
+│   ├── Grid.tsx                # Responsive grid layouts
+│   ├── TextField.tsx           # Enhanced input with label/error states
+│   ├── TextArea.tsx            # Multi-line text input
+│   ├── IconWrapper.tsx         # Icon sizing and accessibility
+│   ├── Divider.tsx             # Horizontal/vertical dividers
+│   └── Spacer.tsx              # Fixed-size spacing element
+├── molecules/                  # Composed components
+│   ├── index.ts
+│   ├── Alert.tsx               # Feedback alerts (info, success, warning, error)
+│   ├── Spinner.tsx             # Loading indicators and overlays
+│   ├── Progress.tsx            # Progress bar with variants
+│   ├── Tooltip.tsx             # Tooltip wrapper
+│   ├── EmptyState.tsx          # Empty/no-results states
+│   └── FormField.tsx           # Form field wrapper with validation
+└── organisms/                  # Complex components
+    ├── index.ts
+    ├── Section.tsx             # Page section with title/subtitle
+    ├── PageHeader.tsx          # Page header with back navigation
+    └── PageLayout.tsx          # Full page layout wrapper
+```
+
+### Importing Components
+
+```tsx
+// Import specific components
+import { Typography, Button, TextField, Card, Box, IconWrapper } from '@/components/ds';
+
+// Import tokens for programmatic access
+import { colors, spacing, typography } from '@/components/ds/foundations';
+```
+
+### Using Typography
+
+```tsx
+// Semantic headings (h1-h6)
+<Typography variant="h1">Main Title</Typography>
+<Typography variant="h2">Section Title</Typography>
+
+// Body text variants
+<Typography variant="body1">Regular paragraph text</Typography>
+<Typography variant="body2">Smaller text</Typography>
+<Typography variant="caption">Caption or helper text</Typography>
+
+// With modifiers
+<Typography variant="h3" weight="medium" align="center">
+  Centered Medium Title
+</Typography>
+
+// Color variants
+<Typography variant="body1" colorScheme="primary">Primary colored</Typography>
+<Typography variant="body1" colorScheme="destructive">Error text</Typography>
+
+// Truncation
+<Typography variant="body1" truncate>Very long text that will be truncated...</Typography>
+<Typography variant="body1" lineClamp={2}>Multi-line clamping...</Typography>
+```
+
+### Using Button
+
+Uses shadcn/ui Button with CVA variants:
+
+```tsx
+import { Button } from '@/components/ds';
+
+<Button variant="default">Primary Action</Button>
+<Button variant="secondary">Secondary</Button>
+<Button variant="destructive">Delete</Button>
+<Button variant="outline">Outline</Button>
+<Button variant="ghost">Ghost</Button>
+<Button variant="link">Link Style</Button>
+<Button size="sm">Small</Button>
+<Button size="lg">Large</Button>
+```
+
+### Using TextField
+
+```tsx
+import { TextField } from '@/components/ds';
+
+<TextField
+  label="Email"
+  placeholder="Enter your email"
+  helperText="We'll never share your email"
+/>
+
+<TextField
+  label="Password"
+  type="password"
+  errorText="Password is required"
+  error
+/>
+
+// With adornments
+<TextField
+  label="Search"
+  startAdornment={<SearchIcon className="h-4 w-4" />}
+/>
+```
+
+### Using Layout Components
+
+```tsx
+import { Box, Flex, Stack, Container, Grid } from '@/components/ds';
+
+// Basic box
+<Box p={4} rounded="md" bg="card">Content</Box>
+
+// Flexbox layouts
+<Flex justify="between" align="center" gap={4}>
+  <div>Left</div>
+  <div>Right</div>
+</Flex>
+
+// Stack (vertical flex)
+<Stack gap={4}>
+  <div>Item 1</div>
+  <div>Item 2</div>
+</Stack>
+
+// Container with max-width
+<Container maxWidth="xl" px={4}>
+  Page content
+</Container>
+
+// Responsive grid
+<Grid cols={1} mdCols={2} lgCols={3} gap={6}>
+  <Card>Card 1</Card>
+  <Card>Card 2</Card>
+  <Card>Card 3</Card>
+</Grid>
+```
+
+### Using IconWrapper
+
+```tsx
+import { IconWrapper, Icon } from '@/components/ds';
+import { Star, Heart } from 'lucide-react';
+
+// Accessible icon with label
+<IconWrapper icon={Star} size="lg" label="Favorite" />
+
+// Decorative icon (hidden from screen readers)
+<IconWrapper icon={Heart} size="md" decorative />
+
+// Simple icon (no wrapper span)
+<Icon icon={Star} size="sm" colorScheme="primary" />
+```
+
+### Using Feedback Components
+
+```tsx
+import { Alert, Spinner, Progress, EmptyState } from '@/components/ds';
+
+// Alerts
+<Alert variant="info" title="Information">
+  This is an informational message.
+</Alert>
+<Alert variant="destructive" title="Error" dismissible>
+  Something went wrong.
+</Alert>
+
+// Spinners
+<Spinner size="lg" />
+<LoadingOverlay visible text="Loading..." />
+
+// Progress
+<Progress value={75} showLabel />
+<Progress indeterminate variant="primary" />
+
+// Empty states
+<EmptyState
+  icon={InboxIcon}
+  title="No results"
+  description="Try adjusting your search"
+  action={<Button>Clear filters</Button>}
+/>
+```
+
+### Design Tokens
+
+All design values are centralized in `src/components/ds/foundations/tokens.ts`:
+
+```tsx
+import {
+  colors,         // Semantic colors (primary, background, card, etc.)
+  spacing,        // Spacing scale (0, 1, 2, 4, 8, 12, 16, etc.)
+  typography,     // Font families, sizes, weights, line heights
+  borderRadius,   // Radius tokens (none, sm, md, lg, full)
+  shadows,        // Shadow tokens (sm, md, lg, xl)
+  transitions,    // Animation durations and easings
+  zIndex,         // Z-index scale
+  breakpoints,    // Responsive breakpoints
+  iconSizes,      // Icon size tokens
+} from '@/components/ds/foundations';
+```
+
+### Theme Integration
+
+The DS uses CSS variables defined in `globals.css`. Theme switching (light/dark) is handled via `next-themes` with the `.dark` class:
+
+```css
+:root {
+  --background: 0 0% 100%;
+  --foreground: 224 71.4% 4.1%;
+  --primary: 220.9 39.3% 11%;
+  /* ... */
+}
+
+.dark {
+  --background: 224 71.4% 4.1%;
+  --foreground: 210 20% 98%;
+  --primary: 210 20% 98%;
+  /* ... */
+}
+```
+
+### Adding New Components
+
+1. Determine the component level (atom, molecule, organism)
+2. Create the component file in the appropriate folder
+3. Use CVA for variants when needed
+4. Export from the folder's `index.ts`
+5. Re-export from the main `src/components/ds/index.ts` if needed
+
+**Conventions:**
+- Use `colorScheme` instead of `color` for color variants (to avoid conflicts with HTML attributes)
+- Always support `className` prop for custom styles
+- Use `forwardRef` for all components
+- Add JSDoc comments for props
+- Use CSS variables via Tailwind classes (e.g., `text-primary`, `bg-card`)
+
+**Example new atom:**
+
+```tsx
+// src/components/ds/atoms/MyComponent.tsx
+import * as React from "react";
+import { cva, type VariantProps } from "class-variance-authority";
+import { cn } from "@/lib/utils";
+
+const myComponentVariants = cva("base-classes", {
+  variants: {
+    size: {
+      sm: "h-8",
+      md: "h-10",
+      lg: "h-12",
+    },
+  },
+  defaultVariants: {
+    size: "md",
+  },
+});
+
+export interface MyComponentProps
+  extends React.HTMLAttributes<HTMLDivElement>,
+    VariantProps<typeof myComponentVariants> {}
+
+const MyComponent = React.forwardRef<HTMLDivElement, MyComponentProps>(
+  ({ className, size, ...props }, ref) => {
+    return (
+      <div
+        ref={ref}
+        className={cn(myComponentVariants({ size }), className)}
+        {...props}
+      />
+    );
+  }
+);
+MyComponent.displayName = "MyComponent";
+
+export { MyComponent, myComponentVariants };
+```
+
+Then add to exports:
+
+```tsx
+// src/components/ds/atoms/index.ts
+export { MyComponent, myComponentVariants } from './MyComponent';
+export type { MyComponentProps } from './MyComponent';
 ```
 
 ---

@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAllSeasonAnime, paginateLocally } from "@/lib/anilist/client";
-import { 
-  upsertManyAnimeCache, 
+import {
+  upsertManyAnimeCache,
   getManyAnimeFromCache,
   getSeasonFromCache,
-  upsertSeasonCache 
+  upsertSeasonCache,
 } from "@/lib/firestore/cache";
 import { checkRateLimit, rateLimitResponse } from "@/lib/ratelimit";
 import { paginationSchema } from "@/lib/schemas";
@@ -28,10 +28,7 @@ export async function GET(request: NextRequest) {
     });
 
     if (!parseResult.success) {
-      return NextResponse.json(
-        { error: "Invalid query parameters" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Invalid query parameters" }, { status: 400 });
     }
 
     const { page } = parseResult.data;
@@ -44,8 +41,8 @@ export async function GET(request: NextRequest) {
     if (!allAnimeIds) {
       // Cache miss: fetch ALL anime from AniList for this season
       allMedia = await getAllSeasonAnime(season, year);
-      allAnimeIds = allMedia.map(m => m.id);
-      
+      allAnimeIds = allMedia.map((m) => m.id);
+
       // Cache the season anime IDs and individual anime data
       if (allMedia.length > 0) {
         await Promise.all([
@@ -62,7 +59,7 @@ export async function GET(request: NextRequest) {
     let anime: AnimeCache[];
     if (allMedia.length > 0) {
       // We just fetched from AniList, use that data
-      const paginatedMedia = allMedia.filter(m => paginatedIds.includes(m.id));
+      const paginatedMedia = allMedia.filter((m) => paginatedIds.includes(m.id));
       anime = paginatedMedia.map((m) => ({
         id: m.id,
         title: m.title,
@@ -84,7 +81,7 @@ export async function GET(request: NextRequest) {
       // Get from cache
       const cachedAnime = await getManyAnimeFromCache(paginatedIds);
       anime = paginatedIds
-        .map(id => cachedAnime.get(id))
+        .map((id) => cachedAnime.get(id))
         .filter((a): a is AnimeCache => a !== undefined);
     }
 
@@ -96,9 +93,6 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     console.error("Calendar now error:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch current season" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to fetch current season" }, { status: 500 });
   }
 }

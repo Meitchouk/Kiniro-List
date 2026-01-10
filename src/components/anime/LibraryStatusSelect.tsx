@@ -1,34 +1,11 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import type { LibraryStatus } from "@/lib/types";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ds";
+import { LIBRARY_STATUSES } from "@/lib/constants";
+import type { LibraryStatusSelectProps } from "@/lib/types";
 
-interface LibraryStatusSelectProps {
-  value: LibraryStatus;
-  onChange: (value: LibraryStatus) => void;
-  disabled?: boolean;
-}
-
-const statuses: LibraryStatus[] = [
-  "watching",
-  "planned",
-  "completed",
-  "paused",
-  "dropped",
-];
-
-export function LibraryStatusSelect({
-  value,
-  onChange,
-  disabled,
-}: LibraryStatusSelectProps) {
+export function LibraryStatusSelect({ value, onChange, disabled }: LibraryStatusSelectProps) {
   const t = useTranslations("libraryStatus");
 
   return (
@@ -37,7 +14,7 @@ export function LibraryStatusSelect({
         <SelectValue />
       </SelectTrigger>
       <SelectContent>
-        {statuses.map((status) => (
+        {LIBRARY_STATUSES.map((status) => (
           <SelectItem key={status} value={status}>
             {t(status)}
           </SelectItem>

@@ -77,7 +77,5 @@ export function LoadingProvider({ children }: { children: ReactNode }) {
     [loadingKeys.size, isInitialLoading, startLoading, stopLoading, setInitialLoading]
   );
 
-  return (
-    <LoadingContext.Provider value={value}>{children}</LoadingContext.Provider>
-  );
+  return <LoadingContext.Provider value={value}>{children}</LoadingContext.Provider>;
 }

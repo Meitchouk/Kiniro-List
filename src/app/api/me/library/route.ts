@@ -110,11 +110,7 @@ export async function POST(request: NextRequest) {
     const { animeId, status, pinned, notes } = parseResult.data;
 
     const db = getAdminFirestore();
-    const libraryRef = db
-      .collection("users")
-      .doc(uid)
-      .collection("library")
-      .doc(String(animeId));
+    const libraryRef = db.collection("users").doc(uid).collection("library").doc(String(animeId));
 
     const existingDoc = await libraryRef.get();
 

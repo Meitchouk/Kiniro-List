@@ -53,15 +53,13 @@ export function LoadingBar() {
       {/* Loading Bar */}
       <div
         className={`w-full ${
-          isMobile && isSticky
-            ? "fixed top-0 left-0 right-0 z-100 bg-background"
-            : ""
+          isMobile && isSticky ? "bg-background fixed top-0 right-0 left-0 z-100" : ""
         }`}
       >
-        <div className="h-1 bg-muted overflow-hidden">
+        <div className="bg-muted h-1 overflow-hidden">
           {showLoading ? (
             <div
-              className="h-full w-full bg-linear-to-r from-primary via-yellow-400 to-primary"
+              className="from-primary to-primary h-full w-full bg-linear-to-r via-yellow-400"
               style={{
                 animation: "loading-bar 1.5s ease-in-out infinite",
               }}
@@ -75,7 +73,7 @@ export function LoadingBar() {
       {/* Blocking Overlay */}
       {showLoading && (
         <div
-          className="fixed inset-0 z-99 bg-background/30 cursor-wait"
+          className="bg-background/30 fixed inset-0 z-99 cursor-wait"
           onClick={(e) => e.stopPropagation()}
           onKeyDown={(e) => e.stopPropagation()}
           aria-hidden="true"

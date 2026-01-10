@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
 
     while (hasMore && page <= 3) {
       const { media, pageInfo } = await getReleasingAnime(page, 50);
-      
+
       // Cache anime metadata
       if (media.length > 0) {
         await upsertManyAnimeCache(media);
@@ -83,9 +83,6 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ schedule });
   } catch (error) {
     console.error("Weekly schedule error:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch weekly schedule" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to fetch weekly schedule" }, { status: 500 });
   }
 }

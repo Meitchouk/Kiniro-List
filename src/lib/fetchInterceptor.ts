@@ -7,10 +7,7 @@ let startLoadingCallback: LoadingCallback | null = null;
 let stopLoadingCallback: LoadingCallback | null = null;
 let requestCounter = 0;
 
-export function setLoadingCallbacks(
-  start: LoadingCallback,
-  stop: LoadingCallback
-) {
+export function setLoadingCallbacks(start: LoadingCallback, stop: LoadingCallback) {
   startLoadingCallback = start;
   stopLoadingCallback = stop;
 }
@@ -26,7 +23,7 @@ export async function fetchWithLoading(
   init?: RequestInit
 ): Promise<Response> {
   const key = `fetch-${++requestCounter}`;
-  
+
   try {
     startLoadingCallback?.(key);
     return await fetch(input, init);
