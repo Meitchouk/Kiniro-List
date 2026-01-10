@@ -4,7 +4,7 @@ import { useTranslations } from 'next-intl';
 import { useAuth } from '@/components/providers/AuthProvider';
 import { useQuery } from '@tanstack/react-query';
 import { getCurrentUser, getMyCalendar, setAuthHeadersGetter } from '@/lib/api';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -15,7 +15,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { DateTime } from 'luxon';
 import { useMemo } from 'react';
-import type { CalendarAnimeItem, AiringStatusLabel } from '@/lib/types';
+import type { CalendarAnimeItem } from '@/lib/types';
 
 export default function MyCalendarPage() {
   const t = useTranslations();

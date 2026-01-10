@@ -98,7 +98,7 @@ export default function WeeklySchedulePage() {
                     <Link key={item.anime.id} href={`/anime/${item.anime.id}`}>
                       <Card className="transition-all hover:shadow-md hover:-translate-y-0.5">
                         <CardContent className="flex gap-4 p-4">
-                          <div className="relative h-20 w-14 flex-shrink-0 overflow-hidden rounded">
+                          <div className="relative h-20 w-14 shrink-0 overflow-hidden rounded">
                             <Image
                               src={coverImage}
                               alt={title}

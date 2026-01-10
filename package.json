@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "check": "eslint . && tsc --noEmit && npm run build",
+    "env:init": "node scripts/env-init.js",
+    "env:from-firebase": "node scripts/env-from-firebase.js"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",

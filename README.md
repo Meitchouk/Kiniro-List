@@ -31,7 +31,7 @@ An anime calendar + personal tracker app built with Next.js, TailwindCSS, and Fi
 
 ## Prerequisites
 
-- Node.js 18+ 
+- Node.js 18+
 - npm or yarn
 - Firebase account
 - Upstash account

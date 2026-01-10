@@ -79,12 +79,11 @@ export default function SettingsPage() {
   }, []);
 
   const {
-    register,
     handleSubmit,
     setValue,
     watch,
     reset,
-    formState: { errors, isDirty },
+    formState: { isDirty },
   } = useForm<SettingsFormData>({
     resolver: zodResolver(settingsSchema),
     defaultValues: {

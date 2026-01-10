@@ -87,7 +87,7 @@ export async function GET(request: NextRequest) {
     const animeCache = await getManyAnimeFromCache(animeIds);
 
     // Get airing info from cache
-    let airingCache = await getManyAiringFromCache(animeIds);
+    const airingCache = await getManyAiringFromCache(animeIds);
 
     // Find IDs that need fresh airing info
     const staleAiringIds = animeIds.filter((id) => {

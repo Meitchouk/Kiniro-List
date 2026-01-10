@@ -35,7 +35,7 @@ export async function GET(
 
     // Try cache first
     let anime = await getAnimeFromCache(animeId);
-    let needsFetch = !anime;
+    const needsFetch = !anime;
 
     if (needsFetch) {
       // Fetch from AniList

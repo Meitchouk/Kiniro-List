@@ -22,7 +22,7 @@ export function AnimeCard({ anime, showBadges = true }: AnimeCardProps) {
   return (
     <Link href={`/anime/${anime.id}`}>
       <Card className="group overflow-hidden transition-all hover:shadow-lg hover:-translate-y-1">
-        <div className="relative aspect-[3/4] overflow-hidden">
+        <div className="relative aspect-3/4 overflow-hidden">
           <Image
             src={coverImage}
             alt={title}

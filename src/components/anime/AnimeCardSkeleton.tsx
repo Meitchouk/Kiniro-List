@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 export function AnimeCardSkeleton() {
   return (
     <Card className="overflow-hidden">
-      <Skeleton className="aspect-[3/4] w-full" />
+      <Skeleton className="aspect-3/4 w-full" />
       <CardContent className="p-3">
         <Skeleton className="h-4 w-full" />
         <Skeleton className="mt-2 h-3 w-1/2" />
@@ -29,8 +29,8 @@ export function AnimeDetailSkeleton() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex flex-col gap-8 md:flex-row">
-        <div className="flex-shrink-0">
-          <Skeleton className="h-[400px] w-[280px] rounded-lg" />
+        <div className="shrink-0">
+          <Skeleton className="h-100 w-70ded-lg" />
         </div>
         <div className="flex-1 space-y-4">
           <Skeleton className="h-8 w-3/4" />

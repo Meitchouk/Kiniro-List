@@ -33,7 +33,7 @@ export function LibraryStatusSelect({
 
   return (
     <Select value={value} onValueChange={onChange} disabled={disabled}>
-      <SelectTrigger className="w-[180px]">
+      <SelectTrigger className="w-45">
         <SelectValue />
       </SelectTrigger>
       <SelectContent>

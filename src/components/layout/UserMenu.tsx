@@ -67,7 +67,7 @@ export function UserMenu() {
               <p className="font-medium">{user.displayName}</p>
             )}
             {user.email && (
-              <p className="w-[200px] truncate text-sm text-muted-foreground">
+              <p className="w-50 truncate text-sm text-muted-foreground">
                 {user.email}
               </p>
             )}

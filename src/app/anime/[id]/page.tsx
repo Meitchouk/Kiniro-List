@@ -111,14 +111,14 @@ export default function AnimeDetailPage({ params }: { params: Promise<{ id: stri
             className="object-cover"
             priority
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-background to-transparent" />
+          <div className="absolute inset-0 bg-linear-to-t from-background to-transparent" />
         </div>
       )}
 
       <div className="flex flex-col gap-8 md:flex-row">
         {/* Cover Image */}
-        <div className="flex-shrink-0">
-          <div className="relative mx-auto h-[400px] w-[280px] overflow-hidden rounded-lg shadow-xl md:mx-0">
+        <div className="shrink-0">
+          <div className="relative mx-auto h-100 w-70 overflow-hidden rounded-lg shadow-xl md:mx-0">
             <Image
               src={coverImage}
               alt={title}
