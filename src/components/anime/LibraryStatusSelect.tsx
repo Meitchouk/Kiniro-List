@@ -7,7 +7,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@/components/ds";
 import { LIBRARY_STATUSES } from "@/lib/constants";
 import type { LibraryStatusSelectProps } from "@/lib/types";
 

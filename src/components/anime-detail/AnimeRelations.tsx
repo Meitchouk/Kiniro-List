@@ -3,8 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle, Badge, Grid, Typography } from "@/components/ds";
 import { getLocalizedTitle } from "@/lib/utils/text";
 import type { RelationEdge } from "@/lib/types";
 
@@ -27,7 +26,7 @@ export function AnimeRelations({ relations, maxItems = 6 }: AnimeRelationsProps)
         <CardTitle>{t("anime.relations")}</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="grid gap-4 sm:grid-cols-2">
+        <Grid cols={1} smCols={2} gap={4}>
           {relations.slice(0, maxItems).map((edge, index) => (
             <Link
               key={`relation-${edge.node.id}-${index}`}
@@ -43,12 +42,12 @@ export function AnimeRelations({ relations, maxItems = 6 }: AnimeRelationsProps)
                 />
               </div>
               <div className="flex-1 space-y-1">
-                <p className="text-xs text-muted-foreground">
+                <Typography variant="caption" colorScheme="secondary">
                   {edge.relationType && t(`relationType.${edge.relationType}`)}
-                </p>
-                <p className="line-clamp-2 text-sm font-medium">
+                </Typography>
+                <Typography variant="body2" weight="medium" className="line-clamp-2">
                   {getLocalizedTitle(edge.node.title)}
-                </p>
+                </Typography>
                 {edge.node.format && (
                   <Badge variant="outline" className="text-xs">
                     {t(`format.${edge.node.format}`)}
@@ -57,7 +56,7 @@ export function AnimeRelations({ relations, maxItems = 6 }: AnimeRelationsProps)
               </div>
             </Link>
           ))}
-        </div>
+        </Grid>
       </CardContent>
     </Card>
   );

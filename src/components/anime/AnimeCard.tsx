@@ -3,8 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, Badge, Typography } from "@/components/ds";
 import { getLocalizedTitle } from "@/lib/utils/text";
 import type { AnimeCardProps } from "@/lib/types";
 
@@ -41,12 +40,12 @@ export function AnimeCard({ anime, showBadges = true }: AnimeCardProps) {
           )}
         </div>
         <CardContent className="p-3 h-32 flex flex-col">
-          <h3 className="line-clamp-3 text-sm font-medium leading-tight flex-1">
+          <Typography variant="body2" weight="medium" className="line-clamp-3 leading-tight flex-1">
             {title}
-          </h3>
-          <p className="mt-1 text-xs text-muted-foreground h-4">
+          </Typography>
+          <Typography variant="caption" colorScheme="secondary" className="mt-1 h-4">
             {anime.episodes ? t("anime.episodes", { count: anime.episodes }) : "\u00A0"}
-          </p>
+          </Typography>
         </CardContent>
       </Card>
     </Link>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { Badge } from "@/components/ui/badge";
+import { Badge, Flex } from "@/components/ds";
 import { Calendar } from "lucide-react";
 import type { MediaFormat, MediaStatus, MediaSeason } from "@/lib/types";
 
@@ -35,7 +35,7 @@ export function AnimeInfoBadges({
     : null;
 
   return (
-    <div className="flex flex-wrap gap-2">
+    <Flex wrap="wrap" gap={2}>
       {format && <Badge>{t(`format.${format}`)}</Badge>}
       {status && <Badge variant="secondary">{t(`status.${status}`)}</Badge>}
       {episodes && (
@@ -53,6 +53,6 @@ export function AnimeInfoBadges({
         </Badge>
       )}
       {isAdult && <Badge variant="destructive">{t("anime.adult")}</Badge>}
-    </div>
+    </Flex>
   );
 }

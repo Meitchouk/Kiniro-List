@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, Typography } from "@/components/ds";
 
 interface AnimeSynopsisProps {
   description?: string | null;
@@ -21,9 +21,9 @@ export function AnimeSynopsis({ description }: AnimeSynopsisProps) {
         <CardTitle>{t("synopsis")}</CardTitle>
       </CardHeader>
       <CardContent>
-        <p className="whitespace-pre-line text-muted-foreground leading-relaxed">
+        <Typography variant="body2" colorScheme="secondary" className="whitespace-pre-line leading-relaxed">
           {description.replace(/<br\s*\/?>/gi, "\n")}
-        </p>
+        </Typography>
       </CardContent>
     </Card>
   );

@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, Typography, Stack } from "@/components/ds";
 
 interface Studio {
   id: number;
@@ -28,13 +28,13 @@ export function AnimeStudiosCard({ studios }: AnimeStudiosCardProps) {
         <CardTitle className="text-lg">{t("studios")}</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="space-y-2">
+        <Stack gap={2}>
           {animationStudios.map((studio, index) => (
-            <div key={`studio-${studio.id}-${index}`} className="text-sm font-medium">
+            <Typography key={`studio-${studio.id}-${index}`} variant="body2" weight="medium">
               {studio.name}
-            </div>
+            </Typography>
           ))}
-        </div>
+        </Stack>
       </CardContent>
     </Card>
   );

@@ -1,8 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle, Badge } from "@/components/ds";
 import { Star, Heart, Clock, TrendingUp } from "lucide-react";
 
 interface AnimeStatsCardProps {

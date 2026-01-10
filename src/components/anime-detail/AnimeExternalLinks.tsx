@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useTranslations } from "next-intl";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ds";
 import { ExternalLink, Globe2, Link as LinkIcon } from "lucide-react";
 
 interface ExternalLinkItem {

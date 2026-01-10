@@ -1,8 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle, Badge, Flex } from "@/components/ds";
 import type { MediaTag } from "@/lib/types";
 
 interface AnimeGenresProps {
@@ -28,13 +27,13 @@ export function AnimeGenres({ genres, tags }: AnimeGenresProps) {
             <CardTitle>{t("genres")}</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex flex-wrap gap-2">
+            <Flex wrap="wrap" gap={2}>
               {genres.map((genre, index) => (
                 <Badge key={`genre-${genre}-${index}`} variant="secondary">
                   {genre}
                 </Badge>
               ))}
-            </div>
+            </Flex>
           </CardContent>
         </Card>
       )}

@@ -2,7 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button, Typography } from "@/components/ds";
 import type { PaginationProps } from "@/lib/types";
 
 export function Pagination({ 
@@ -44,13 +44,13 @@ export function Pagination({
             <ChevronLeft className="h-4 w-4" />
           </Button>
         </div>
-        <span className="text-sm text-muted-foreground">
+        <Typography variant="body2" colorScheme="secondary">
           {lastPage > 0 
             ? t("page", { current: currentPage, total: lastPage })
             : t("pageSimple", { current: currentPage })
           }
           {total > 0 && <span className="text-xs ml-1">({total})</span>}
-        </span>
+        </Typography>
         <div className="flex gap-1">
           <Button
             variant="outline"
@@ -141,13 +141,13 @@ export function Pagination({
           {t("previous")}
         </Button>
 
-        <span className="text-sm text-muted-foreground px-2">
+        <Typography variant="body2" colorScheme="secondary" className="px-2">
           {lastPage > 0 
             ? t("page", { current: currentPage, total: lastPage })
             : t("pageSimple", { current: currentPage })
           }
           {total > 0 && <span className="text-xs ml-1">({total} {t("items")})</span>}
-        </span>
+        </Typography>
 
         <Button
           variant="outline"
@@ -171,13 +171,13 @@ export function Pagination({
       </div>
 
       {/* Mobile page indicator */}
-      <div className="md:hidden text-center text-xs text-muted-foreground">
+      <Typography variant="caption" colorScheme="secondary" align="center" className="md:hidden">
         {lastPage > 0 
           ? t("page", { current: currentPage, total: lastPage })
           : t("pageSimple", { current: currentPage })
         }
         {total > 0 && <span className="ml-1">({total})</span>}
-      </div>
+      </Typography>
     </div>
   );
 }

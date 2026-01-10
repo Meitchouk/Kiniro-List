@@ -1,8 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle, Button, Grid } from "@/components/ds";
 import type { LibraryStatus } from "@/lib/types";
 
 interface AddToLibrarySectionProps {
@@ -32,7 +31,7 @@ export function AddToLibrarySection({ onAdd, isPending }: AddToLibrarySectionPro
         <CardTitle className="text-base">{t("anime.addToLibrary")}</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-3 gap-2 md:grid-cols-5">
+        <Grid cols={3} mdCols={5} gap={2}>
           {STATUSES.map((status) => (
             <Button
               key={status}
@@ -44,7 +43,7 @@ export function AddToLibrarySection({ onAdd, isPending }: AddToLibrarySectionPro
               {t(`library.${status}`)}
             </Button>
           ))}
-        </div>
+        </Grid>
       </CardContent>
     </Card>
   );
