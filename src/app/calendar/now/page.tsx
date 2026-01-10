@@ -19,6 +19,11 @@ export default function CalendarNowPage() {
     queryFn: () => getCurrentSeason(page),
   });
 
+  const handlePageChange = (newPage: number) => {
+    setPage(newPage);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   if (isLoading) {
     return (
       <div className="flex flex-col">
@@ -58,13 +63,27 @@ export default function CalendarNowPage() {
         <p className="text-center text-muted-foreground">{t("common.noResults")}</p>
       ) : (
         <>
+          {/* Mobile top pagination */}
+          {data && (
+            <div className="md:hidden mb-4">
+              <Pagination
+                pagination={data.pagination}
+                onPageChange={handlePageChange}
+                compact
+              />
+            </div>
+          )}
+
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
             {data?.anime.map((anime) => (
               <AnimeCard key={anime.id} anime={anime} />
             ))}
           </div>
           {data && (
-            <Pagination pagination={data.pagination} onPageChange={setPage} />
+            <Pagination 
+              pagination={data.pagination} 
+              onPageChange={handlePageChange}
+            />
           )}
         </>
       )}

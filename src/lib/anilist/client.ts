@@ -302,6 +302,65 @@ export async function getSeasonAnime(
   };
 }
 
+/**
+ * Fetches ALL anime from a season by iterating through all pages.
+ * Use this when you want to cache all data and do pagination locally.
+ * AniList allows up to 50 items per page.
+ */
+export async function getAllSeasonAnime(
+  season: MediaSeason,
+  seasonYear: number
+): Promise<AniListMedia[]> {
+  const allMedia: AniListMedia[] = [];
+  let page = 1;
+  let hasNextPage = true;
+  const perPage = 50; // Max allowed by AniList
+
+  while (hasNextPage) {
+    const data = await fetchAniList<SeasonResponse>(SEASON_QUERY, {
+      season,
+      seasonYear,
+      page,
+      perPage,
+    });
+
+    allMedia.push(...data.Page.media);
+    hasNextPage = data.Page.pageInfo.hasNextPage;
+    page++;
+
+    // Safety limit to prevent infinite loops
+    if (page > 20) break;
+  }
+
+  return allMedia;
+}
+
+/**
+ * Paginates an array locally and returns reliable pagination info.
+ */
+export function paginateLocally<T>(
+  items: T[],
+  page: number,
+  perPage: number
+): { items: T[]; pageInfo: PaginationInfo } {
+  const total = items.length;
+  const lastPage = Math.ceil(total / perPage);
+  const currentPage = Math.min(Math.max(1, page), lastPage || 1);
+  const start = (currentPage - 1) * perPage;
+  const end = start + perPage;
+
+  return {
+    items: items.slice(start, end),
+    pageInfo: {
+      currentPage,
+      hasNextPage: currentPage < lastPage,
+      lastPage,
+      perPage,
+      total,
+    },
+  };
+}
+
 // ============ Weekly Schedule Query ============
 
 const WEEKLY_SCHEDULE_QUERY = `

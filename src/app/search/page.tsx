@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { useSearchParams, useRouter } from "next/navigation";
-import { Search as SearchIcon, ArrowUp } from "lucide-react";
+import { Search as SearchIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/layout/PageHeader";
@@ -18,7 +18,6 @@ export default function SearchPage() {
   const t = useTranslations();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const containerRef = useRef<HTMLDivElement>(null);
   
   const initialQuery = searchParams.get("q") || "";
   const initialPage = parseInt(searchParams.get("page") || "1", 10);
@@ -26,7 +25,6 @@ export default function SearchPage() {
   const [query, setQuery] = useState(initialQuery);
   const [searchQuery, setSearchQuery] = useState(initialQuery);
   const [page, setPage] = useState(initialPage);
-  const [showScrollTop, setShowScrollTop] = useState(false);
 
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ["anime-search", searchQuery, page],
@@ -46,30 +44,12 @@ export default function SearchPage() {
   const handlePageChange = (newPage: number) => {
     setPage(newPage);
     router.push(`/search?q=${encodeURIComponent(searchQuery)}&page=${newPage}`);
-    // Scroll to top when changing pages
-    setTimeout(() => {
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }, 100);
-  };
-
-  const scrollToTop = () => {
+    // Scroll to top of the page
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  useEffect(() => {
-    const handleScroll = () => {
-      if (containerRef.current) {
-        const rect = containerRef.current.getBoundingClientRect();
-        setShowScrollTop(rect.top < -100);
-      }
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
   return (
-    <div className="flex flex-col" ref={containerRef}>
+    <div className="flex flex-col">
       <PageHeader title={t("search.title")} showBack={true} />
       <div className="container mx-auto px-4 py-8">
       
@@ -105,28 +85,28 @@ export default function SearchPage() {
             <p className="text-muted-foreground">
               {t("search.resultsFor", { query: searchQuery })}
             </p>
-            {showScrollTop && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={scrollToTop}
-                className="md:hidden gap-2"
-              >
-                <ArrowUp className="h-4 w-4" />
-                {t("common.topPage")}
-              </Button>
-            )}
           </div>
 
           {data.anime.length === 0 ? (
             <p className="text-center text-muted-foreground">{t("common.noResults")}</p>
           ) : (
             <>
+              {/* Mobile top pagination */}
+              <div className="md:hidden mb-4">
+                <Pagination
+                  pagination={data.pagination}
+                  onPageChange={handlePageChange}
+                  compact
+                />
+              </div>
+
               <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
                 {data.anime.map((anime) => (
                   <AnimeCard key={anime.id} anime={anime} />
                 ))}
               </div>
+              
+              {/* Bottom pagination */}
               <Pagination
                 pagination={data.pagination}
                 onPageChange={handlePageChange}

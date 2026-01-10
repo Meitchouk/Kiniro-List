@@ -232,3 +232,60 @@ export async function getManyAiringFromCache(animeIds: number[]): Promise<Map<nu
   
   return results;
 }
+
+// ============ Season Cache ============
+
+const SEASON_CACHE_TTL_MINUTES = 30; // Cache season lists for 30 minutes
+
+interface SeasonCacheData {
+  season: string;
+  year: number;
+  animeIds: number[];
+  updatedAt: Date;
+}
+
+/**
+ * Get cached anime IDs for a season
+ */
+export async function getSeasonFromCache(
+  season: string,
+  year: number
+): Promise<number[] | null> {
+  const db = getAdminFirestore();
+  const docId = `${year}-${season}`;
+  const doc = await db.collection("seasonCache").doc(docId).get();
+
+  if (!doc.exists) {
+    return null;
+  }
+
+  const data = doc.data() as SeasonCacheData & { updatedAt: Timestamp };
+  const updatedAt = data.updatedAt.toDate();
+  const now = new Date();
+  const diffMinutes = (now.getTime() - updatedAt.getTime()) / (1000 * 60);
+
+  if (diffMinutes > SEASON_CACHE_TTL_MINUTES) {
+    return null; // Stale
+  }
+
+  return data.animeIds;
+}
+
+/**
+ * Cache anime IDs for a season
+ */
+export async function upsertSeasonCache(
+  season: string,
+  year: number,
+  animeIds: number[]
+): Promise<void> {
+  const db = getAdminFirestore();
+  const docId = `${year}-${season}`;
+
+  await db.collection("seasonCache").doc(docId).set({
+    season,
+    year,
+    animeIds,
+    updatedAt: FieldValue.serverTimestamp(),
+  });
+}

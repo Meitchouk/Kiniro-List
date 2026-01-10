@@ -281,6 +281,10 @@
   "pagination": {
     "previous": "Previous",
     "next": "Next",
-    "page": "Page {current} of {total}"
+    "first": "First page",
+    "last": "Last page",
+    "page": "Page {current} of {total}",
+    "pageSimple": "Page {current}",
+    "items": "items"
   }
 }
