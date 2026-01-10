@@ -1,6 +1,6 @@
 /**
  * Migration script to add slugs to all existing anime documents in Firestore
- * 
+ *
  * Run with: npx tsx scripts/migrate-slugs.ts
  */
 
@@ -16,19 +16,19 @@ function initFirebase(): Firestore {
       "firebase",
       "kiniro-list-firebase-adminsdk-fbsvc-a334e98fda.json"
     );
-    
+
     initializeApp({
       credential: cert(serviceAccountPath),
     });
   }
-  
+
   return getFirestore();
 }
 
 // Slug generation utilities (copied from src/lib/utils/text.ts)
 function generateSlug(text: string): string {
   if (!text) return "";
-  
+
   return text
     .toLowerCase()
     .normalize("NFD")
@@ -61,35 +61,33 @@ async function generateUniqueSlug(
 ): Promise<string> {
   const displayTitle = getLocalizedTitle(title);
   let slug = generateSlug(displayTitle);
-  
+
   if (!slug) {
     slug = generateSlug(title.romaji);
   }
-  
+
   if (!slug) {
     return `anime-${animeId}`;
   }
 
   // Check if slug is already taken by another anime
-  const slugQuery = await db.collection("anime")
-    .where("slug", "==", slug)
-    .limit(1)
-    .get();
-  
+  const slugQuery = await db.collection("anime").where("slug", "==", slug).limit(1).get();
+
   if (slugQuery.empty) {
     return slug;
   }
-  
+
   // Check if it's the same anime (already has this slug)
   if (slugQuery.docs[0].id === String(animeId)) {
     return slug;
   }
-  
+
   // Slug is taken - try with romaji if we used english
   if (title.english && title.romaji !== title.english) {
     const romajiSlug = generateSlug(title.romaji);
     if (romajiSlug && romajiSlug !== slug) {
-      const romajiQuery = await db.collection("anime")
+      const romajiQuery = await db
+        .collection("anime")
         .where("slug", "==", romajiSlug)
         .limit(1)
         .get();
@@ -98,14 +96,11 @@ async function generateUniqueSlug(
       }
     }
   }
-  
+
   // Add year suffix if available
   if (seasonYear) {
     const yearSlug = `${slug}-${seasonYear}`;
-    const yearQuery = await db.collection("anime")
-      .where("slug", "==", yearSlug)
-      .limit(1)
-      .get();
+    const yearQuery = await db.collection("anime").where("slug", "==", yearSlug).limit(1).get();
     if (yearQuery.empty) {
       return yearSlug;
     }
@@ -117,41 +112,41 @@ async function generateUniqueSlug(
 
 async function migrateAnimeSlugs() {
   console.log("🚀 Starting slug migration...\n");
-  
+
   const db = initFirebase();
-  
+
   // Get all anime documents
   const snapshot = await db.collection("anime").get();
-  
+
   console.log(`📊 Found ${snapshot.size} anime documents\n`);
-  
+
   let updated = 0;
   let skipped = 0;
   let errors = 0;
-  
+
   // Process in batches of 500 (Firestore limit)
   const BATCH_SIZE = 500;
   let batch = db.batch();
   let batchCount = 0;
-  
+
   for (const doc of snapshot.docs) {
     const data = doc.data() as AnimeDoc;
-    
+
     // Skip if already has a slug
     if (data.slug) {
       skipped++;
       continue;
     }
-    
+
     try {
       const slug = await generateUniqueSlug(db, data.id, data.title, data.seasonYear);
-      
+
       batch.update(doc.ref, { slug });
       batchCount++;
       updated++;
-      
+
       console.log(`✅ ${data.id}: "${getLocalizedTitle(data.title)}" → ${slug}`);
-      
+
       // Commit batch when it reaches the limit
       if (batchCount >= BATCH_SIZE) {
         await batch.commit();
@@ -164,13 +159,13 @@ async function migrateAnimeSlugs() {
       errors++;
     }
   }
-  
+
   // Commit remaining updates
   if (batchCount > 0) {
     await batch.commit();
     console.log(`\n📦 Committed final batch of ${batchCount} updates\n`);
   }
-  
+
   console.log("\n========================================");
   console.log("📊 Migration Summary:");
   console.log(`   ✅ Updated: ${updated}`);

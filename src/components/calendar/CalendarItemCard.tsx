@@ -25,9 +25,7 @@ function getCrunchyrollLink(
   streamingLinks: StreamingLink[] | undefined,
   title: string
 ): { url: string; isDirect: boolean } {
-  const crunchyrollLink = streamingLinks?.find(
-    (link) => link.site.toLowerCase() === "crunchyroll"
-  );
+  const crunchyrollLink = streamingLinks?.find((link) => link.site.toLowerCase() === "crunchyroll");
   if (crunchyrollLink) {
     return { url: crunchyrollLink.url, isDirect: true };
   }
@@ -48,10 +46,12 @@ export function CalendarItemCard({ item, timezone, isUnknown = false }: Calendar
   const slug = item.anime?.slug || "";
 
   return (
-    <Card className={`overflow-hidden hover:bg-accent/50 transition-colors ${isUnknown ? "opacity-60" : ""}`}>
+    <Card
+      className={`hover:bg-accent/50 overflow-hidden transition-colors ${isUnknown ? "opacity-60" : ""}`}
+    >
       <div className="flex h-full">
         <Link href={`/anime/${slug}`} className="shrink-0">
-          <div className="relative w-16 h-24 md:w-14 md:h-20">
+          <div className="relative h-24 w-16 md:h-20 md:w-14">
             {item.anime?.coverImage?.large ? (
               <Image
                 src={item.anime.coverImage.large}
@@ -60,15 +60,19 @@ export function CalendarItemCard({ item, timezone, isUnknown = false }: Calendar
                 className="object-cover"
               />
             ) : (
-              <div className="w-full h-full bg-muted" />
+              <div className="bg-muted h-full w-full" />
             )}
           </div>
         </Link>
-        <CardContent className="flex-1 p-2 md:p-2.5 flex flex-col justify-between min-w-0">
+        <CardContent className="flex min-w-0 flex-1 flex-col justify-between p-2 md:p-2.5">
           {isUnknown ? (
             <>
               <Link href={`/anime/${slug}`} className="min-w-0">
-                <Typography variant="body2" weight="medium" className="line-clamp-1 hover:text-primary transition-colors">
+                <Typography
+                  variant="body2"
+                  weight="medium"
+                  className="hover:text-primary line-clamp-1 transition-colors"
+                >
                   {animeTitle}
                 </Typography>
               </Link>
@@ -80,19 +84,16 @@ export function CalendarItemCard({ item, timezone, isUnknown = false }: Calendar
             <>
               <div className="flex items-start justify-between gap-2">
                 <Link href={`/anime/${slug}`} className="min-w-0 flex-1">
-                  <h3 className="font-medium text-sm line-clamp-1 hover:text-primary transition-colors">
+                  <h3 className="hover:text-primary line-clamp-1 text-sm font-medium transition-colors">
                     {animeTitle}
                   </h3>
                 </Link>
                 {item.secondsToAir && item.secondsToAir > 0 && (
-                  <CountdownBadge
-                    statusLabel={item.statusLabel}
-                    secondsToAir={item.secondsToAir}
-                  />
+                  <CountdownBadge statusLabel={item.statusLabel} secondsToAir={item.secondsToAir} />
                 )}
               </div>
-              <div className="flex items-center justify-between gap-2 mt-1.5">
-                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <div className="mt-1.5 flex items-center justify-between gap-2">
+                <div className="text-muted-foreground flex items-center gap-2 text-xs">
                   {item.nextAiringAt && (
                     <span className="flex items-center gap-1">
                       <Clock className="h-3 w-3" />
@@ -100,7 +101,7 @@ export function CalendarItemCard({ item, timezone, isUnknown = false }: Calendar
                     </span>
                   )}
                   {item.nextEpisodeNumber && (
-                    <Badge variant="outline" className="text-xs px-1.5 py-0">
+                    <Badge variant="outline" className="px-1.5 py-0 text-xs">
                       {t("anime.episode", { number: item.nextEpisodeNumber })}
                     </Badge>
                   )}
@@ -109,12 +110,18 @@ export function CalendarItemCard({ item, timezone, isUnknown = false }: Calendar
                   href={crunchyroll.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-1 text-xs text-orange-500 hover:text-orange-400 transition-colors"
-                  title={crunchyroll.isDirect ? t("calendar.watchOnCrunchyroll") : t("calendar.searchOnCrunchyroll")}
+                  className="flex items-center gap-1 text-xs text-orange-500 transition-colors hover:text-orange-400"
+                  title={
+                    crunchyroll.isDirect
+                      ? t("calendar.watchOnCrunchyroll")
+                      : t("calendar.searchOnCrunchyroll")
+                  }
                 >
                   <CrunchyrollIcon className="h-3.5 w-3.5" />
                   <span className="hidden sm:inline">
-                    {crunchyroll.isDirect ? t("calendar.watchOnCrunchyroll") : t("calendar.searchOnCrunchyroll")}
+                    {crunchyroll.isDirect
+                      ? t("calendar.watchOnCrunchyroll")
+                      : t("calendar.searchOnCrunchyroll")}
                   </span>
                 </a>
               </div>

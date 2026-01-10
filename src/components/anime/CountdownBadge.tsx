@@ -38,9 +38,7 @@ export function CountdownBadge({
         {getLabel()}
       </Badge>
       {nextEpisodeNumber && (
-        <Badge variant="outline">
-          {t("anime.episode", { number: nextEpisodeNumber })}
-        </Badge>
+        <Badge variant="outline">{t("anime.episode", { number: nextEpisodeNumber })}</Badge>
       )}
     </Flex>
   );

@@ -31,7 +31,7 @@ export default function WeeklySchedulePage() {
       <div className="flex flex-col">
         <PageHeader title={t("schedule.title")} showBack={true} />
         <div className="container mx-auto px-4 py-8">
-          <p className="mb-6 text-muted-foreground">{t("schedule.subtitle")}</p>
+          <p className="text-muted-foreground mb-6">{t("schedule.subtitle")}</p>
           <ScheduleSkeleton />
         </div>
       </div>
@@ -53,7 +53,7 @@ export default function WeeklySchedulePage() {
     <div className="flex flex-col">
       <PageHeader title={t("schedule.title")} showBack={true} />
       <div className="container mx-auto px-4 py-8">
-        <p className="mb-6 text-muted-foreground">{t("schedule.subtitle")}</p>
+        <p className="text-muted-foreground mb-6">{t("schedule.subtitle")}</p>
         <WeeklyScheduleTabs schedule={data?.schedule || {}} />
       </div>
     </div>

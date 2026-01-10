@@ -18,14 +18,12 @@ interface AnimeStudiosCardProps {
  */
 export function AnimeStudiosCard({ studios }: AnimeStudiosCardProps) {
   const t = useTranslations("anime");
-  
+
   // Filter animation studios and remove duplicates by ID
   const animationStudios = studios
     .filter((s) => s.isAnimationStudio)
-    .filter((studio, index, self) => 
-      index === self.findIndex((s) => s.id === studio.id)
-    );
-    
+    .filter((studio, index, self) => index === self.findIndex((s) => s.id === studio.id));
+
   if (animationStudios.length === 0) return null;
 
   return (

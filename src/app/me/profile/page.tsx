@@ -17,7 +17,7 @@ export default function ProfilePage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="max-w-2xl mx-auto space-y-6">
+      <div className="mx-auto max-w-2xl space-y-6">
         <ProfileHeaderCard user={user} userData={userData} />
         <LibraryStatsCard stats={libraryStats} />
         <ProfileQuickNav />

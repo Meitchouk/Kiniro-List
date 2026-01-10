@@ -24,9 +24,9 @@ export function FilterSettings({ filters, onChange }: FilterSettingsProps) {
     <Stack gap={4}>
       <Flex align="center" justify="between">
         <Stack gap={1}>
-          <Label htmlFor="hideAdult">{t('settings.hideAdult')}</Label>
+          <Label htmlFor="hideAdult">{t("settings.hideAdult")}</Label>
           <Typography variant="caption" colorScheme="secondary">
-            {t('settings.hideAdultDescription')}
+            {t("settings.hideAdultDescription")}
           </Typography>
         </Stack>
         <Switch
@@ -38,9 +38,9 @@ export function FilterSettings({ filters, onChange }: FilterSettingsProps) {
 
       <Flex align="center" justify="between">
         <Stack gap={1}>
-          <Label htmlFor="onlyWatching">{t('settings.onlyWatching')}</Label>
+          <Label htmlFor="onlyWatching">{t("settings.onlyWatching")}</Label>
           <Typography variant="caption" colorScheme="secondary">
-            {t('settings.onlyWatchingDescription')}
+            {t("settings.onlyWatchingDescription")}
           </Typography>
         </Stack>
         <Switch

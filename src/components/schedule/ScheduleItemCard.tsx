@@ -35,26 +35,24 @@ export function ScheduleItemCard({
 
   return (
     <Link href={`/anime/${slug}`} className="group">
-      <Card className="h-full transition-all hover:shadow-lg hover:-translate-y-1">
+      <Card className="h-full transition-all hover:-translate-y-1 hover:shadow-lg">
         <CardContent className="flex gap-3 p-4">
           <div className="relative h-24 w-16 shrink-0 overflow-hidden rounded">
-            <Image
-              src={cover}
-              alt={displayTitle}
-              fill
-              className="object-cover"
-              sizes="64px"
-            />
+            <Image src={cover} alt={displayTitle} fill className="object-cover" sizes="64px" />
           </div>
           <Stack justify="between" className="flex min-w-0 flex-1">
             <div>
-              <Typography variant="body2" weight="medium" className="line-clamp-2 group-hover:text-primary">
+              <Typography
+                variant="body2"
+                weight="medium"
+                className="group-hover:text-primary line-clamp-2"
+              >
                 {displayTitle}
               </Typography>
             </div>
             <Stack gap={1}>
               <Flex align="center" gap={2}>
-                <Clock className="h-3 w-3 text-muted-foreground" />
+                <Clock className="text-muted-foreground h-3 w-3" />
                 <Typography variant="caption" colorScheme="secondary">
                   {formatAiringTime(airingAt)}
                 </Typography>

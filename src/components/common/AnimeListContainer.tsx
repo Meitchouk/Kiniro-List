@@ -55,15 +55,11 @@ export function AnimeListContainer({
   return (
     <>
       {header}
-      
+
       {/* Mobile top pagination */}
       {pagination && onPageChange && (
-        <div className="md:hidden mb-4">
-          <Pagination
-            pagination={pagination}
-            onPageChange={onPageChange}
-            compact
-          />
+        <div className="mb-4 md:hidden">
+          <Pagination pagination={pagination} onPageChange={onPageChange} compact />
         </div>
       )}
 

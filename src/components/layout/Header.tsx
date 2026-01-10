@@ -38,7 +38,7 @@ export function Header() {
   ];
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
+    <header className="bg-background/95 supports-backdrop-filter:bg-background/60 sticky top-0 z-50 w-full border-b backdrop-blur">
       <div className="container mx-auto flex h-14 items-center px-4">
         {/* Logo */}
         <Link href="/" className="mr-6 flex items-center space-x-2">
@@ -55,10 +55,8 @@ export function Header() {
               <Link
                 key={link.href}
                 href={link.href}
-                className={`flex items-center gap-1.5 text-xs font-medium transition-colors hover:text-primary whitespace-nowrap ${
-                  pathname === link.href
-                    ? "text-primary"
-                    : "text-muted-foreground"
+                className={`hover:text-primary flex items-center gap-1.5 text-xs font-medium whitespace-nowrap transition-colors ${
+                  pathname === link.href ? "text-primary" : "text-muted-foreground"
                 }`}
               >
                 <Icon className="h-3.5 w-3.5" />
@@ -73,10 +71,8 @@ export function Header() {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`flex items-center gap-1.5 text-xs font-medium transition-colors hover:text-primary whitespace-nowrap ${
-                    pathname === link.href
-                      ? "text-primary"
-                      : "text-muted-foreground"
+                  className={`hover:text-primary flex items-center gap-1.5 text-xs font-medium whitespace-nowrap transition-colors ${
+                    pathname === link.href ? "text-primary" : "text-muted-foreground"
                   }`}
                 >
                   <Icon className="h-3.5 w-3.5" />
@@ -110,12 +106,12 @@ export function Header() {
                   <span className="sr-only">{t("nav.menu")}</span>
                 </Button>
               </DialogTrigger>
-              <DialogContent className="fixed right-0 top-0 bottom-0 left-auto z-50 h-full w-80 max-w-full translate-y-0 rounded-none border-l bg-background p-0 sm:max-w-sm transition-transform duration-300 ease-out data-[state=open]:translate-x-0 data-[state=closed]:translate-x-full overflow-y-auto flex flex-col">
-                <DialogHeader className="p-4 pb-3 sticky top-0 bg-background border-b">
+              <DialogContent className="bg-background fixed top-0 right-0 bottom-0 left-auto z-50 flex h-full w-80 max-w-full translate-y-0 flex-col overflow-y-auto rounded-none border-l p-0 transition-transform duration-300 ease-out data-[state=closed]:translate-x-full data-[state=open]:translate-x-0 sm:max-w-sm">
+                <DialogHeader className="bg-background sticky top-0 border-b p-4 pb-3">
                   <DialogTitle className="text-lg font-semibold">{t("common.appName")}</DialogTitle>
                 </DialogHeader>
 
-                <div className="flex-1 p-4 space-y-3">
+                <div className="flex-1 space-y-3 p-4">
                   <div className="space-y-1.5">
                     {navLinks.map((link) => {
                       const Icon = link.icon;
@@ -123,12 +119,12 @@ export function Header() {
                         <Button
                           key={link.href}
                           variant="ghost"
-                          className="w-full justify-start h-11 text-sm"
+                          className="h-11 w-full justify-start text-sm"
                           asChild
                           onClick={() => setMobileMenuOpen(false)}
                         >
                           <Link href={link.href}>
-                            <Icon className="h-4 w-4 mr-3" />
+                            <Icon className="mr-3 h-4 w-4" />
                             {link.label}
                           </Link>
                         </Button>
@@ -145,12 +141,12 @@ export function Header() {
                           <Button
                             key={link.href}
                             variant="ghost"
-                            className="w-full justify-start h-11 text-sm"
+                            className="h-11 w-full justify-start text-sm"
                             asChild
                             onClick={() => setMobileMenuOpen(false)}
                           >
                             <Link href={link.href}>
-                              <Icon className="h-4 w-4 mr-3" />
+                              <Icon className="mr-3 h-4 w-4" />
                               {link.label}
                             </Link>
                           </Button>
@@ -164,7 +160,7 @@ export function Header() {
                   <div className="space-y-2">
                     <Button
                       variant="secondary"
-                      className="w-full justify-start h-11 text-sm"
+                      className="h-11 w-full justify-start text-sm"
                       asChild
                       onClick={() => setMobileMenuOpen(false)}
                     >
@@ -175,14 +171,18 @@ export function Header() {
                         </div>
                       </Link>
                     </Button>
-                    
+
                     <div className="flex items-center justify-between gap-3">
-                      <Typography variant="body2" weight="medium">{t("language.select")}</Typography>
+                      <Typography variant="body2" weight="medium">
+                        {t("language.select")}
+                      </Typography>
                       <LanguageSwitcher />
                     </div>
-                    
+
                     <div className="flex items-center justify-between gap-3">
-                      <Typography variant="body2" weight="medium">{t("theme.toggle")}</Typography>
+                      <Typography variant="body2" weight="medium">
+                        {t("theme.toggle")}
+                      </Typography>
                       <ThemeToggle />
                     </div>
                   </div>
@@ -192,9 +192,7 @@ export function Header() {
           </div>
 
           {/* Mobile user menu stays outside drawer */}
-          <div className="md:hidden">
-            {!loading && <UserMenu />}
-          </div>
+          <div className="md:hidden">{!loading && <UserMenu />}</div>
         </div>
       </div>
     </header>

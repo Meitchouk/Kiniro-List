@@ -44,12 +44,7 @@ export default function SearchPage() {
     <div className="flex flex-col">
       <PageHeader title={t("search.title")} showBack={true} />
       <div className="container mx-auto px-4 py-8">
-        <SearchForm
-          value={query}
-          onChange={setQuery}
-          onSubmit={handleSearch}
-          className="mb-8"
-        />
+        <SearchForm value={query} onChange={setQuery} onSubmit={handleSearch} className="mb-8" />
 
         <SearchResults
           searchQuery={searchQuery}

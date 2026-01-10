@@ -1,19 +1,19 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import { useTranslations } from 'next-intl';
-import { useAuth } from '@/components/providers/AuthProvider';
-import { useQuery } from '@tanstack/react-query';
-import { getCurrentUser, getMyCalendar, setAuthHeadersGetter } from '@/lib/api';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Skeleton } from '@/components/ui/skeleton';
-import { PageHeader } from '@/components/layout/PageHeader';
-import { ErrorBanner } from '@/components/anime/ErrorBanner';
-import { CalendarList } from '@/components/calendar';
-import { Calendar, Clock } from 'lucide-react';
-import { DateTime } from 'luxon';
+import Link from "next/link";
+import { useTranslations } from "next-intl";
+import { useAuth } from "@/components/providers/AuthProvider";
+import { useQuery } from "@tanstack/react-query";
+import { getCurrentUser, getMyCalendar, setAuthHeadersGetter } from "@/lib/api";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import { PageHeader } from "@/components/layout/PageHeader";
+import { ErrorBanner } from "@/components/anime/ErrorBanner";
+import { CalendarList } from "@/components/calendar";
+import { Calendar, Clock } from "lucide-react";
+import { DateTime } from "luxon";
 
 export default function MyCalendarPage() {
   const t = useTranslations();
@@ -25,30 +25,30 @@ export default function MyCalendarPage() {
   }
 
   const { data: userData } = useQuery({
-    queryKey: ['me'],
+    queryKey: ["me"],
     queryFn: () => getCurrentUser(),
     enabled: !!user,
   });
 
   const { data, isLoading, error, refetch } = useQuery({
-    queryKey: ['my-calendar'],
+    queryKey: ["my-calendar"],
     queryFn: () => getMyCalendar(),
     enabled: !!user,
     refetchInterval: 60000,
   });
 
-  const timezone = userData?.timezone || DateTime.local().zoneName || 'UTC';
+  const timezone = userData?.timezone || DateTime.local().zoneName || "UTC";
 
   if (isLoading) {
     return (
       <div className="flex flex-col">
-        <PageHeader title={t('myCalendar.title')} showBack={true} />
+        <PageHeader title={t("myCalendar.title")} showBack={true} />
         <div className="container mx-auto px-4 py-8">
-          <Skeleton className="h-8 w-48 mb-6" />
+          <Skeleton className="mb-6 h-8 w-48" />
           <div className="space-y-6">
             {Array.from({ length: 3 }).map((_, i) => (
               <div key={i}>
-                <Skeleton className="h-6 w-32 mb-3" />
+                <Skeleton className="mb-3 h-6 w-32" />
                 <div className="space-y-3">
                   {Array.from({ length: 2 }).map((_, j) => (
                     <Skeleton key={j} className="h-24" />
@@ -65,9 +65,9 @@ export default function MyCalendarPage() {
   if (error) {
     return (
       <div className="flex flex-col">
-        <PageHeader title={t('myCalendar.title')} showBack={true} />
+        <PageHeader title={t("myCalendar.title")} showBack={true} />
         <div className="container mx-auto px-4 py-8">
-          <ErrorBanner message={t('errors.generic')} onRetry={() => refetch()} />
+          <ErrorBanner message={t("errors.generic")} onRetry={() => refetch()} />
         </div>
       </div>
     );
@@ -77,12 +77,12 @@ export default function MyCalendarPage() {
 
   return (
     <div className="flex flex-col">
-      <PageHeader title={t('myCalendar.title')} showBack={true} />
+      <PageHeader title={t("myCalendar.title")} showBack={true} />
       <div className="container mx-auto px-4 py-8">
-        <div className="flex items-center justify-between mb-6">
+        <div className="mb-6 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Calendar className="h-6 w-6" />
-            <h1 className="text-2xl font-bold">{t('nav.myCalendar')}</h1>
+            <h1 className="text-2xl font-bold">{t("nav.myCalendar")}</h1>
           </div>
           <Badge variant="outline" className="gap-1">
             <Clock className="h-3 w-3" />
@@ -93,17 +93,17 @@ export default function MyCalendarPage() {
         {!hasItems ? (
           <Card>
             <CardContent className="py-12 text-center">
-              <Calendar className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-              <p className="text-muted-foreground mb-2">{t('calendar.empty')}</p>
-              <p className="text-sm text-muted-foreground mb-6 max-w-md mx-auto">
-                {t('calendar.emptyHint')}
+              <Calendar className="text-muted-foreground mx-auto mb-4 h-12 w-12" />
+              <p className="text-muted-foreground mb-2">{t("calendar.empty")}</p>
+              <p className="text-muted-foreground mx-auto mb-6 max-w-md text-sm">
+                {t("calendar.emptyHint")}
               </p>
-              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <div className="flex flex-col justify-center gap-3 sm:flex-row">
                 <Link href="/me/library">
-                  <Button variant="outline">{t('calendar.goToLibrary')}</Button>
+                  <Button variant="outline">{t("calendar.goToLibrary")}</Button>
                 </Link>
                 <Link href="/calendar/now">
-                  <Button>{t('calendar.browseSeason')}</Button>
+                  <Button>{t("calendar.browseSeason")}</Button>
                 </Link>
               </div>
             </CardContent>

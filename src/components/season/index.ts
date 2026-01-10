@@ -2,5 +2,5 @@
  * Season calendar components
  */
 
-export { SeasonAnimeGrid } from './SeasonAnimeGrid';
-export { SeasonPageSkeleton } from './SeasonPageSkeleton';
+export { SeasonAnimeGrid } from "./SeasonAnimeGrid";
+export { SeasonPageSkeleton } from "./SeasonPageSkeleton";

@@ -57,7 +57,7 @@ const PageHeader = React.forwardRef<HTMLElement, PageHeaderProps>(
       <header
         ref={ref}
         className={cn(
-          "sticky top-0 z-10 border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60",
+          "bg-background/95 supports-backdrop-filter:bg-background/60 sticky top-0 z-10 border-b backdrop-blur",
           className
         )}
         {...props}
@@ -65,9 +65,9 @@ const PageHeader = React.forwardRef<HTMLElement, PageHeaderProps>(
         <div className="container mx-auto px-4">
           {breadcrumb && <div className="pt-3">{breadcrumb}</div>}
           <div className="flex h-14 items-center justify-between gap-4">
-            <div className="flex items-center gap-3 min-w-0">
-              {showBack && (
-                backUrl ? (
+            <div className="flex min-w-0 items-center gap-3">
+              {showBack &&
+                (backUrl ? (
                   <Button variant="ghost" size="icon" asChild>
                     <Link href={backUrl}>
                       <ArrowLeft className="h-5 w-5" />
@@ -75,16 +75,11 @@ const PageHeader = React.forwardRef<HTMLElement, PageHeaderProps>(
                     </Link>
                   </Button>
                 ) : (
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => window.history.back()}
-                  >
+                  <Button variant="ghost" size="icon" onClick={() => window.history.back()}>
                     <ArrowLeft className="h-5 w-5" />
                     <span className="sr-only">{backLabel}</span>
                   </Button>
-                )
-              )}
+                ))}
               <div className="min-w-0">
                 <Typography variant="h5" truncate className="font-semibold">
                   {title}
@@ -96,7 +91,7 @@ const PageHeader = React.forwardRef<HTMLElement, PageHeaderProps>(
                 )}
               </div>
             </div>
-            {actions && <div className="flex items-center gap-2 shrink-0">{actions}</div>}
+            {actions && <div className="flex shrink-0 items-center gap-2">{actions}</div>}
           </div>
         </div>
       </header>

@@ -30,7 +30,7 @@ interface TimezoneSelectorProps {
 
 export function TimezoneSelector({ value, onChange }: TimezoneSelectorProps) {
   const t = useTranslations();
-  const [timezoneSearch, setTimezoneSearch] = useState('');
+  const [timezoneSearch, setTimezoneSearch] = useState("");
 
   const browserTimezone = useMemo(() => getBrowserTimezone(), []);
   const allTimezones = useMemo(() => getAllTimezones(), []);
@@ -44,10 +44,11 @@ export function TimezoneSelector({ value, onChange }: TimezoneSelectorProps) {
     const filtered: Record<string, TimezoneInfo[]> = {};
 
     for (const [region, zones] of Object.entries(groupedTimezones)) {
-      const matchingZones = zones.filter(tzInfo =>
-        tzInfo.name.toLowerCase().includes(search) ||
-        tzInfo.displayName.toLowerCase().includes(search) ||
-        region.toLowerCase().includes(search)
+      const matchingZones = zones.filter(
+        (tzInfo) =>
+          tzInfo.name.toLowerCase().includes(search) ||
+          tzInfo.displayName.toLowerCase().includes(search) ||
+          region.toLowerCase().includes(search)
       );
       if (matchingZones.length > 0) {
         filtered[region] = matchingZones;
@@ -58,27 +59,27 @@ export function TimezoneSelector({ value, onChange }: TimezoneSelectorProps) {
 
   const handleChange = (newValue: string) => {
     onChange(newValue);
-    setTimezoneSearch('');
+    setTimezoneSearch("");
   };
 
   return (
     <Stack gap={2}>
-      <Label htmlFor="timezone">{t('settings.timezone')}</Label>
+      <Label htmlFor="timezone">{t("settings.timezone")}</Label>
       <Select value={value} onValueChange={handleChange}>
         <SelectTrigger id="timezone">
-          <SelectValue placeholder={t('settings.selectTimezone')} />
+          <SelectValue placeholder={t("settings.selectTimezone")} />
         </SelectTrigger>
         <SelectContent className="max-h-100" position="popper" sideOffset={5}>
           {/* Search input */}
-          <div className="px-2 pb-2 sticky top-0 bg-popover z-10 border-b">
-            <Flex align="center" gap={2} className="px-2 py-1.5 border rounded-md bg-background">
+          <div className="bg-popover sticky top-0 z-10 border-b px-2 pb-2">
+            <Flex align="center" gap={2} className="bg-background rounded-md border px-2 py-1.5">
               <IconWrapper icon={Search} size="sm" colorScheme="secondary" className="shrink-0" />
               <input
                 type="text"
-                placeholder={t('settings.searchTimezone')}
+                placeholder={t("settings.searchTimezone")}
                 value={timezoneSearch}
                 onChange={(e) => setTimezoneSearch(e.target.value)}
-                className="h-7 w-full bg-transparent outline-none text-sm"
+                className="h-7 w-full bg-transparent text-sm outline-none"
                 onClick={(e) => e.stopPropagation()}
                 onKeyDown={(e) => e.stopPropagation()}
               />
@@ -88,13 +89,16 @@ export function TimezoneSelector({ value, onChange }: TimezoneSelectorProps) {
           <div className="max-h-75 overflow-y-auto">
             {/* Detected timezone shortcut */}
             {!timezoneSearch && browserTimezone !== value && (
-              <SelectItem value={browserTimezone} className="font-medium text-primary">
+              <SelectItem value={browserTimezone} className="text-primary font-medium">
                 <Stack>
                   <Flex align="center" gap={2}>
-                    📍 <Typography variant="body2" className="font-semibold">{getTimezoneInfo(browserTimezone).displayName}</Typography>
+                    📍{" "}
+                    <Typography variant="body2" className="font-semibold">
+                      {getTimezoneInfo(browserTimezone).displayName}
+                    </Typography>
                   </Flex>
                   <Typography variant="caption" colorScheme="secondary">
-                    {getTimezoneInfo(browserTimezone).currentTime} • {t('settings.detected')}
+                    {getTimezoneInfo(browserTimezone).currentTime} • {t("settings.detected")}
                   </Typography>
                 </Stack>
               </SelectItem>
@@ -103,15 +107,27 @@ export function TimezoneSelector({ value, onChange }: TimezoneSelectorProps) {
             {/* Grouped timezones */}
             {Object.entries(filteredTimezones).map(([region, zones]) => (
               <div key={region}>
-                <Typography variant="caption" className="px-2 py-1.5 font-semibold text-muted-foreground bg-muted/50 sticky top-0 block">
+                <Typography
+                  variant="caption"
+                  className="text-muted-foreground bg-muted/50 sticky top-0 block px-2 py-1.5 font-semibold"
+                >
                   {region}
                 </Typography>
                 {zones
-                  .filter((tzInfo) => !(!timezoneSearch && browserTimezone !== value && tzInfo.name === browserTimezone))
+                  .filter(
+                    (tzInfo) =>
+                      !(
+                        !timezoneSearch &&
+                        browserTimezone !== value &&
+                        tzInfo.name === browserTimezone
+                      )
+                  )
                   .map((tzInfo) => (
                     <SelectItem key={tzInfo.name} value={tzInfo.name}>
                       <Stack className="py-0.5">
-                        <Typography variant="body2" className="font-medium">{tzInfo.displayName}</Typography>
+                        <Typography variant="body2" className="font-medium">
+                          {tzInfo.displayName}
+                        </Typography>
                         <Typography variant="caption" colorScheme="secondary">
                           {tzInfo.currentTime}
                         </Typography>
@@ -122,15 +138,20 @@ export function TimezoneSelector({ value, onChange }: TimezoneSelectorProps) {
             ))}
 
             {Object.keys(filteredTimezones).length === 0 && (
-              <Typography variant="body2" colorScheme="secondary" align="center" className="px-4 py-8">
-                {t('settings.noTimezones')}
+              <Typography
+                variant="body2"
+                colorScheme="secondary"
+                align="center"
+                className="px-4 py-8"
+              >
+                {t("settings.noTimezones")}
               </Typography>
             )}
           </div>
         </SelectContent>
       </Select>
       <Typography variant="caption" colorScheme="secondary">
-        {t('settings.browserTimezone')}: {browserTimezone}
+        {t("settings.browserTimezone")}: {browserTimezone}
       </Typography>
     </Stack>
   );

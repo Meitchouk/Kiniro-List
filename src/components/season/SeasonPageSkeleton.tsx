@@ -10,12 +10,12 @@ interface SeasonPageSkeletonProps {
 
 function SkeletonCard() {
   return (
-    <div className="w-full rounded-xl border bg-card shadow overflow-hidden">
-      <div className="relative aspect-[3/4] w-full bg-muted animate-pulse" />
-      <div className="p-3 h-32 space-y-2">
+    <div className="bg-card w-full overflow-hidden rounded-xl border shadow">
+      <div className="bg-muted relative aspect-[3/4] w-full animate-pulse" />
+      <div className="h-32 space-y-2 p-3">
         <Skeleton className="h-4 w-full" />
         <Skeleton className="h-3 w-3/4" />
-        <Skeleton className="h-3 w-1/2 mt-auto" />
+        <Skeleton className="mt-auto h-3 w-1/2" />
       </div>
     </div>
   );
@@ -23,7 +23,7 @@ function SkeletonCard() {
 
 function SkeletonGrid({ count = 12 }: { count?: number }) {
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+    <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
       {Array.from({ length: count }).map((_, i) => (
         <SkeletonCard key={i} />
       ))}
@@ -45,7 +45,7 @@ export function SeasonPageSkeleton({ title, showHeader = true }: SeasonPageSkele
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h3 className="text-xl font-semibold mb-6">{title}</h3>
+      <h3 className="mb-6 text-xl font-semibold">{title}</h3>
       <SkeletonGrid />
     </div>
   );

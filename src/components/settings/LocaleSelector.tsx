@@ -23,10 +23,10 @@ export function LocaleSelector({ value, onChange }: LocaleSelectorProps) {
 
   return (
     <Stack gap={2}>
-      <Label htmlFor="locale">{t('settings.language')}</Label>
+      <Label htmlFor="locale">{t("settings.language")}</Label>
       <Select value={value} onValueChange={onChange}>
         <SelectTrigger id="locale">
-          <SelectValue placeholder={t('settings.selectLanguage')} />
+          <SelectValue placeholder={t("settings.selectLanguage")} />
         </SelectTrigger>
         <SelectContent>
           {LOCALES.map((locale) => (

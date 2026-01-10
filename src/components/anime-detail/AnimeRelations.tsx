@@ -34,7 +34,7 @@ export function AnimeRelations({ relations, maxItems = 6 }: AnimeRelationsProps)
               <Link
                 key={`relation-${edge.node.id}-${index}`}
                 href={`/anime/${relSlug}`}
-                className="flex gap-3 rounded-lg border p-3 transition-colors hover:bg-accent"
+                className="hover:bg-accent flex gap-3 rounded-lg border p-3 transition-colors"
               >
                 <div className="relative h-20 w-14 shrink-0 overflow-hidden rounded">
                   <Image

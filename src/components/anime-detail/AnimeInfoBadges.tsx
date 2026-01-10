@@ -30,17 +30,16 @@ export function AnimeInfoBadges({
   const t = useTranslations();
 
   // Format start date
-  const formattedStartDate = startDate && startDate.year
-    ? new Date(startDate.year, (startDate.month || 1) - 1, startDate.day || 1)
-    : null;
+  const formattedStartDate =
+    startDate && startDate.year
+      ? new Date(startDate.year, (startDate.month || 1) - 1, startDate.day || 1)
+      : null;
 
   return (
     <Flex wrap="wrap" gap={2}>
       {format && <Badge>{t(`format.${format}`)}</Badge>}
       {status && <Badge variant="secondary">{t(`status.${status}`)}</Badge>}
-      {episodes && (
-        <Badge variant="outline">{t("anime.episodes", { count: episodes })}</Badge>
-      )}
+      {episodes && <Badge variant="outline">{t("anime.episodes", { count: episodes })}</Badge>}
       {season && seasonYear && (
         <Badge variant="outline">
           {t(`calendar.${season}`)} {seasonYear}

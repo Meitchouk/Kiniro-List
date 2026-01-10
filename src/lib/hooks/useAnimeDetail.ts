@@ -4,7 +4,13 @@ import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { useAuth } from "@/components/providers/AuthProvider";
-import { getAnimeDetail, upsertLibraryEntry, deleteLibraryEntry, getLibrary, setAuthHeadersGetter } from "@/lib/api";
+import {
+  getAnimeDetail,
+  upsertLibraryEntry,
+  deleteLibraryEntry,
+  getLibrary,
+  setAuthHeadersGetter,
+} from "@/lib/api";
 import { toast } from "sonner";
 import type { LibraryStatus } from "@/lib/types";
 

@@ -18,8 +18,8 @@ interface CalendarViewSelectorProps {
 }
 
 const CALENDAR_VIEW_OPTIONS: { value: CalendarView; labelKey: string }[] = [
-  { value: 'weekly', labelKey: 'settings.viewWeekly' },
-  { value: 'season', labelKey: 'settings.viewSeason' },
+  { value: "weekly", labelKey: "settings.viewWeekly" },
+  { value: "season", labelKey: "settings.viewSeason" },
 ];
 
 export function CalendarViewSelector({ value, onChange }: CalendarViewSelectorProps) {
@@ -27,10 +27,10 @@ export function CalendarViewSelector({ value, onChange }: CalendarViewSelectorPr
 
   return (
     <Stack gap={2}>
-      <Label htmlFor="calendarView">{t('settings.calendarView')}</Label>
+      <Label htmlFor="calendarView">{t("settings.calendarView")}</Label>
       <Select value={value} onValueChange={onChange}>
         <SelectTrigger id="calendarView">
-          <SelectValue placeholder={t('settings.selectCalendarView')} />
+          <SelectValue placeholder={t("settings.selectCalendarView")} />
         </SelectTrigger>
         <SelectContent>
           {CALENDAR_VIEW_OPTIONS.map((option) => (

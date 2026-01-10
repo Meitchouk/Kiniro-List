@@ -32,7 +32,8 @@ const iconWrapperVariants = cva("inline-flex shrink-0", {
 });
 
 export interface IconWrapperProps
-  extends Omit<React.HTMLAttributes<HTMLSpanElement>, 'color'>,
+  extends
+    Omit<React.HTMLAttributes<HTMLSpanElement>, "color">,
     VariantProps<typeof iconWrapperVariants> {
   /**
    * The Lucide icon component to render
@@ -50,18 +51,7 @@ export interface IconWrapperProps
 }
 
 const IconWrapper = React.forwardRef<HTMLSpanElement, IconWrapperProps>(
-  (
-    {
-      className,
-      icon: Icon,
-      size,
-      colorScheme,
-      label,
-      decorative = false,
-      ...props
-    },
-    ref
-  ) => {
+  ({ className, icon: Icon, size, colorScheme, label, decorative = false, ...props }, ref) => {
     return (
       <span
         ref={ref}

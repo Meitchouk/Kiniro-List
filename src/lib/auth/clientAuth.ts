@@ -1,12 +1,12 @@
 "use client";
 
-import { 
-  signInWithPopup, 
-  GoogleAuthProvider, 
+import {
+  signInWithPopup,
+  GoogleAuthProvider,
   signOut as firebaseSignOut,
   onAuthStateChanged,
   signInWithCredential,
-  User
+  User,
 } from "firebase/auth";
 import { getFirebaseAuth } from "@/lib/firebase/client";
 

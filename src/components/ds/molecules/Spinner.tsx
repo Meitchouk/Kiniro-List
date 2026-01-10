@@ -27,8 +27,7 @@ const spinnerVariants = cva("animate-spin", {
 });
 
 export interface SpinnerProps
-  extends Omit<React.HTMLAttributes<SVGSVGElement>, 'color'>,
-    VariantProps<typeof spinnerVariants> {
+  extends Omit<React.HTMLAttributes<SVGSVGElement>, "color">, VariantProps<typeof spinnerVariants> {
   /**
    * Screen reader label
    * @default "Loading"
@@ -80,17 +79,7 @@ const overlayStyles = {
 };
 
 const LoadingOverlay = React.forwardRef<HTMLDivElement, LoadingOverlayProps>(
-  (
-    {
-      className,
-      visible = true,
-      text,
-      spinnerSize = "lg",
-      overlay = "blur",
-      ...props
-    },
-    ref
-  ) => {
+  ({ className, visible = true, text, spinnerSize = "lg", overlay = "blur", ...props }, ref) => {
     if (!visible) return null;
 
     return (
@@ -104,9 +93,7 @@ const LoadingOverlay = React.forwardRef<HTMLDivElement, LoadingOverlayProps>(
         {...props}
       >
         <Spinner size={spinnerSize} />
-        {text && (
-          <p className="mt-2 text-sm text-muted-foreground">{text}</p>
-        )}
+        {text && <p className="text-muted-foreground mt-2 text-sm">{text}</p>}
       </div>
     );
   }

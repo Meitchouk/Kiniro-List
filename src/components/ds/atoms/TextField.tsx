@@ -38,7 +38,8 @@ const textFieldVariants = cva(
 );
 
 export interface TextFieldProps
-  extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "size">,
+  extends
+    Omit<React.InputHTMLAttributes<HTMLInputElement>, "size">,
     VariantProps<typeof textFieldVariants> {
   /**
    * The label for the input
@@ -99,7 +100,7 @@ const TextField = React.forwardRef<HTMLInputElement, TextFieldProps>(
         )}
         <div className="relative">
           {startAdornment && (
-            <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+            <div className="text-muted-foreground absolute top-1/2 left-3 -translate-y-1/2">
               {startAdornment}
             </div>
           )}
@@ -113,24 +114,22 @@ const TextField = React.forwardRef<HTMLInputElement, TextFieldProps>(
               className
             )}
             aria-invalid={hasError ? "true" : undefined}
-            aria-describedby={
-              hasError ? errorId : helperText ? descriptionId : undefined
-            }
+            aria-describedby={hasError ? errorId : helperText ? descriptionId : undefined}
             {...props}
           />
           {endAdornment && (
-            <div className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+            <div className="text-muted-foreground absolute top-1/2 right-3 -translate-y-1/2">
               {endAdornment}
             </div>
           )}
         </div>
         {helperText && !hasError && (
-          <p id={descriptionId} className="text-sm text-muted-foreground">
+          <p id={descriptionId} className="text-muted-foreground text-sm">
             {helperText}
           </p>
         )}
         {hasError && errorText && (
-          <p id={errorId} className="text-sm text-destructive" role="alert">
+          <p id={errorId} className="text-destructive text-sm" role="alert">
             {errorText}
           </p>
         )}

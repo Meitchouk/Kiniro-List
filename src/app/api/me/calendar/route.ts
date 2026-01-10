@@ -4,19 +4,19 @@ import { checkRateLimit, rateLimitResponse } from "@/lib/ratelimit";
 import { getAdminFirestore } from "@/lib/firebase/admin";
 import { Timestamp } from "firebase-admin/firestore";
 import { getBatchAiringInfo, getBatchAnimeInfo } from "@/lib/anilist/client";
-import { 
-  getManyAnimeFromCache, 
+import {
+  getManyAnimeFromCache,
   getManyAiringFromCache,
   upsertManyAiringCache,
-  upsertManyAnimeCache
+  upsertManyAnimeCache,
 } from "@/lib/firestore/cache";
 import { getAiringStatusLabel, getSecondsToAir } from "@/lib/utils/date";
-import type { 
-  UserDocument, 
-  LibraryEntry, 
+import type {
+  UserDocument,
+  LibraryEntry,
   CalendarAnimeItem,
   AnimeAiringCache,
-  AnimeCache
+  AnimeCache,
 } from "@/lib/types";
 
 export async function GET(request: NextRequest) {
@@ -55,7 +55,7 @@ export async function GET(request: NextRequest) {
 
     // Get library entries
     let libraryQuery = db.collection("users").doc(uid).collection("library");
-    
+
     // Filter by watching if enabled
     if (userData.filters.onlyWatching) {
       libraryQuery = libraryQuery.where("status", "==", "watching") as typeof libraryQuery;
@@ -91,7 +91,12 @@ export async function GET(request: NextRequest) {
     // Find anime that are missing from cache, don't have status info, or don't have streamingLinks
     const missingOrStaleIds = animeIds.filter((id) => {
       const anime = animeCache.get(id);
-      return !anime || anime.status === undefined || anime.status === null || anime.streamingLinks === undefined;
+      return (
+        !anime ||
+        anime.status === undefined ||
+        anime.status === null ||
+        anime.streamingLinks === undefined
+      );
     });
 
     // Fetch missing anime from AniList and update cache
@@ -99,13 +104,14 @@ export async function GET(request: NextRequest) {
       const freshAnime = await getBatchAnimeInfo(missingOrStaleIds);
       if (freshAnime.length > 0) {
         await upsertManyAnimeCache(freshAnime);
-        
+
         // Update local cache with fresh data
         for (const media of freshAnime) {
           // Extract streaming links
-          const streamingLinks = media.externalLinks
-            ?.filter(link => link.type === "STREAMING")
-            .map(link => ({ site: link.site, url: link.url, icon: link.icon })) || [];
+          const streamingLinks =
+            media.externalLinks
+              ?.filter((link) => link.type === "STREAMING")
+              .map((link) => ({ site: link.site, url: link.url, icon: link.icon })) || [];
 
           const cacheEntry: AnimeCache = {
             id: media.id,
@@ -151,7 +157,7 @@ export async function GET(request: NextRequest) {
     if (staleAiringIds.length > 0) {
       const freshAiring = await getBatchAiringInfo(staleAiringIds);
       await upsertManyAiringCache(freshAiring);
-      
+
       // Update local cache
       for (const [id, data] of freshAiring) {
         if (data) {

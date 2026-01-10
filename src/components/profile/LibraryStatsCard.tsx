@@ -1,7 +1,15 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, Badge, Flex } from "@/components/ds";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  Badge,
+  Flex,
+} from "@/components/ds";
 import type { LibraryStats } from "@/lib/hooks/useProfile";
 
 interface LibraryStatsCardProps {

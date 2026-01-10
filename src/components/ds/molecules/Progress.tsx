@@ -36,7 +36,8 @@ const progressBarVariants = cva("h-full transition-all duration-300 ease-in-out"
 });
 
 export interface ProgressProps
-  extends React.HTMLAttributes<HTMLDivElement>,
+  extends
+    React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof progressVariants>,
     VariantProps<typeof progressBarVariants> {
   /**
@@ -81,9 +82,7 @@ const Progress = React.forwardRef<HTMLDivElement, ProgressProps>(
     ref
   ) => {
     const percentage = Math.min(Math.max((value / max) * 100, 0), 100);
-    const label = formatLabel
-      ? formatLabel(value, max)
-      : `${Math.round(percentage)}%`;
+    const label = formatLabel ? formatLabel(value, max) : `${Math.round(percentage)}%`;
 
     return (
       <div className="w-full space-y-1">

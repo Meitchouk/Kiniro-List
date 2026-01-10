@@ -14,7 +14,11 @@ interface CalendarDateGroupProps {
   timezone: string;
 }
 
-function formatDateHeader(dateKey: string, timezone: string, t: ReturnType<typeof useTranslations>) {
+function formatDateHeader(
+  dateKey: string,
+  timezone: string,
+  t: ReturnType<typeof useTranslations>
+) {
   const dt = DateTime.fromISO(dateKey).setZone(timezone);
   const today = DateTime.now().setZone(timezone).startOf("day");
   const tomorrow = today.plus({ days: 1 });

@@ -3,7 +3,12 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { useAuth } from "@/components/providers/AuthProvider";
-import { getLibrary, upsertLibraryEntry, deleteLibraryEntry, setAuthHeadersGetter } from "@/lib/api";
+import {
+  getLibrary,
+  upsertLibraryEntry,
+  deleteLibraryEntry,
+  setAuthHeadersGetter,
+} from "@/lib/api";
 import { toast } from "sonner";
 import type { LibraryStatus } from "@/lib/types";
 
@@ -24,8 +29,7 @@ export function useLibrary() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: (params: { animeId: number; status: LibraryStatus }) =>
-      upsertLibraryEntry(params),
+    mutationFn: (params: { animeId: number; status: LibraryStatus }) => upsertLibraryEntry(params),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["library"] });
       toast.success(t("library.updated"));

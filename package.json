@@ -7,6 +7,8 @@
     "build": "next build",
     "start": "next start",
     "check": "eslint . && tsc --noEmit && npm run build",
+    "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,css}\" \"scripts/**/*.{ts,js}\"",
+    "format:check": "prettier --check \"src/**/*.{ts,tsx,js,jsx,css}\" \"scripts/**/*.{ts,js}\"",
     "env:init": "node scripts/env-init.js",
     "env:from-firebase": "node scripts/env-from-firebase.js"
   },
@@ -51,6 +53,8 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "15.1.6",
+    "prettier": "^3.7.4",
+    "prettier-plugin-tailwindcss": "^0.7.2",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

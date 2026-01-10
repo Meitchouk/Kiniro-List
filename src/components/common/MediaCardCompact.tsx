@@ -36,27 +36,27 @@ export function MediaCardCompact({
 
   return (
     <Link href={`/anime/${slug}`} className="group">
-      <Card className="h-full overflow-hidden transition-all hover:shadow-lg hover:-translate-y-1">
+      <Card className="h-full overflow-hidden transition-all hover:-translate-y-1 hover:shadow-lg">
         <div className="flex">
-          <div className="relative w-16 h-24 shrink-0">
-            <Image
-              src={cover}
-              alt={displayTitle}
-              fill
-              className="object-cover"
-              sizes="64px"
-            />
+          <div className="relative h-24 w-16 shrink-0">
+            <Image src={cover} alt={displayTitle} fill className="object-cover" sizes="64px" />
           </div>
-          <CardContent className="flex-1 p-3 flex flex-col justify-between min-w-0">
+          <CardContent className="flex min-w-0 flex-1 flex-col justify-between p-3">
             <div>
-              <Typography variant="body2" weight="medium" className="line-clamp-2 group-hover:text-primary transition-colors">
+              <Typography
+                variant="body2"
+                weight="medium"
+                className="group-hover:text-primary line-clamp-2 transition-colors"
+              >
                 {displayTitle}
               </Typography>
               {subtitle && (
-                <Typography variant="caption" colorScheme="secondary" className="mt-0.5">{subtitle}</Typography>
+                <Typography variant="caption" colorScheme="secondary" className="mt-0.5">
+                  {subtitle}
+                </Typography>
               )}
             </div>
-            <div className="flex items-center gap-2 mt-1">
+            <div className="mt-1 flex items-center gap-2">
               {badge && (
                 <Badge variant={badge.variant || "secondary"} className="text-xs">
                   {badge.text}

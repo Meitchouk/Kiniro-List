@@ -8,7 +8,7 @@ import { useSeasonCalendar } from "@/lib/hooks/useSeasonCalendar";
 
 export default function CalendarUpcomingPage() {
   const t = useTranslations();
-  
+
   const { data, isLoading, error, refetch, handlePageChange } = useSeasonCalendar({
     type: "upcoming",
   });

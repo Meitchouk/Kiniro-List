@@ -1,7 +1,17 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { Tabs, TabsContent, TabsList, TabsTrigger, Badge, Card, CardContent, Typography, Flex } from "@/components/ds";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+  Badge,
+  Card,
+  CardContent,
+  Typography,
+  Flex,
+} from "@/components/ds";
 import { Calendar } from "lucide-react";
 import { ScheduleItemCard } from "./ScheduleItemCard";
 import type { WeeklyScheduleItem } from "@/lib/types";
@@ -30,7 +40,7 @@ export function WeeklyScheduleTabs({ schedule }: WeeklyScheduleTabsProps) {
             <TabsTrigger
               key={day}
               value={String(day)}
-              className="flex flex-col gap-1 py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+              className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground flex flex-col gap-1 py-2"
             >
               <Typography variant="body2" weight="medium" className="hidden sm:inline">
                 {t(`schedule.weekdays.${day}`)}
@@ -54,13 +64,9 @@ export function WeeklyScheduleTabs({ schedule }: WeeklyScheduleTabsProps) {
         return (
           <TabsContent key={day} value={String(day)} className="pt-10">
             <Flex align="center" gap={2} className="mb-4">
-              {isToday && <Calendar className="h-5 w-5 text-primary" />}
-              <Typography variant="h5">
-                {t(`schedule.weekdays.${day}`)}
-              </Typography>
-              <Badge variant={isToday ? "default" : "secondary"}>
-                {animeCount}
-              </Badge>
+              {isToday && <Calendar className="text-primary h-5 w-5" />}
+              <Typography variant="h5">{t(`schedule.weekdays.${day}`)}</Typography>
+              <Badge variant={isToday ? "default" : "secondary"}>{animeCount}</Badge>
             </Flex>
 
             {animeCount === 0 ? (

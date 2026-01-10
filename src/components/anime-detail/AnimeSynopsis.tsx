@@ -21,7 +21,11 @@ export function AnimeSynopsis({ description }: AnimeSynopsisProps) {
         <CardTitle>{t("synopsis")}</CardTitle>
       </CardHeader>
       <CardContent>
-        <Typography variant="body2" colorScheme="secondary" className="whitespace-pre-line leading-relaxed">
+        <Typography
+          variant="body2"
+          colorScheme="secondary"
+          className="leading-relaxed whitespace-pre-line"
+        >
           {description.replace(/<br\s*\/?>/gi, "\n")}
         </Typography>
       </CardContent>

@@ -30,7 +30,7 @@ export function ProfileQuickNav() {
     <Grid cols={1} smCols={3} gap={4}>
       {navItems.map((item) => (
         <Link key={item.href} href={item.href}>
-          <Button variant="outline" className="w-full h-20">
+          <Button variant="outline" className="h-20 w-full">
             <Stack align="center" gap={2}>
               {icons[item.href]}
               <Typography variant="body2">{t(item.labelKey)}</Typography>

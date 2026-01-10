@@ -1,19 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAnimeById } from "@/lib/anilist/client";
-import { 
-  getAnimeFromCache, 
+import {
+  getAnimeFromCache,
   upsertAnimeCache,
   getAiringFromCache,
-  upsertAiringCache
+  upsertAiringCache,
 } from "@/lib/firestore/cache";
 import { checkRateLimit, rateLimitResponse } from "@/lib/ratelimit";
 import { animeIdSchema } from "@/lib/schemas";
 import type { AnimeDetailResponse } from "@/lib/types";
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     // Rate limit check
     const rateLimitResult = await checkRateLimit(request, "animeDetail");
@@ -25,10 +22,7 @@ export async function GET(
     const { id } = await params;
     const parseResult = animeIdSchema.safeParse({ id });
     if (!parseResult.success) {
-      return NextResponse.json(
-        { error: "Invalid anime ID" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Invalid anime ID" }, { status: 400 });
     }
 
     const animeId = parseResult.data.id;
@@ -38,7 +32,7 @@ export async function GET(
 
     // Fetch from AniList (always for detail view to get all fields)
     const media = await getAnimeById(animeId);
-    
+
     if (!anime) {
       // Cache basic info for future list views (also generates slug)
       anime = await upsertAnimeCache(media);
@@ -54,10 +48,7 @@ export async function GET(
     }
 
     if (!anime) {
-      return NextResponse.json(
-        { error: "Anime not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Anime not found" }, { status: 404 });
     }
 
     // Get airing info
@@ -91,9 +82,6 @@ export async function GET(
     return NextResponse.json(response);
   } catch (error) {
     console.error("Anime detail error:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch anime details" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to fetch anime details" }, { status: 500 });
   }
 }

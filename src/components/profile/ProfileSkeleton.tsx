@@ -5,7 +5,7 @@ import { Skeleton, Container, Stack, Grid } from "@/components/ds";
 export function ProfileSkeleton() {
   return (
     <Container className="py-8">
-      <Stack className="max-w-2xl mx-auto" gap={6}>
+      <Stack className="mx-auto max-w-2xl" gap={6}>
         <Skeleton className="h-48 w-full" />
         <Skeleton className="h-32 w-full" />
         <Grid cols={1} smCols={3} gap={4}>

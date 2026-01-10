@@ -19,8 +19,7 @@ const emptyStateVariants = cva("text-center py-12", {
 });
 
 export interface EmptyStateProps
-  extends React.HTMLAttributes<HTMLDivElement>,
-    VariantProps<typeof emptyStateVariants> {
+  extends React.HTMLAttributes<HTMLDivElement>, VariantProps<typeof emptyStateVariants> {
   /**
    * Icon to display
    */
@@ -45,58 +44,36 @@ export interface EmptyStateProps
 }
 
 const EmptyState = React.forwardRef<HTMLDivElement, EmptyStateProps>(
-  (
-    {
-      className,
-      size,
-      icon: Icon,
-      title,
-      description,
-      action,
-      withCard = true,
-      ...props
-    },
-    ref
-  ) => {
+  ({ className, size, icon: Icon, title, description, action, withCard = true, ...props }, ref) => {
     const content = (
       <>
         {Icon && (
-          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-muted">
-            <Icon className="h-6 w-6 text-muted-foreground" />
+          <div className="bg-muted mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full">
+            <Icon className="text-muted-foreground h-6 w-6" />
           </div>
         )}
         <Typography variant="h5" className="mb-2">
           {title}
         </Typography>
         {description && (
-          <Typography variant="body2" colorScheme="secondary" className="mb-6 max-w-md mx-auto">
+          <Typography variant="body2" colorScheme="secondary" className="mx-auto mb-6 max-w-md">
             {description}
           </Typography>
         )}
-        {action && (
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            {action}
-          </div>
-        )}
+        {action && <div className="flex flex-col justify-center gap-3 sm:flex-row">{action}</div>}
       </>
     );
 
     if (withCard) {
       return (
         <Card ref={ref} className={className} {...props}>
-          <CardContent className={cn(emptyStateVariants({ size }))}>
-            {content}
-          </CardContent>
+          <CardContent className={cn(emptyStateVariants({ size }))}>{content}</CardContent>
         </Card>
       );
     }
 
     return (
-      <div
-        ref={ref}
-        className={cn(emptyStateVariants({ size }), className)}
-        {...props}
-      >
+      <div ref={ref} className={cn(emptyStateVariants({ size }), className)} {...props}>
         {content}
       </div>
     );
@@ -116,10 +93,12 @@ function NoResults({
   description,
   ...props
 }: NoResultsProps) {
-  const desc = description || (searchTerm
-    ? `No results found for "${searchTerm}". Try adjusting your search.`
-    : "Try adjusting your filters or search terms.");
-    
+  const desc =
+    description ||
+    (searchTerm
+      ? `No results found for "${searchTerm}". Try adjusting your search.`
+      : "Try adjusting your filters or search terms.");
+
   return <EmptyState title={title} description={desc} {...props} />;
 }
 

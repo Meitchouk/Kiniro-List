@@ -48,7 +48,10 @@ const typographyVariants = cva("", {
 
 type TypographyElement = "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "p" | "span" | "div" | "label";
 
-const variantElementMap: Record<NonNullable<VariantProps<typeof typographyVariants>["variant"]>, TypographyElement> = {
+const variantElementMap: Record<
+  NonNullable<VariantProps<typeof typographyVariants>["variant"]>,
+  TypographyElement
+> = {
   h1: "h1",
   h2: "h2",
   h3: "h3",
@@ -64,7 +67,8 @@ const variantElementMap: Record<NonNullable<VariantProps<typeof typographyVarian
 };
 
 export interface TypographyProps
-  extends Omit<React.HTMLAttributes<HTMLElement>, 'color'>,
+  extends
+    Omit<React.HTMLAttributes<HTMLElement>, "color">,
     VariantProps<typeof typographyVariants> {
   /**
    * The HTML element to render
@@ -112,9 +116,7 @@ const Typography = React.forwardRef<HTMLElement, TypographyProps>(
     },
     ref
   ) => {
-    const Comp = asChild
-      ? Slot
-      : as || variantElementMap[variant || "body1"];
+    const Comp = asChild ? Slot : as || variantElementMap[variant || "body1"];
 
     return (
       <Comp

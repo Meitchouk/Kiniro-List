@@ -1,15 +1,15 @@
-import { useEffect, useRef } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useTheme } from 'next-themes';
-import { useRouter } from 'next/navigation';
-import { toast } from 'sonner';
-import { settingsSchema } from '@/lib/schemas';
-import { updateSettings } from '@/lib/api';
-import { getBrowserTimezone } from '@/lib/utils/timezone';
-import { deepEqual } from '@/lib/utils/common';
-import type { SettingsFormData, UserResponse } from '@/lib/types';
+import { useEffect, useRef } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useTheme } from "next-themes";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { settingsSchema } from "@/lib/schemas";
+import { updateSettings } from "@/lib/api";
+import { getBrowserTimezone } from "@/lib/utils/timezone";
+import { deepEqual } from "@/lib/utils/common";
+import type { SettingsFormData, UserResponse } from "@/lib/types";
 
 interface UseSettingsFormOptions {
   userData?: UserResponse;
@@ -28,9 +28,9 @@ export function useSettingsForm({ userData, onLocaleChange }: UseSettingsFormOpt
     resolver: zodResolver(settingsSchema),
     defaultValues: {
       timezone: browserTimezone,
-      locale: 'en',
-      theme: 'system',
-      calendarView: 'weekly',
+      locale: "en",
+      theme: "system",
+      calendarView: "weekly",
       filters: {
         hideAdult: true,
         onlyWatching: true,
@@ -47,10 +47,10 @@ export function useSettingsForm({ userData, onLocaleChange }: UseSettingsFormOpt
       }
 
       // Show success toast
-      toast.success('Settings saved');
+      toast.success("Settings saved");
 
       // Invalidate and wait for refetch
-      await queryClient.invalidateQueries({ queryKey: ['me'] });
+      await queryClient.invalidateQueries({ queryKey: ["me"] });
 
       // If locale changed, refresh the page to apply new language
       if (variables.locale && variables.locale !== userData?.locale) {
@@ -62,8 +62,8 @@ export function useSettingsForm({ userData, onLocaleChange }: UseSettingsFormOpt
       }
     },
     onError: (error) => {
-      console.error('Settings update error:', error);
-      toast.error('Failed to save settings');
+      console.error("Settings update error:", error);
+      toast.error("Failed to save settings");
     },
   });
 
@@ -73,9 +73,9 @@ export function useSettingsForm({ userData, onLocaleChange }: UseSettingsFormOpt
 
     const nextValues: SettingsFormData = {
       timezone: userData.timezone || browserTimezone,
-      locale: userData.locale || 'en',
-      theme: userData.theme || 'system',
-      calendarView: userData.calendarView || 'weekly',
+      locale: userData.locale || "en",
+      theme: userData.theme || "system",
+      calendarView: userData.calendarView || "weekly",
       filters: userData.filters || { hideAdult: true, onlyWatching: true },
     };
 

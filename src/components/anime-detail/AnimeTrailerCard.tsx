@@ -70,7 +70,7 @@ export function AnimeTrailerCard({ trailer }: AnimeTrailerCardProps) {
         <button
           type="button"
           onClick={() => embedUrl && setTrailerOpen(true)}
-          className="group relative block w-full overflow-hidden rounded-md border border-border/60 bg-muted/40"
+          className="group border-border/60 bg-muted/40 relative block w-full overflow-hidden rounded-md border"
         >
           <div className="relative aspect-video overflow-hidden">
             <Image
@@ -87,7 +87,7 @@ export function AnimeTrailerCard({ trailer }: AnimeTrailerCardProps) {
 
         {embedUrl ? (
           <Dialog open={trailerOpen} onOpenChange={setTrailerOpen}>
-            <DialogContent className="max-w-5xl border-border bg-background/95 p-0">
+            <DialogContent className="border-border bg-background/95 max-w-5xl p-0">
               <DialogHeader className="sr-only">
                 <DialogTitle>{t("trailer")}</DialogTitle>
               </DialogHeader>
@@ -103,9 +103,7 @@ export function AnimeTrailerCard({ trailer }: AnimeTrailerCardProps) {
             </DialogContent>
           </Dialog>
         ) : (
-          <p className="mt-3 text-xs text-muted-foreground">
-            {t("trailerUnavailableInline")}
-          </p>
+          <p className="text-muted-foreground mt-3 text-xs">{t("trailerUnavailableInline")}</p>
         )}
       </CardContent>
     </Card>

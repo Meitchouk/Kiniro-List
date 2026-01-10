@@ -42,12 +42,7 @@ const Spacer = React.forwardRef<HTMLDivElement, SpacerProps>(
     return (
       <div
         ref={ref}
-        className={cn(
-          "shrink-0",
-          axis === "vertical" ? "w-full" : "h-full",
-          sizeClass,
-          className
-        )}
+        className={cn("shrink-0", axis === "vertical" ? "w-full" : "h-full", sizeClass, className)}
         aria-hidden="true"
         {...props}
       />

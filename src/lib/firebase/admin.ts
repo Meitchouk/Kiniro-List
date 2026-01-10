@@ -13,7 +13,7 @@ function getAdminApp(): App {
       app = apps[0];
     } else {
       const privateKey = process.env.FIREBASE_ADMIN_PRIVATE_KEY?.replace(/\\n/g, "\n");
-      
+
       app = initializeApp({
         credential: cert({
           projectId: process.env.FIREBASE_ADMIN_PROJECT_ID,

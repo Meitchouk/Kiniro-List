@@ -26,7 +26,7 @@ export function AddToLibrarySection({ onAdd, isPending }: AddToLibrarySectionPro
   const t = useTranslations();
 
   return (
-    <Card className="border-2 border-primary/30">
+    <Card className="border-primary/30 border-2">
       <CardHeader>
         <CardTitle className="text-base">{t("anime.addToLibrary")}</CardTitle>
       </CardHeader>

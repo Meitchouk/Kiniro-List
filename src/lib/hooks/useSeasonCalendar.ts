@@ -24,9 +24,8 @@ export function useSeasonCalendar({
 }: UseSeasonCalendarOptions) {
   const [page, setPage] = useState(1);
 
-  const queryKey = type === "specific" 
-    ? ["calendar-season", year, season, page]
-    : [`calendar-${type}`, page];
+  const queryKey =
+    type === "specific" ? ["calendar-season", year, season, page] : [`calendar-${type}`, page];
 
   const queryFn = () => {
     switch (type) {

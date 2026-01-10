@@ -19,12 +19,12 @@ async function generateUniqueSlug(
 ): Promise<string> {
   const displayTitle = getLocalizedTitle(title);
   let slug = generateSlug(displayTitle);
-  
+
   if (!slug) {
     // Fallback to romaji if english produces empty slug
     slug = generateSlug(title.romaji);
   }
-  
+
   if (!slug) {
     // Last resort: use ID
     return `anime-${animeId}`;
@@ -40,20 +40,18 @@ async function generateUniqueSlug(
   }
 
   // Check if slug is already taken by another anime
-  const slugQuery = await db.collection("anime")
-    .where("slug", "==", slug)
-    .limit(1)
-    .get();
-  
+  const slugQuery = await db.collection("anime").where("slug", "==", slug).limit(1).get();
+
   if (slugQuery.empty) {
     return slug; // Slug is available
   }
-  
+
   // Slug is taken - try with romaji if we used english
   if (title.english && title.romaji !== title.english) {
     const romajiSlug = generateSlug(title.romaji);
     if (romajiSlug && romajiSlug !== slug) {
-      const romajiQuery = await db.collection("anime")
+      const romajiQuery = await db
+        .collection("anime")
         .where("slug", "==", romajiSlug)
         .limit(1)
         .get();
@@ -62,16 +60,13 @@ async function generateUniqueSlug(
       }
     }
   }
-  
+
   // Add year suffix if available
   const animeDoc = await db.collection("anime").doc(String(animeId)).get();
   const year = animeDoc.data()?.seasonYear;
   if (year) {
     const yearSlug = `${slug}-${year}`;
-    const yearQuery = await db.collection("anime")
-      .where("slug", "==", yearSlug)
-      .limit(1)
-      .get();
+    const yearQuery = await db.collection("anime").where("slug", "==", yearSlug).limit(1).get();
     if (yearQuery.empty) {
       return yearSlug;
     }
@@ -88,18 +83,15 @@ async function generateUniqueSlug(
  */
 export async function getAnimeBySlug(slug: string): Promise<AnimeCache | null> {
   const db = getAdminFirestore();
-  const query = await db.collection("anime")
-    .where("slug", "==", slug)
-    .limit(1)
-    .get();
-  
+  const query = await db.collection("anime").where("slug", "==", slug).limit(1).get();
+
   if (query.empty) {
     return null;
   }
-  
+
   const doc = query.docs[0];
   const data = doc.data() as AnimeCache & { updatedAt: Timestamp };
-  
+
   return {
     ...data,
     updatedAt: data.updatedAt?.toDate() || new Date(),
@@ -109,22 +101,22 @@ export async function getAnimeBySlug(slug: string): Promise<AnimeCache | null> {
 export async function getAnimeFromCache(animeId: number): Promise<AnimeCache | null> {
   const db = getAdminFirestore();
   const doc = await db.collection("anime").doc(String(animeId)).get();
-  
+
   if (!doc.exists) {
     return null;
   }
-  
+
   const data = doc.data() as AnimeCache & { updatedAt: Timestamp };
-  
+
   // Check if stale
   const updatedAt = data.updatedAt.toDate();
   const now = new Date();
   const diffDays = (now.getTime() - updatedAt.getTime()) / (1000 * 60 * 60 * 24);
-  
+
   if (diffDays > ANIME_CACHE_TTL_DAYS) {
     return null; // Stale, need to refresh
   }
-  
+
   return {
     ...data,
     updatedAt: updatedAt,
@@ -133,11 +125,12 @@ export async function getAnimeFromCache(animeId: number): Promise<AnimeCache | n
 
 export async function upsertAnimeCache(media: AniListMedia): Promise<AnimeCache> {
   const db = getAdminFirestore();
-  
+
   // Extract streaming links from external links
-  const streamingLinks = media.externalLinks
-    ?.filter(link => link.type === "STREAMING")
-    .map(link => ({ site: link.site, url: link.url, icon: link.icon })) || [];
+  const streamingLinks =
+    media.externalLinks
+      ?.filter((link) => link.type === "STREAMING")
+      .map((link) => ({ site: link.site, url: link.url, icon: link.icon })) || [];
 
   // Generate unique slug
   const slug = await generateUniqueSlug(db, media.id, media.title);
@@ -161,9 +154,9 @@ export async function upsertAnimeCache(media: AniListMedia): Promise<AnimeCache>
     source: "anilist",
     updatedAt: FieldValue.serverTimestamp(),
   };
-  
+
   await db.collection("anime").doc(String(media.id)).set(animeData, { merge: true });
-  
+
   return {
     ...animeData,
     slug,
@@ -173,45 +166,50 @@ export async function upsertAnimeCache(media: AniListMedia): Promise<AnimeCache>
 
 export async function upsertManyAnimeCache(mediaList: AniListMedia[]): Promise<void> {
   const db = getAdminFirestore();
-  
+
   // Generate slugs for all media first (need to do this before batch)
   const slugs = await Promise.all(
-    mediaList.map(media => generateUniqueSlug(db, media.id, media.title))
+    mediaList.map((media) => generateUniqueSlug(db, media.id, media.title))
   );
-  
+
   const batch = db.batch();
-  
+
   for (let i = 0; i < mediaList.length; i++) {
     const media = mediaList[i];
     const slug = slugs[i];
-    
+
     // Extract streaming links from external links
-    const streamingLinks = media.externalLinks
-      ?.filter(link => link.type === "STREAMING")
-      .map(link => ({ site: link.site, url: link.url, icon: link.icon })) || [];
+    const streamingLinks =
+      media.externalLinks
+        ?.filter((link) => link.type === "STREAMING")
+        .map((link) => ({ site: link.site, url: link.url, icon: link.icon })) || [];
 
     const ref = db.collection("anime").doc(String(media.id));
-    batch.set(ref, {
-      id: media.id,
-      slug,
-      title: media.title,
-      coverImage: media.coverImage,
-      bannerImage: media.bannerImage,
-      description: sanitizeHtml(media.description),
-      genres: media.genres || [],
-      season: media.season,
-      seasonYear: media.seasonYear,
-      status: media.status,
-      episodes: media.episodes,
-      format: media.format,
-      isAdult: media.isAdult || false,
-      siteUrl: media.siteUrl,
-      streamingLinks,
-      source: "anilist",
-      updatedAt: FieldValue.serverTimestamp(),
-    }, { merge: true });
+    batch.set(
+      ref,
+      {
+        id: media.id,
+        slug,
+        title: media.title,
+        coverImage: media.coverImage,
+        bannerImage: media.bannerImage,
+        description: sanitizeHtml(media.description),
+        genres: media.genres || [],
+        season: media.season,
+        seasonYear: media.seasonYear,
+        status: media.status,
+        episodes: media.episodes,
+        format: media.format,
+        isAdult: media.isAdult || false,
+        siteUrl: media.siteUrl,
+        streamingLinks,
+        source: "anilist",
+        updatedAt: FieldValue.serverTimestamp(),
+      },
+      { merge: true }
+    );
   }
-  
+
   await batch.commit();
 }
 
@@ -220,26 +218,26 @@ export async function upsertManyAnimeCache(mediaList: AniListMedia[]): Promise<v
 export async function getAiringFromCache(animeId: number): Promise<AnimeAiringCache | null> {
   const db = getAdminFirestore();
   const doc = await db.collection("animeAiring").doc(String(animeId)).get();
-  
+
   if (!doc.exists) {
     return null;
   }
-  
-  const data = doc.data() as AnimeAiringCache & { 
+
+  const data = doc.data() as AnimeAiringCache & {
     lastFetchedAt: Timestamp;
     updatedAt: Timestamp;
     nextAiringAt?: Timestamp | null;
   };
-  
+
   // Check if stale
   const lastFetchedAt = data.lastFetchedAt.toDate();
   const now = new Date();
   const diffMinutes = (now.getTime() - lastFetchedAt.getTime()) / (1000 * 60);
-  
+
   if (diffMinutes > AIRING_CACHE_TTL_MINUTES) {
     return null; // Stale, need to refresh
   }
-  
+
   return {
     animeId: data.animeId,
     nextAiringAt: data.nextAiringAt?.toDate() || null,
@@ -255,14 +253,20 @@ export async function upsertAiringCache(
   nextEpisodeNumber: number | null
 ): Promise<void> {
   const db = getAdminFirestore();
-  
-  await db.collection("animeAiring").doc(String(animeId)).set({
-    animeId,
-    nextAiringAt: nextAiringAt ? Timestamp.fromMillis(nextAiringAt * 1000) : null,
-    nextEpisodeNumber,
-    lastFetchedAt: FieldValue.serverTimestamp(),
-    updatedAt: FieldValue.serverTimestamp(),
-  }, { merge: true });
+
+  await db
+    .collection("animeAiring")
+    .doc(String(animeId))
+    .set(
+      {
+        animeId,
+        nextAiringAt: nextAiringAt ? Timestamp.fromMillis(nextAiringAt * 1000) : null,
+        nextEpisodeNumber,
+        lastFetchedAt: FieldValue.serverTimestamp(),
+        updatedAt: FieldValue.serverTimestamp(),
+      },
+      { merge: true }
+    );
 }
 
 export async function upsertManyAiringCache(
@@ -270,18 +274,22 @@ export async function upsertManyAiringCache(
 ): Promise<void> {
   const db = getAdminFirestore();
   const batch = db.batch();
-  
+
   for (const [animeId, data] of airingData) {
     const ref = db.collection("animeAiring").doc(String(animeId));
-    batch.set(ref, {
-      animeId,
-      nextAiringAt: data ? Timestamp.fromMillis(data.airingAt * 1000) : null,
-      nextEpisodeNumber: data?.episode || null,
-      lastFetchedAt: FieldValue.serverTimestamp(),
-      updatedAt: FieldValue.serverTimestamp(),
-    }, { merge: true });
+    batch.set(
+      ref,
+      {
+        animeId,
+        nextAiringAt: data ? Timestamp.fromMillis(data.airingAt * 1000) : null,
+        nextEpisodeNumber: data?.episode || null,
+        lastFetchedAt: FieldValue.serverTimestamp(),
+        updatedAt: FieldValue.serverTimestamp(),
+      },
+      { merge: true }
+    );
   }
-  
+
   await batch.commit();
 }
 
@@ -291,20 +299,20 @@ export async function getManyAnimeFromCache(animeIds: number[]): Promise<Map<num
   if (animeIds.length === 0) {
     return new Map();
   }
-  
+
   const db = getAdminFirestore();
   const results = new Map<number, AnimeCache>();
-  
+
   // Firestore has a limit of 30 for whereIn, so we batch
   const batches: number[][] = [];
   for (let i = 0; i < animeIds.length; i += 30) {
     batches.push(animeIds.slice(i, i + 30));
   }
-  
+
   for (const batch of batches) {
-    const refs = batch.map(id => db.collection("anime").doc(String(id)));
+    const refs = batch.map((id) => db.collection("anime").doc(String(id)));
     const docs = await db.getAll(...refs);
-    
+
     for (const doc of docs) {
       if (doc.exists) {
         const data = doc.data() as AnimeCache & { updatedAt: Timestamp };
@@ -315,33 +323,35 @@ export async function getManyAnimeFromCache(animeIds: number[]): Promise<Map<num
       }
     }
   }
-  
+
   return results;
 }
 
-export async function getManyAiringFromCache(animeIds: number[]): Promise<Map<number, AnimeAiringCache>> {
+export async function getManyAiringFromCache(
+  animeIds: number[]
+): Promise<Map<number, AnimeAiringCache>> {
   if (animeIds.length === 0) {
     return new Map();
   }
-  
+
   const db = getAdminFirestore();
   const results = new Map<number, AnimeAiringCache>();
   const now = new Date();
-  
-  const refs = animeIds.map(id => db.collection("animeAiring").doc(String(id)));
+
+  const refs = animeIds.map((id) => db.collection("animeAiring").doc(String(id)));
   const docs = await db.getAll(...refs);
-  
+
   for (const doc of docs) {
     if (doc.exists) {
-      const data = doc.data() as AnimeAiringCache & { 
+      const data = doc.data() as AnimeAiringCache & {
         lastFetchedAt: Timestamp;
         updatedAt: Timestamp;
         nextAiringAt?: Timestamp | null;
       };
-      
+
       const lastFetchedAt = data.lastFetchedAt.toDate();
       const diffMinutes = (now.getTime() - lastFetchedAt.getTime()) / (1000 * 60);
-      
+
       // Only return non-stale entries
       if (diffMinutes <= AIRING_CACHE_TTL_MINUTES) {
         results.set(data.animeId, {
@@ -354,7 +364,7 @@ export async function getManyAiringFromCache(animeIds: number[]): Promise<Map<nu
       }
     }
   }
-  
+
   return results;
 }
 
@@ -372,10 +382,7 @@ interface SeasonCacheData {
 /**
  * Get cached anime IDs for a season
  */
-export async function getSeasonFromCache(
-  season: string,
-  year: number
-): Promise<number[] | null> {
+export async function getSeasonFromCache(season: string, year: number): Promise<number[] | null> {
   const db = getAdminFirestore();
   const docId = `${year}-${season}`;
   const doc = await db.collection("seasonCache").doc(docId).get();

@@ -31,16 +31,9 @@ const spacingClasses = {
 };
 
 const Section = React.forwardRef<HTMLElement, SectionProps>(
-  (
-    { className, title, subtitle, action, spacing = "md", children, ...props },
-    ref
-  ) => {
+  ({ className, title, subtitle, action, spacing = "md", children, ...props }, ref) => {
     return (
-      <section
-        ref={ref}
-        className={cn(spacingClasses[spacing], className)}
-        {...props}
-      >
+      <section ref={ref} className={cn(spacingClasses[spacing], className)} {...props}>
         {(title || subtitle || action) && (
           <div className="mb-6 flex items-start justify-between gap-4">
             <div>
@@ -77,13 +70,7 @@ const bgClasses = {
 
 const PageSection = React.forwardRef<HTMLElement, PageSectionProps>(
   ({ className, bg = "default", ...props }, ref) => {
-    return (
-      <Section
-        ref={ref}
-        className={cn(bgClasses[bg], className)}
-        {...props}
-      />
-    );
+    return <Section ref={ref} className={cn(bgClasses[bg], className)} {...props} />;
   }
 );
 PageSection.displayName = "PageSection";

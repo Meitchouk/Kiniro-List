@@ -26,8 +26,7 @@ const textAreaVariants = cva(
 );
 
 export interface TextAreaProps
-  extends React.TextareaHTMLAttributes<HTMLTextAreaElement>,
-    VariantProps<typeof textAreaVariants> {
+  extends React.TextareaHTMLAttributes<HTMLTextAreaElement>, VariantProps<typeof textAreaVariants> {
   /**
    * The label for the textarea
    */
@@ -72,7 +71,7 @@ const TextArea = React.forwardRef<HTMLTextAreaElement, TextAreaProps>(
     const charCount = typeof value === "string" ? value.length : 0;
 
     return (
-      <div className="space-y-2 w-full">
+      <div className="w-full space-y-2">
         {label && (
           <Label htmlFor={inputId} className={cn(hasError && "text-destructive")}>
             {label}
@@ -85,24 +84,22 @@ const TextArea = React.forwardRef<HTMLTextAreaElement, TextAreaProps>(
           maxLength={maxLength}
           className={cn(textAreaVariants({ error: hasError, resize }), className)}
           aria-invalid={hasError ? "true" : undefined}
-          aria-describedby={
-            hasError ? errorId : helperText ? descriptionId : undefined
-          }
+          aria-describedby={hasError ? errorId : helperText ? descriptionId : undefined}
           {...props}
         />
         <div className="flex justify-between">
           {helperText && !hasError && (
-            <p id={descriptionId} className="text-sm text-muted-foreground">
+            <p id={descriptionId} className="text-muted-foreground text-sm">
               {helperText}
             </p>
           )}
           {hasError && errorText && (
-            <p id={errorId} className="text-sm text-destructive" role="alert">
+            <p id={errorId} className="text-destructive text-sm" role="alert">
               {errorText}
             </p>
           )}
           {showCount && maxLength && (
-            <p className="text-sm text-muted-foreground ml-auto">
+            <p className="text-muted-foreground ml-auto text-sm">
               {charCount}/{maxLength}
             </p>
           )}

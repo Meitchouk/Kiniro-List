@@ -16,7 +16,12 @@ export function Footer() {
           gap={4}
           className="md:h-16 md:flex-row"
         >
-          <Typography variant="body2" colorScheme="secondary" align="center" className="md:text-left">
+          <Typography
+            variant="body2"
+            colorScheme="secondary"
+            align="center"
+            className="md:text-left"
+          >
             {t("common.appName")} © {new Date().getFullYear()}
           </Typography>
           <Typography variant="body2" colorScheme="secondary" align="center">
@@ -25,7 +30,7 @@ export function Footer() {
               href="https://anilist.co"
               target="_blank"
               rel="noopener noreferrer"
-              className="font-medium underline underline-offset-4 hover:text-primary"
+              className="hover:text-primary font-medium underline underline-offset-4"
             >
               AniList
             </a>

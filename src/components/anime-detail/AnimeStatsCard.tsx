@@ -33,7 +33,7 @@ export function AnimeStatsCard({
       <CardContent className="space-y-3">
         {averageScore && (
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 text-muted-foreground">
+            <div className="text-muted-foreground flex items-center gap-2">
               <Star className="h-4 w-4" />
               <span>{t("score")}</span>
             </div>
@@ -44,7 +44,7 @@ export function AnimeStatsCard({
         )}
         {popularity && (
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 text-muted-foreground">
+            <div className="text-muted-foreground flex items-center gap-2">
               <TrendingUp className="h-4 w-4" />
               <span>{t("popularity")}</span>
             </div>
@@ -53,7 +53,7 @@ export function AnimeStatsCard({
         )}
         {favourites && (
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 text-muted-foreground">
+            <div className="text-muted-foreground flex items-center gap-2">
               <Heart className="h-4 w-4" />
               <span>{t("favourites")}</span>
             </div>
@@ -62,7 +62,7 @@ export function AnimeStatsCard({
         )}
         {duration && (
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 text-muted-foreground">
+            <div className="text-muted-foreground flex items-center gap-2">
               <Clock className="h-4 w-4" />
               <span>{t("duration")}</span>
             </div>

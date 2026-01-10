@@ -17,14 +17,12 @@ export function EmptyState({ icon, title, description, action }: EmptyStateProps
   return (
     <Card>
       <CardContent className="py-12 text-center">
-        {icon && (
-          <div className="mx-auto mb-4 text-muted-foreground">
-            {icon}
-          </div>
-        )}
-        <Typography variant="h5" className="mb-2">{title}</Typography>
+        {icon && <div className="text-muted-foreground mx-auto mb-4">{icon}</div>}
+        <Typography variant="h5" className="mb-2">
+          {title}
+        </Typography>
         {description && (
-          <Typography variant="body2" colorScheme="secondary" className="mb-6 max-w-md mx-auto">
+          <Typography variant="body2" colorScheme="secondary" className="mx-auto mb-6 max-w-md">
             {description}
           </Typography>
         )}

@@ -95,25 +95,11 @@ const gridVariants = cva("grid", {
 });
 
 export interface GridProps
-  extends React.HTMLAttributes<HTMLDivElement>,
-    VariantProps<typeof gridVariants> {}
+  extends React.HTMLAttributes<HTMLDivElement>, VariantProps<typeof gridVariants> {}
 
 const Grid = React.forwardRef<HTMLDivElement, GridProps>(
   (
-    {
-      className,
-      cols,
-      smCols,
-      mdCols,
-      lgCols,
-      xlCols,
-      gap,
-      gapX,
-      gapY,
-      align,
-      justify,
-      ...props
-    },
+    { className, cols, smCols, mdCols, lgCols, xlCols, gap, gapX, gapY, align, justify, ...props },
     ref
   ) => {
     return (
@@ -142,7 +128,10 @@ const Grid = React.forwardRef<HTMLDivElement, GridProps>(
 Grid.displayName = "Grid";
 
 // Responsive grid preset for common patterns
-export interface ResponsiveGridProps extends Omit<GridProps, "cols" | "smCols" | "mdCols" | "lgCols" | "xlCols"> {
+export interface ResponsiveGridProps extends Omit<
+  GridProps,
+  "cols" | "smCols" | "mdCols" | "lgCols" | "xlCols"
+> {
   /**
    * Preset responsive column configuration
    */

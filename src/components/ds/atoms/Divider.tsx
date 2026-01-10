@@ -30,8 +30,7 @@ const dividerVariants = cva("shrink-0 bg-border", {
 });
 
 export interface DividerProps
-  extends React.HTMLAttributes<HTMLHRElement>,
-    VariantProps<typeof dividerVariants> {
+  extends React.HTMLAttributes<HTMLHRElement>, VariantProps<typeof dividerVariants> {
   /**
    * Text to display in the middle of the divider
    */
@@ -53,9 +52,7 @@ const Divider = React.forwardRef<HTMLHRElement, DividerProps>(
           )}
         >
           <div className={cn(dividerVariants({ orientation }))} />
-          <span className="text-xs text-muted-foreground whitespace-nowrap">
-            {label}
-          </span>
+          <span className="text-muted-foreground text-xs whitespace-nowrap">{label}</span>
           <div className={cn(dividerVariants({ orientation }))} />
         </div>
       );

@@ -1,7 +1,17 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { Tabs, TabsContent, TabsList, TabsTrigger, Badge, Card, CardContent, Typography, Grid } from "@/components/ds";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+  Badge,
+  Card,
+  CardContent,
+  Typography,
+  Grid,
+} from "@/components/ds";
 import { LibraryItemCard } from "./LibraryItemCard";
 import type { LibraryStatus, LibraryEntryWithAnime } from "@/lib/types";
 
@@ -29,17 +39,16 @@ export function LibraryTabs({
 }: LibraryTabsProps) {
   const t = useTranslations();
 
-  const getItemsByStatus = (status: string) =>
-    items.filter((item) => item.status === status);
+  const getItemsByStatus = (status: string) => items.filter((item) => item.status === status);
 
   return (
     <Tabs defaultValue={defaultStatus}>
-      <TabsList className="mb-6 flex-wrap h-auto gap-2 bg-transparent p-0">
+      <TabsList className="mb-6 h-auto flex-wrap gap-2 bg-transparent p-0">
         {STATUSES.map((status) => (
           <TabsTrigger
             key={status}
             value={status}
-            className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground hover:bg-muted border border-border rounded-md px-4 py-2"
+            className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground hover:bg-muted border-border gap-2 rounded-md border px-4 py-2"
           >
             {t(`library.${status}`)}
             <Badge variant="secondary" className="ml-1">

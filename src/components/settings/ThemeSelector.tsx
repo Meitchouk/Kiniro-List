@@ -18,9 +18,9 @@ interface ThemeSelectorProps {
 }
 
 const THEME_OPTIONS: { value: ThemePreference; labelKey: string }[] = [
-  { value: 'light', labelKey: 'settings.themeLight' },
-  { value: 'dark', labelKey: 'settings.themeDark' },
-  { value: 'system', labelKey: 'settings.themeSystem' },
+  { value: "light", labelKey: "settings.themeLight" },
+  { value: "dark", labelKey: "settings.themeDark" },
+  { value: "system", labelKey: "settings.themeSystem" },
 ];
 
 export function ThemeSelector({ value, onChange }: ThemeSelectorProps) {
@@ -28,10 +28,10 @@ export function ThemeSelector({ value, onChange }: ThemeSelectorProps) {
 
   return (
     <Stack gap={2}>
-      <Label htmlFor="theme">{t('settings.theme')}</Label>
+      <Label htmlFor="theme">{t("settings.theme")}</Label>
       <Select value={value} onValueChange={onChange}>
         <SelectTrigger id="theme">
-          <SelectValue placeholder={t('settings.selectTheme')} />
+          <SelectValue placeholder={t("settings.selectTheme")} />
         </SelectTrigger>
         <SelectContent>
           {THEME_OPTIONS.map((option) => (

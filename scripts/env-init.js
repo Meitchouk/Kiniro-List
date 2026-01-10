@@ -7,8 +7,8 @@ import path from "path";
 const envPath = path.join(__dirname, "..", ".env.local");
 
 if (fs.existsSync(envPath)) {
-    console.log(".env.local already exists. Skipping creation.");
-    process.exit(0);
+  console.log(".env.local already exists. Skipping creation.");
+  process.exit(0);
 }
 
 const template = `# ===========================================

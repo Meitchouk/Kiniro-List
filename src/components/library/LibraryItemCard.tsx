@@ -27,7 +27,7 @@ export function LibraryItemCard({
   isDeleting = false,
 }: LibraryItemCardProps) {
   const t = useTranslations();
-  
+
   const title = item.anime?.title?.english || item.anime?.title?.romaji || `Anime #${item.animeId}`;
   const coverImage = item.anime?.coverImage?.large;
   const slug = item.anime?.slug || "";
@@ -36,16 +36,11 @@ export function LibraryItemCard({
     <Card className="overflow-hidden">
       <div className="flex">
         <Link href={`/anime/${slug}`} className="shrink-0">
-          <div className="relative w-24 h-32">
+          <div className="relative h-32 w-24">
             {coverImage ? (
-              <Image
-                src={coverImage}
-                alt={title}
-                fill
-                className="object-cover"
-              />
+              <Image src={coverImage} alt={title} fill className="object-cover" />
             ) : (
-              <div className="w-full h-full bg-muted flex items-center justify-center">
+              <div className="bg-muted flex h-full w-full items-center justify-center">
                 <span className="text-muted-foreground text-xs">{t("common.noImage")}</span>
               </div>
             )}
@@ -53,7 +48,11 @@ export function LibraryItemCard({
         </Link>
         <CardContent className="flex-1 p-3">
           <Link href={`/anime/${slug}`}>
-            <Typography variant="body2" weight="medium" className="line-clamp-2 hover:text-primary transition-colors">
+            <Typography
+              variant="body2"
+              weight="medium"
+              className="hover:text-primary line-clamp-2 transition-colors"
+            >
               {title}
             </Typography>
           </Link>
@@ -78,7 +77,7 @@ export function LibraryItemCard({
             <Button
               variant="ghost"
               size="icon"
-              className="h-8 w-8 text-destructive hover:text-destructive"
+              className="text-destructive hover:text-destructive h-8 w-8"
               onClick={() => onRemove(item.animeId)}
               disabled={isDeleting}
             >

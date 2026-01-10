@@ -27,12 +27,7 @@ export function SeasonAnimeGrid({
   const t = useTranslations();
 
   if (anime.length === 0) {
-    return (
-      <EmptyState
-        title={t("common.noResults")}
-        description={t("calendar.noAnimeInSeason")}
-      />
-    );
+    return <EmptyState title={t("common.noResults")} description={t("calendar.noAnimeInSeason")} />;
   }
 
   return (
@@ -49,11 +44,7 @@ export function SeasonAnimeGrid({
 
       {/* Mobile top pagination */}
       <div className="md:hidden">
-        <Pagination
-          pagination={pagination}
-          onPageChange={onPageChange}
-          compact
-        />
+        <Pagination pagination={pagination} onPageChange={onPageChange} compact />
       </div>
 
       {/* Anime grid */}

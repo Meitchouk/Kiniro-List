@@ -2,4 +2,4 @@
  * Central export point for all constants
  */
 
-export * from './components';
+export * from "./components";

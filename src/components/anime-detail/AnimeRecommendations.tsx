@@ -46,7 +46,7 @@ export function AnimeRecommendations({ recommendations, maxItems = 6 }: AnimeRec
               <Link
                 key={`recommendation-${media.id}-${index}`}
                 href={`/anime/${recSlug}`}
-                className="flex gap-3 rounded-lg border p-3 transition-colors hover:bg-accent"
+                className="hover:bg-accent flex gap-3 rounded-lg border p-3 transition-colors"
               >
                 <div className="relative h-20 w-14 shrink-0 overflow-hidden rounded">
                   <Image

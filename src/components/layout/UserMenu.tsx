@@ -43,9 +43,7 @@ export function UserMenu() {
         <Button variant="ghost" className="relative h-8 w-8 rounded-full">
           <Avatar className="h-8 w-8">
             <AvatarImage src={user.photoURL || undefined} alt={user.displayName || "User"} />
-            <AvatarFallback>
-              {user.displayName?.charAt(0).toUpperCase() || "U"}
-            </AvatarFallback>
+            <AvatarFallback>{user.displayName?.charAt(0).toUpperCase() || "U"}</AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
@@ -53,7 +51,9 @@ export function UserMenu() {
         <div className="flex items-center justify-start gap-2 p-2">
           <div className="flex flex-col space-y-1 leading-none">
             {user.displayName && (
-              <Typography variant="body2" weight="medium">{user.displayName}</Typography>
+              <Typography variant="body2" weight="medium">
+                {user.displayName}
+              </Typography>
             )}
             {user.email && (
               <Typography variant="caption" colorScheme="secondary" truncate className="w-50">

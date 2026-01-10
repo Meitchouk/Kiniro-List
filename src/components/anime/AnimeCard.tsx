@@ -16,7 +16,7 @@ export function AnimeCard({ anime, showBadges = true }: AnimeCardProps) {
 
   return (
     <Link href={`/anime/${slug}`}>
-      <Card className="w-full group overflow-hidden transition-all hover:shadow-lg hover:-translate-y-1">
+      <Card className="group w-full overflow-hidden transition-all hover:-translate-y-1 hover:shadow-lg">
         <div className="relative aspect-3/4 overflow-hidden">
           <Image
             src={coverImage}
@@ -40,8 +40,8 @@ export function AnimeCard({ anime, showBadges = true }: AnimeCardProps) {
             </div>
           )}
         </div>
-        <CardContent className="p-3 h-32 flex flex-col">
-          <Typography variant="body2" weight="medium" className="line-clamp-3 leading-tight flex-1">
+        <CardContent className="flex h-32 flex-col p-3">
+          <Typography variant="body2" weight="medium" className="line-clamp-3 flex-1 leading-tight">
             {title}
           </Typography>
           <Typography variant="caption" colorScheme="secondary" className="mt-1 h-4">

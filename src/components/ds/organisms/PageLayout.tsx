@@ -57,11 +57,7 @@ const PageLayout = React.forwardRef<HTMLDivElement, PageLayoutProps>(
     );
 
     return (
-      <div
-        ref={ref}
-        className={cn("flex min-h-screen flex-col", className)}
-        {...props}
-      >
+      <div ref={ref} className={cn("flex min-h-screen flex-col", className)} {...props}>
         {header}
         <main className="flex-1">{content}</main>
         {footer}

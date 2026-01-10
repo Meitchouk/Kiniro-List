@@ -14,9 +14,7 @@ import type {
   MediaSeason,
 } from "@/lib/types";
 
-type AuthHeadersGetter = (
-  options?: { forceRefresh?: boolean }
-) => Promise<Record<string, string>>;
+type AuthHeadersGetter = (options?: { forceRefresh?: boolean }) => Promise<Record<string, string>>;
 
 let getAuthHeaders: AuthHeadersGetter = async () => ({});
 
@@ -75,10 +73,7 @@ async function handleResponse<T>(response: Response): Promise<T> {
 
 // ============ Public API ============
 
-export async function searchAnime(
-  query: string,
-  page: number = 1
-): Promise<AnimeListResponse> {
+export async function searchAnime(query: string, page: number = 1): Promise<AnimeListResponse> {
   const params = new URLSearchParams({ q: query, page: String(page) });
   const response = await fetchWithLoading(`/api/anime/search?${params}`);
   return handleResponse(response);
@@ -153,7 +148,10 @@ export async function updateSettings(
   return handleResponse(response);
 }
 
-export async function getLibrary(): Promise<{ entries: LibraryEntryWithAnime[]; items?: LibraryEntryWithAnime[] }> {
+export async function getLibrary(): Promise<{
+  entries: LibraryEntryWithAnime[];
+  items?: LibraryEntryWithAnime[];
+}> {
   const response = await fetchWithAuth("/api/me/library");
   return handleResponse(response);
 }
@@ -171,9 +169,7 @@ export async function upsertLibraryEntry(
   return handleResponse(response);
 }
 
-export async function deleteLibraryEntry(
-  animeId: number
-): Promise<{ success: boolean }> {
+export async function deleteLibraryEntry(animeId: number): Promise<{ success: boolean }> {
   const response = await fetchWithAuth(`/api/me/library/${animeId}`, {
     method: "DELETE",
   });

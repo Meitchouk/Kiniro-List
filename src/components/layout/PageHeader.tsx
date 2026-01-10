@@ -15,7 +15,7 @@ export function PageHeader({ title, showBack = true }: PageHeaderProps) {
   const t = useTranslations();
 
   return (
-    <div className="border-b border-border/40 bg-background/50 backdrop-blur-sm">
+    <div className="border-border/40 bg-background/50 border-b backdrop-blur-sm">
       <Container>
         <Flex align="center" gap={4} className="py-4">
           {showBack && (

@@ -54,10 +54,10 @@ export function AnimeExternalLinks({ links, maxLinks = 8 }: AnimeExternalLinksPr
               href={link.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="group flex items-center gap-3 rounded-md border border-border/60 bg-muted/40 px-3 py-2 transition hover:border-primary hover:bg-primary/5"
+              className="group border-border/60 bg-muted/40 hover:border-primary hover:bg-primary/5 flex items-center gap-3 rounded-md border px-3 py-2 transition"
               style={accent ? { borderColor: accent + "66" } : undefined}
             >
-              <div className="flex h-8 w-8 items-center justify-center rounded-md bg-background/80 ring-1 ring-border/60">
+              <div className="bg-background/80 ring-border/60 flex h-8 w-8 items-center justify-center rounded-md ring-1">
                 {link.icon ? (
                   <Image
                     src={link.icon}
@@ -67,23 +67,21 @@ export function AnimeExternalLinks({ links, maxLinks = 8 }: AnimeExternalLinksPr
                     height={20}
                   />
                 ) : link.site.toLowerCase().includes("official") ? (
-                  <Globe2 className="h-4 w-4 text-muted-foreground" />
+                  <Globe2 className="text-muted-foreground h-4 w-4" />
                 ) : (
-                  <LinkIcon className="h-4 w-4 text-muted-foreground" />
+                  <LinkIcon className="text-muted-foreground h-4 w-4" />
                 )}
               </div>
 
               <div className="flex min-w-0 flex-1 items-center justify-between gap-3">
                 <div className="flex min-w-0 flex-col">
-                  <span className="truncate font-medium text-foreground">
-                    {link.site}
-                  </span>
-                  <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                  <span className="text-foreground truncate font-medium">{link.site}</span>
+                  <div className="text-muted-foreground flex flex-wrap items-center gap-2 text-xs">
                     {link.type && <span>{getTypeLabel(link.type)}</span>}
                     {link.language && <span>{getLanguageLabel(link.language)}</span>}
                   </div>
                 </div>
-                <ExternalLink className="h-4 w-4 shrink-0 text-muted-foreground transition group-hover:text-primary" />
+                <ExternalLink className="text-muted-foreground group-hover:text-primary h-4 w-4 shrink-0 transition" />
               </div>
             </a>
           );

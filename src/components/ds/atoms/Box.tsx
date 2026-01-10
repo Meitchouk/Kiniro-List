@@ -199,11 +199,19 @@ const boxVariants = cva("", {
   },
 });
 
-type BoxElement = "div" | "section" | "article" | "aside" | "header" | "footer" | "main" | "nav" | "span";
+type BoxElement =
+  | "div"
+  | "section"
+  | "article"
+  | "aside"
+  | "header"
+  | "footer"
+  | "main"
+  | "nav"
+  | "span";
 
 export interface BoxProps
-  extends React.HTMLAttributes<HTMLElement>,
-    VariantProps<typeof boxVariants> {
+  extends React.HTMLAttributes<HTMLElement>, VariantProps<typeof boxVariants> {
   /**
    * The HTML element to render
    * @default "div"

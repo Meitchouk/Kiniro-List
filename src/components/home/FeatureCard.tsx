@@ -1,4 +1,11 @@
-import { Card, CardHeader, CardTitle, CardDescription, IconWrapper, Typography } from "@/components/ds";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  IconWrapper,
+  Typography,
+} from "@/components/ds";
 import type { LucideIcon } from "lucide-react";
 
 interface FeatureCardProps {
@@ -17,7 +24,9 @@ export function FeatureCard({ icon: Icon, title, description }: FeatureCardProps
         <IconWrapper icon={Icon} size="xl" colorScheme="primary" />
         <CardTitle className="mt-4">{title}</CardTitle>
         <CardDescription>
-          <Typography variant="caption" colorScheme="secondary">{description}</Typography>
+          <Typography variant="caption" colorScheme="secondary">
+            {description}
+          </Typography>
         </CardDescription>
       </CardHeader>
     </Card>

@@ -15,13 +15,17 @@ interface QuickLinkCardProps {
 export function QuickLinkCard({ href, icon: Icon, title, subtitle }: QuickLinkCardProps) {
   return (
     <Link href={href}>
-      <Card className="transition-all hover:shadow-lg hover:-translate-y-1">
+      <Card className="transition-all hover:-translate-y-1 hover:shadow-lg">
         <CardContent>
           <Flex align="center" gap={4} className="p-6">
             <IconWrapper icon={Icon} size="lg" colorScheme="primary" />
             <Stack gap={1}>
-              <Typography variant="body1" weight="semibold">{title}</Typography>
-              <Typography variant="caption" colorScheme="secondary">{subtitle}</Typography>
+              <Typography variant="body1" weight="semibold">
+                {title}
+              </Typography>
+              <Typography variant="caption" colorScheme="secondary">
+                {subtitle}
+              </Typography>
             </Stack>
           </Flex>
         </CardContent>

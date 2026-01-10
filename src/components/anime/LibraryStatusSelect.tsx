@@ -1,21 +1,11 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ds";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ds";
 import { LIBRARY_STATUSES } from "@/lib/constants";
 import type { LibraryStatusSelectProps } from "@/lib/types";
 
-export function LibraryStatusSelect({
-  value,
-  onChange,
-  disabled,
-}: LibraryStatusSelectProps) {
+export function LibraryStatusSelect({ value, onChange, disabled }: LibraryStatusSelectProps) {
   const t = useTranslations("libraryStatus");
 
   return (

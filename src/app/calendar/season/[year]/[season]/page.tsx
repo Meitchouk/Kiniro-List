@@ -10,10 +10,10 @@ import type { MediaSeason } from "@/lib/types";
 
 const VALID_SEASONS = ["WINTER", "SPRING", "SUMMER", "FALL"];
 
-export default function SeasonPage({ 
-  params 
-}: { 
-  params: Promise<{ year: string; season: string }> 
+export default function SeasonPage({
+  params,
+}: {
+  params: Promise<{ year: string; season: string }>;
 }) {
   const { year: yearStr, season: seasonStr } = use(params);
   const t = useTranslations();

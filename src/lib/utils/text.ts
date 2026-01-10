@@ -1,10 +1,10 @@
 // Remove HTML tags and sanitize text
 export function sanitizeHtml(html: string | null | undefined): string {
   if (!html) return "";
-  
+
   // Remove HTML tags
   let text = html.replace(/<[^>]*>/g, "");
-  
+
   // Decode common HTML entities
   text = text
     .replace(/&nbsp;/g, " ")
@@ -14,10 +14,10 @@ export function sanitizeHtml(html: string | null | undefined): string {
     .replace(/&quot;/g, '"')
     .replace(/&#39;/g, "'")
     .replace(/&apos;/g, "'");
-  
+
   // Normalize whitespace
   text = text.replace(/\s+/g, " ").trim();
-  
+
   return text;
 }
 

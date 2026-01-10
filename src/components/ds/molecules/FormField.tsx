@@ -32,17 +32,7 @@ export interface FormFieldProps extends React.HTMLAttributes<HTMLDivElement> {
 
 const FormField = React.forwardRef<HTMLDivElement, FormFieldProps>(
   (
-    {
-      className,
-      label,
-      required,
-      helperText,
-      errorText,
-      error,
-      htmlFor,
-      children,
-      ...props
-    },
+    { className, label, required, helperText, errorText, error, htmlFor, children, ...props },
     ref
   ) => {
     const generatedId = React.useId();
@@ -54,22 +44,19 @@ const FormField = React.forwardRef<HTMLDivElement, FormFieldProps>(
     return (
       <div ref={ref} className={cn("space-y-2", className)} {...props}>
         {label && (
-          <Label
-            htmlFor={fieldId}
-            className={cn(hasError && "text-destructive")}
-          >
+          <Label htmlFor={fieldId} className={cn(hasError && "text-destructive")}>
             {label}
             {required && <span className="text-destructive ml-1">*</span>}
           </Label>
         )}
         {children}
         {helperText && !hasError && (
-          <p id={descriptionId} className="text-sm text-muted-foreground">
+          <p id={descriptionId} className="text-muted-foreground text-sm">
             {helperText}
           </p>
         )}
         {hasError && errorText && (
-          <p id={errorId} className="text-sm text-destructive" role="alert">
+          <p id={errorId} className="text-destructive text-sm" role="alert">
             {errorText}
           </p>
         )}
@@ -93,19 +80,11 @@ export interface FormSectionProps extends React.HTMLAttributes<HTMLElement> {
 const FormSection = React.forwardRef<HTMLElement, FormSectionProps>(
   ({ className, title, description, children, ...props }, ref) => {
     return (
-      <section
-        ref={ref}
-        className={cn("space-y-6", className)}
-        {...props}
-      >
+      <section ref={ref} className={cn("space-y-6", className)} {...props}>
         {(title || description) && (
           <div className="space-y-1">
-            {title && (
-              <h3 className="text-lg font-medium leading-6">{title}</h3>
-            )}
-            {description && (
-              <p className="text-sm text-muted-foreground">{description}</p>
-            )}
+            {title && <h3 className="text-lg leading-6 font-medium">{title}</h3>}
+            {description && <p className="text-muted-foreground text-sm">{description}</p>}
           </div>
         )}
         <div className="space-y-4">{children}</div>
@@ -121,11 +100,7 @@ export interface ValidationMessageProps {
   className?: string;
 }
 
-function ValidationMessage({
-  message,
-  type = "error",
-  className,
-}: ValidationMessageProps) {
+function ValidationMessage({ message, type = "error", className }: ValidationMessageProps) {
   if (!message) return null;
 
   const colorClasses = {

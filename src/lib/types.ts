@@ -1,13 +1,23 @@
 // Types for Kiniro List application
 
 // Re-export component types
-export * from './types/components';
+export * from "./types/components";
 
 // ============ AniList Types ============
 
 export type MediaSeason = "WINTER" | "SPRING" | "SUMMER" | "FALL";
 export type MediaStatus = "FINISHED" | "RELEASING" | "NOT_YET_RELEASED" | "CANCELLED" | "HIATUS";
-export type MediaFormat = "TV" | "TV_SHORT" | "MOVIE" | "SPECIAL" | "OVA" | "ONA" | "MUSIC" | "MANGA" | "NOVEL" | "ONE_SHOT";
+export type MediaFormat =
+  | "TV"
+  | "TV_SHORT"
+  | "MOVIE"
+  | "SPECIAL"
+  | "OVA"
+  | "ONA"
+  | "MUSIC"
+  | "MANGA"
+  | "NOVEL"
+  | "ONE_SHOT";
 
 export interface MediaTitle {
   romaji: string;

@@ -58,9 +58,7 @@ export function PageContainer({
   return (
     <div className="flex flex-col">
       <PageHeader title={title} showBack={showBack} />
-      <Container className="py-8">
-        {children}
-      </Container>
+      <Container className="py-8">{children}</Container>
     </div>
   );
 }

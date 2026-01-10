@@ -8,7 +8,7 @@ export function AnimeCardSkeleton() {
       <div className="relative aspect-3/4 overflow-hidden">
         <Skeleton className="absolute inset-0" />
       </div>
-      <CardContent className="p-3 h-32 flex flex-col">
+      <CardContent className="flex h-32 flex-col p-3">
         <Skeleton className="h-4 w-full" />
         <Skeleton className="mt-2 h-3 w-3/4" />
         <Skeleton className="mt-auto h-3 w-1/2" />

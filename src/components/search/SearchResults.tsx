@@ -32,7 +32,9 @@ export function SearchResults({
 
   if (!searchQuery) {
     return (
-      <Typography variant="body2" colorScheme="secondary" align="center">{t("search.noQuery")}</Typography>
+      <Typography variant="body2" colorScheme="secondary" align="center">
+        {t("search.noQuery")}
+      </Typography>
     );
   }
 
@@ -55,16 +57,14 @@ export function SearchResults({
       </Flex>
 
       {data.anime.length === 0 ? (
-        <Typography variant="body2" colorScheme="secondary" align="center">{t("common.noResults")}</Typography>
+        <Typography variant="body2" colorScheme="secondary" align="center">
+          {t("common.noResults")}
+        </Typography>
       ) : (
         <>
           {/* Mobile top pagination */}
-          <div className="md:hidden mb-4">
-            <Pagination
-              pagination={data.pagination}
-              onPageChange={onPageChange}
-              compact
-            />
+          <div className="mb-4 md:hidden">
+            <Pagination pagination={data.pagination} onPageChange={onPageChange} compact />
           </div>
 
           <Grid cols={2} smCols={3} mdCols={4} lgCols={5} xlCols={6} gap={4}>
