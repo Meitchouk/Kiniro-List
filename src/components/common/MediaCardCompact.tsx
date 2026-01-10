@@ -3,13 +3,14 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Card, CardContent, Badge, Typography } from "@/components/ds";
-import { getLocalizedTitle, createAnimeSlug } from "@/lib/utils/text";
+import { getLocalizedTitle } from "@/lib/utils/text";
 import type { MediaTitle, MediaCoverImage, MediaFormat } from "@/lib/types";
 
 interface MediaCardCompactProps {
   title: MediaTitle;
   coverImage: MediaCoverImage;
   format?: MediaFormat | null;
+  slug: string;
   badge?: {
     text: string;
     variant?: "default" | "secondary" | "outline" | "destructive";
@@ -25,13 +26,13 @@ export function MediaCardCompact({
   title,
   coverImage,
   format,
+  slug,
   badge,
   subtitle,
   rightContent,
 }: MediaCardCompactProps) {
   const displayTitle = getLocalizedTitle(title);
   const cover = coverImage.large || "/placeholder.png";
-  const slug = createAnimeSlug(displayTitle);
 
   return (
     <Link href={`/anime/${slug}`} className="group">

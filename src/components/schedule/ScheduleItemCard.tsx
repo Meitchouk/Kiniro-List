@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { Card, CardContent, Badge, Typography, Flex, Stack } from "@/components/ds";
 import { Clock } from "lucide-react";
-import { getLocalizedTitle, createAnimeSlug } from "@/lib/utils/text";
+import { getLocalizedTitle } from "@/lib/utils/text";
 import { formatAiringTime } from "@/lib/utils/date";
 import type { MediaTitle, MediaCoverImage, MediaFormat } from "@/lib/types";
 
@@ -15,6 +15,7 @@ interface ScheduleItemCardProps {
   format?: MediaFormat | null;
   airingAt: number;
   episode: number;
+  slug: string;
 }
 
 /**
@@ -26,11 +27,11 @@ export function ScheduleItemCard({
   format,
   airingAt,
   episode,
+  slug,
 }: ScheduleItemCardProps) {
   const t = useTranslations();
   const displayTitle = getLocalizedTitle(title);
   const cover = coverImage.large || "/placeholder.png";
-  const slug = createAnimeSlug(displayTitle);
 
   return (
     <Link href={`/anime/${slug}`} className="group">

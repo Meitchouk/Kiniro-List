@@ -8,7 +8,6 @@ import { CountdownBadge } from "@/components/anime/CountdownBadge";
 import { CrunchyrollIcon } from "@/components/icons/CrunchyrollIcon";
 import { Clock } from "lucide-react";
 import { DateTime } from "luxon";
-import { createAnimeSlug } from "@/lib/utils/text";
 import type { CalendarAnimeItem, StreamingLink } from "@/lib/types";
 
 interface CalendarItemCardProps {
@@ -46,7 +45,7 @@ export function CalendarItemCard({ item, timezone, isUnknown = false }: Calendar
   const t = useTranslations();
   const animeTitle = item.anime?.title?.english || item.anime?.title?.romaji || "";
   const crunchyroll = getCrunchyrollLink(item.anime?.streamingLinks, animeTitle);
-  const slug = createAnimeSlug(animeTitle);
+  const slug = item.anime?.slug || "";
 
   return (
     <Card className={`overflow-hidden hover:bg-accent/50 transition-colors ${isUnknown ? "opacity-60" : ""}`}>
