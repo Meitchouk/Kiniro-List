@@ -1,8 +1,15 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Stack,
+  Label,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ds";
 import type { CalendarView } from "@/lib/types";
 
 interface CalendarViewSelectorProps {
@@ -19,7 +26,7 @@ export function CalendarViewSelector({ value, onChange }: CalendarViewSelectorPr
   const t = useTranslations();
 
   return (
-    <div className="space-y-2">
+    <Stack gap={2}>
       <Label htmlFor="calendarView">{t('settings.calendarView')}</Label>
       <Select value={value} onValueChange={onChange}>
         <SelectTrigger id="calendarView">
@@ -33,6 +40,6 @@ export function CalendarViewSelector({ value, onChange }: CalendarViewSelectorPr
           ))}
         </SelectContent>
       </Select>
-    </div>
+    </Stack>
   );
 }

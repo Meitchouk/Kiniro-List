@@ -1,8 +1,15 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Stack,
+  Label,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ds";
 import type { ThemePreference } from "@/lib/types";
 
 interface ThemeSelectorProps {
@@ -20,7 +27,7 @@ export function ThemeSelector({ value, onChange }: ThemeSelectorProps) {
   const t = useTranslations();
 
   return (
-    <div className="space-y-2">
+    <Stack gap={2}>
       <Label htmlFor="theme">{t('settings.theme')}</Label>
       <Select value={value} onValueChange={onChange}>
         <SelectTrigger id="theme">
@@ -34,6 +41,6 @@ export function ThemeSelector({ value, onChange }: ThemeSelectorProps) {
           ))}
         </SelectContent>
       </Select>
-    </div>
+    </Stack>
   );
 }

@@ -2,7 +2,16 @@
 
 import type { ReactNode } from "react";
 import type { LucideIcon } from "lucide-react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  Flex,
+  Stack,
+  IconWrapper,
+} from "@/components/ds";
 
 interface SettingsCardProps {
     title: string;
@@ -15,14 +24,18 @@ export function SettingsCard({ title, description, icon: Icon, children }: Setti
     return (
         <Card>
             <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                    {Icon && <Icon className="h-5 w-5" />}
-                    {title}
+                <CardTitle>
+                    <Flex align="center" gap={2}>
+                        {Icon && <IconWrapper icon={Icon} size="md" colorScheme="primary" />}
+                        {title}
+                    </Flex>
                 </CardTitle>
                 {description && <CardDescription>{description}</CardDescription>}
             </CardHeader>
-            <CardContent className="space-y-4">
-                {children}
+            <CardContent>
+                <Stack gap={4}>
+                    {children}
+                </Stack>
             </CardContent>
         </Card>
     );

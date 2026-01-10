@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { Typography, Flex, Grid, Stack } from "@/components/ds";
 import { AnimeCard } from "@/components/anime/AnimeCard";
 import { AnimeGridSkeleton } from "@/components/anime/AnimeCardSkeleton";
 import { Pagination } from "@/components/anime/Pagination";
@@ -31,7 +32,7 @@ export function SearchResults({
 
   if (!searchQuery) {
     return (
-      <p className="text-center text-muted-foreground">{t("search.noQuery")}</p>
+      <Typography variant="body2" colorScheme="secondary" align="center">{t("search.noQuery")}</Typography>
     );
   }
 
@@ -46,15 +47,15 @@ export function SearchResults({
   if (!data) return null;
 
   return (
-    <>
-      <div className="flex items-center justify-between mb-4">
-        <p className="text-muted-foreground">
+    <Stack gap={4}>
+      <Flex align="center" justify="between">
+        <Typography variant="body2" colorScheme="secondary">
           {t("search.resultsFor", { query: searchQuery })}
-        </p>
-      </div>
+        </Typography>
+      </Flex>
 
       {data.anime.length === 0 ? (
-        <p className="text-center text-muted-foreground">{t("common.noResults")}</p>
+        <Typography variant="body2" colorScheme="secondary" align="center">{t("common.noResults")}</Typography>
       ) : (
         <>
           {/* Mobile top pagination */}
@@ -66,16 +67,16 @@ export function SearchResults({
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+          <Grid cols={2} smCols={3} mdCols={4} lgCols={5} xlCols={6} gap={4}>
             {data.anime.map((anime) => (
               <AnimeCard key={anime.id} anime={anime} />
             ))}
-          </div>
+          </Grid>
 
           {/* Bottom pagination */}
           <Pagination pagination={data.pagination} onPageChange={onPageChange} />
         </>
       )}
-    </>
+    </Stack>
   );
 }

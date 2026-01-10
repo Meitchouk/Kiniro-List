@@ -1,8 +1,15 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Stack,
+  Label,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ds";
 import { LOCALES } from "@/lib/constants";
 import type { Locale } from "@/lib/types";
 
@@ -15,7 +22,7 @@ export function LocaleSelector({ value, onChange }: LocaleSelectorProps) {
   const t = useTranslations();
 
   return (
-    <div className="space-y-2">
+    <Stack gap={2}>
       <Label htmlFor="locale">{t('settings.language')}</Label>
       <Select value={value} onValueChange={onChange}>
         <SelectTrigger id="locale">
@@ -29,6 +36,6 @@ export function LocaleSelector({ value, onChange }: LocaleSelectorProps) {
           ))}
         </SelectContent>
       </Select>
-    </div>
+    </Stack>
   );
 }

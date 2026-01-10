@@ -2,8 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { Search as SearchIcon } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { Input, Button, Flex } from "@/components/ds";
 
 interface SearchFormProps {
   value: string;
@@ -27,18 +26,20 @@ export function SearchForm({ value, onChange, onSubmit, placeholder, className }
   };
 
   return (
-    <form onSubmit={handleSubmit} className={`flex gap-2 ${className || ""}`}>
-      <Input
-        type="text"
-        placeholder={placeholder || t("search.placeholder")}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="max-w-md"
-      />
-      <Button type="submit" disabled={!value.trim()}>
-        <SearchIcon className="mr-2 h-4 w-4" />
-        {t("common.search")}
-      </Button>
+    <form onSubmit={handleSubmit}>
+      <Flex gap={2} className={className}>
+        <Input
+          type="text"
+          placeholder={placeholder || t("search.placeholder")}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className="max-w-md"
+        />
+        <Button type="submit" disabled={!value.trim()}>
+          <SearchIcon className="mr-2 h-4 w-4" />
+          {t("common.search")}
+        </Button>
+      </Flex>
     </form>
   );
 }

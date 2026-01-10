@@ -1,8 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
+import { Stack, Flex, Label, Switch, Typography } from "@/components/ds";
 import type { UserFilters } from "@/lib/types";
 
 interface FilterSettingsProps {
@@ -22,34 +21,34 @@ export function FilterSettings({ filters, onChange }: FilterSettingsProps) {
   };
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <div className="space-y-0.5">
+    <Stack gap={4}>
+      <Flex align="center" justify="between">
+        <Stack gap={1}>
           <Label htmlFor="hideAdult">{t('settings.hideAdult')}</Label>
-          <p className="text-xs text-muted-foreground">
+          <Typography variant="caption" colorScheme="secondary">
             {t('settings.hideAdultDescription')}
-          </p>
-        </div>
+          </Typography>
+        </Stack>
         <Switch
           id="hideAdult"
           checked={filters.hideAdult}
           onCheckedChange={handleHideAdultChange}
         />
-      </div>
+      </Flex>
 
-      <div className="flex items-center justify-between">
-        <div className="space-y-0.5">
+      <Flex align="center" justify="between">
+        <Stack gap={1}>
           <Label htmlFor="onlyWatching">{t('settings.onlyWatching')}</Label>
-          <p className="text-xs text-muted-foreground">
+          <Typography variant="caption" colorScheme="secondary">
             {t('settings.onlyWatchingDescription')}
-          </p>
-        </div>
+          </Typography>
+        </Stack>
         <Switch
           id="onlyWatching"
           checked={filters.onlyWatching}
           onCheckedChange={handleOnlyWatchingChange}
         />
-      </div>
-    </div>
+      </Flex>
+    </Stack>
   );
 }
