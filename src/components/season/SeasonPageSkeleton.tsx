@@ -11,7 +11,7 @@ interface SeasonPageSkeletonProps {
 function SkeletonCard() {
   return (
     <div className="bg-card w-full overflow-hidden rounded-xl border shadow">
-      <div className="bg-muted relative aspect-[3/4] w-full animate-pulse" />
+      <div className="bg-muted relative aspect-3/4 w-full animate-pulse" />
       <div className="h-32 space-y-2 p-3">
         <Skeleton className="h-4 w-full" />
         <Skeleton className="h-3 w-3/4" />
