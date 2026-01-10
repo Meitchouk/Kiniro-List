@@ -21,6 +21,7 @@
     "loginRequired": "Por favor inicia sesión para acceder a esta página",
     "goToLogin": "Ir a iniciar sesión",
     "languageSaveError": "Error al guardar preferencia de idioma",
+    "dataProvidedBy": "Datos proporcionados por",
     "back": "Volver atrás",
     "topPage": "Arriba"
   },
@@ -34,7 +35,8 @@
     "profile": "Perfil",
     "library": "Mi Biblioteca",
     "myCalendar": "Mi Calendario",
-    "settings": "Configuración"
+    "settings": "Configuración",
+    "menu": "Menú"
   },
   "theme": {
     "light": "Claro",

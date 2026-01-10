@@ -21,6 +21,7 @@
     "loginRequired": "Please login to access this page",
     "goToLogin": "Go to Login",
     "languageSaveError": "Failed to save language preference",
+    "dataProvidedBy": "Data provided by",
     "back": "Go back",
     "topPage": "Top"
   },
@@ -34,7 +35,8 @@
     "profile": "Profile",
     "library": "My Library",
     "myCalendar": "My Calendar",
-    "settings": "Settings"
+    "settings": "Settings",
+    "menu": "Menu"
   },
   "theme": {
     "light": "Light",
