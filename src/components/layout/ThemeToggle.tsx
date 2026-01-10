@@ -2,13 +2,13 @@
 
 import { useTheme } from "next-themes";
 import { Sun, Moon, Monitor } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import {
+  Button,
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@/components/ds";
 import { useTranslations } from "next-intl";
 import { useMediaQuery } from "@/lib/hooks/useMediaQuery";
 
@@ -30,12 +30,12 @@ export function ThemeToggle() {
         {isDark ? (
           <>
             <Sun className="h-4 w-4 mr-2" />
-            Light
+            {t("light")}
           </>
         ) : (
           <>
             <Moon className="h-4 w-4 mr-2" />
-            Dark
+            {t("dark")}
           </>
         )}
       </Button>

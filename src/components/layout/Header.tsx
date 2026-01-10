@@ -5,15 +5,16 @@ import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Menu, Search, Calendar, Clock, BookOpen } from "lucide-react";
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
 import {
+  Button,
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
-import { Separator } from "@/components/ui/separator";
+  Separator,
+  Typography,
+} from "@/components/ds";
 import { ThemeToggle } from "./ThemeToggle";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { UserMenu } from "./UserMenu";
@@ -41,9 +42,9 @@ export function Header() {
       <div className="container mx-auto flex h-14 items-center px-4">
         {/* Logo */}
         <Link href="/" className="mr-6 flex items-center space-x-2">
-          <span className="text-xl font-bold text-primary">
+          <Typography variant="h5" as="span" className="text-primary">
             {t("common.appName")}
-          </span>
+          </Typography>
         </Link>
 
         {/* Desktop Navigation */}
@@ -106,7 +107,7 @@ export function Header() {
               <DialogTrigger asChild>
                 <Button variant="ghost" size="icon">
                   <Menu className="h-5 w-5" />
-                  <span className="sr-only">Menu</span>
+                  <span className="sr-only">{t("nav.menu")}</span>
                 </Button>
               </DialogTrigger>
               <DialogContent className="fixed right-0 top-0 bottom-0 left-auto z-50 h-full w-80 max-w-full translate-y-0 rounded-none border-l bg-background p-0 sm:max-w-sm transition-transform duration-300 ease-out data-[state=open]:translate-x-0 data-[state=closed]:translate-x-full overflow-y-auto flex flex-col">
@@ -176,12 +177,12 @@ export function Header() {
                     </Button>
                     
                     <div className="flex items-center justify-between gap-3">
-                      <span className="text-sm font-medium">{t("language.select")}</span>
+                      <Typography variant="body2" weight="medium">{t("language.select")}</Typography>
                       <LanguageSwitcher />
                     </div>
                     
                     <div className="flex items-center justify-between gap-3">
-                      <span className="text-sm font-medium">{t("theme.toggle")}</span>
+                      <Typography variant="body2" weight="medium">{t("theme.toggle")}</Typography>
                       <ThemeToggle />
                     </div>
                   </div>
