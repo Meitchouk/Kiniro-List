@@ -3,13 +3,7 @@
 import { useTranslations } from "next-intl";
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import type { PaginationInfo } from "@/lib/types";
-
-interface PaginationProps {
-  pagination: PaginationInfo;
-  onPageChange: (page: number) => void;
-  compact?: boolean;
-}
+import type { PaginationProps } from "@/lib/types";
 
 export function Pagination({ 
   pagination, 

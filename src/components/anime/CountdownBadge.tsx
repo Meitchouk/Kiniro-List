@@ -5,20 +5,15 @@ import { useTranslations } from "next-intl";
 import { Clock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { formatCountdown } from "@/lib/utils/date";
-import type { AiringStatusLabel } from "@/lib/types";
-
-interface CountdownBadgeProps {
-  statusLabel: AiringStatusLabel;
-  secondsToAir?: number;
-  nextEpisodeNumber?: number | null;
-}
+import { getAiringBadgeVariant, getAiringLabelText } from "@/lib/utils/components";
+import type { CountdownBadgeProps } from "@/lib/types";
 
 export function CountdownBadge({
   statusLabel,
   secondsToAir,
   nextEpisodeNumber,
 }: CountdownBadgeProps) {
-  const t = useTranslations("airing");
+  const t = useTranslations();
   const [countdown, setCountdown] = useState(secondsToAir || 0);
 
   useEffect(() => {
@@ -33,31 +28,8 @@ export function CountdownBadge({
     return () => clearInterval(interval);
   }, [secondsToAir, statusLabel]);
 
-  const getBadgeVariant = () => {
-    switch (statusLabel) {
-      case "airs_today":
-        return "success";
-      case "airs_in":
-        return "default";
-      case "aired":
-        return "secondary";
-      default:
-        return "outline";
-    }
-  };
-
-  const getLabel = () => {
-    switch (statusLabel) {
-      case "airs_today":
-        return t("airs_today");
-      case "airs_in":
-        return t("airs_in", { time: formatCountdown(countdown) });
-      case "aired":
-        return t("aired");
-      default:
-        return t("unknown");
-    }
-  };
+  const getBadgeVariant = () => getAiringBadgeVariant(statusLabel);
+  const getLabel = () => getAiringLabelText(statusLabel, countdown, t, formatCountdown);
 
   return (
     <div className="flex items-center gap-2">

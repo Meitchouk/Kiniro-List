@@ -34,6 +34,18 @@ export const settingsUpdateSchema = z.object({
   theme: z.enum(["light", "dark", "system"]).optional(),
 });
 
+// Settings form schema (client-side validation)
+export const settingsSchema = z.object({
+  timezone: z.string(),
+  locale: z.enum(['en', 'es']),
+  theme: z.enum(['light', 'dark', 'system']),
+  calendarView: z.enum(['weekly', 'season']),
+  filters: z.object({
+    hideAdult: z.boolean(),
+    onlyWatching: z.boolean(),
+  }),
+});
+
 // ============ Library Schema ============
 
 export const libraryUpsertSchema = z.object({

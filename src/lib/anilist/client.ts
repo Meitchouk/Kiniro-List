@@ -73,6 +73,13 @@ query ($search: String!, $page: Int!, $perPage: Int!) {
       format
       isAdult
       siteUrl
+      externalLinks {
+        id
+        url
+        site
+        type
+        icon
+      }
       nextAiringEpisode {
         airingAt
         episode
@@ -266,6 +273,13 @@ query ($season: MediaSeason!, $seasonYear: Int!, $page: Int!, $perPage: Int!) {
       format
       isAdult
       siteUrl
+      externalLinks {
+        id
+        url
+        site
+        type
+        icon
+      }
       nextAiringEpisode {
         airingAt
         episode
@@ -394,6 +408,13 @@ query ($page: Int!, $perPage: Int!) {
       format
       isAdult
       siteUrl
+      externalLinks {
+        id
+        url
+        site
+        type
+        icon
+      }
       nextAiringEpisode {
         airingAt
         episode
@@ -417,6 +438,78 @@ export async function getReleasingAnime(
     media: data.Page.media,
     pageInfo: data.Page.pageInfo,
   };
+}
+
+// ============ Batch Anime Info Query ============
+
+const BATCH_ANIME_QUERY = `
+query ($ids: [Int]!) {
+  Page(perPage: 50) {
+    media(id_in: $ids, type: ANIME) {
+      id
+      title {
+        romaji
+        english
+        native
+      }
+      coverImage {
+        large
+        extraLarge
+      }
+      bannerImage
+      description
+      genres
+      season
+      seasonYear
+      status
+      episodes
+      format
+      isAdult
+      siteUrl
+      externalLinks {
+        id
+        url
+        site
+        type
+        icon
+      }
+      nextAiringEpisode {
+        airingAt
+        episode
+        timeUntilAiring
+      }
+    }
+  }
+}
+`;
+
+interface BatchAnimeResponse {
+  Page: {
+    media: AniListMedia[];
+  };
+}
+
+export async function getBatchAnimeInfo(ids: number[]): Promise<AniListMedia[]> {
+  if (ids.length === 0) {
+    return [];
+  }
+
+  // Split into batches of 50
+  const batches: number[][] = [];
+  for (let i = 0; i < ids.length; i += 50) {
+    batches.push(ids.slice(i, i + 50));
+  }
+
+  const results: AniListMedia[] = [];
+
+  for (const batch of batches) {
+    const data = await fetchAniList<BatchAnimeResponse>(BATCH_ANIME_QUERY, {
+      ids: batch,
+    });
+    results.push(...data.Page.media);
+  }
+
+  return results;
 }
 
 // ============ Batch Next Airing Query ============

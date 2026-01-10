@@ -12,11 +12,7 @@ import {
 import { useTranslations } from "next-intl";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { toast } from "sonner";
-
-const locales = [
-  { code: "en", label: "English" },
-  { code: "es", label: "Español" },
-];
+import { LOCALES } from "@/lib/constants";
 
 export function LanguageSwitcher() {
   const router = useRouter();
@@ -58,7 +54,7 @@ export function LanguageSwitcher() {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        {locales.map((locale) => (
+        {LOCALES.map((locale) => (
           <DropdownMenuItem
             key={locale.code}
             onClick={() => handleLocaleChange(locale.code)}

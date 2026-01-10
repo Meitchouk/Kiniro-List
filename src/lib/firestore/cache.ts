@@ -36,6 +36,11 @@ export async function getAnimeFromCache(animeId: number): Promise<AnimeCache | n
 export async function upsertAnimeCache(media: AniListMedia): Promise<AnimeCache> {
   const db = getAdminFirestore();
   
+  // Extract streaming links from external links
+  const streamingLinks = media.externalLinks
+    ?.filter(link => link.type === "STREAMING")
+    .map(link => ({ site: link.site, url: link.url, icon: link.icon })) || [];
+
   const animeData: Omit<AnimeCache, "updatedAt"> & { updatedAt: FieldValue } = {
     id: media.id,
     title: media.title,
@@ -50,6 +55,7 @@ export async function upsertAnimeCache(media: AniListMedia): Promise<AnimeCache>
     format: media.format,
     isAdult: media.isAdult || false,
     siteUrl: media.siteUrl,
+    streamingLinks,
     source: "anilist",
     updatedAt: FieldValue.serverTimestamp(),
   };
@@ -67,6 +73,11 @@ export async function upsertManyAnimeCache(mediaList: AniListMedia[]): Promise<v
   const batch = db.batch();
   
   for (const media of mediaList) {
+    // Extract streaming links from external links
+    const streamingLinks = media.externalLinks
+      ?.filter(link => link.type === "STREAMING")
+      .map(link => ({ site: link.site, url: link.url, icon: link.icon })) || [];
+
     const ref = db.collection("anime").doc(String(media.id));
     batch.set(ref, {
       id: media.id,
@@ -82,6 +93,7 @@ export async function upsertManyAnimeCache(mediaList: AniListMedia[]): Promise<v
       format: media.format,
       isAdult: media.isAdult || false,
       siteUrl: media.siteUrl,
+      streamingLinks,
       source: "anilist",
       updatedAt: FieldValue.serverTimestamp(),
     }, { merge: true });

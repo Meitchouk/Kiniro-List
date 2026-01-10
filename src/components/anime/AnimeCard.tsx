@@ -5,13 +5,8 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import type { AnimeCache } from "@/lib/types";
 import { getLocalizedTitle } from "@/lib/utils/text";
-
-interface AnimeCardProps {
-  anime: AnimeCache;
-  showBadges?: boolean;
-}
+import type { AnimeCardProps } from "@/lib/types";
 
 export function AnimeCard({ anime, showBadges = true }: AnimeCardProps) {
   const t = useTranslations();
