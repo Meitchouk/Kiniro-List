@@ -21,6 +21,7 @@
     "loginRequired": "Por favor inicia sesión para acceder a esta página",
     "goToLogin": "Ir a iniciar sesión",
     "languageSaveError": "Error al guardar preferencia de idioma",
+    "dataProvidedBy": "Datos proporcionados por",
     "back": "Volver atrás",
     "topPage": "Arriba"
   },
@@ -34,7 +35,8 @@
     "profile": "Perfil",
     "library": "Mi Biblioteca",
     "myCalendar": "Mi Calendario",
-    "settings": "Configuración"
+    "settings": "Configuración",
+    "menu": "Menú"
   },
   "theme": {
     "light": "Claro",
@@ -168,9 +170,13 @@
     "today": "Hoy",
     "tomorrow": "Mañana",
     "empty": "No hay próximos episodios en tu calendario",
+    "emptyHint": "El calendario solo muestra anime que se está emitiendo actualmente. Agrega anime en emisión para verlo aquí.",
     "goToLibrary": "Ir a la Biblioteca",
+    "browseSeason": "Ver Temporada Actual",
     "noAiringInfo": "No hay información de emisión disponible",
     "unknown": "Fecha de Emisión Desconocida",
+    "watchOnCrunchyroll": "Ver en Crunchyroll",
+    "searchOnCrunchyroll": "Buscar en Crunchyroll",
     "airs_in": "Emite Pronto",
     "airs_today": "Emite Hoy",
     "aired": "Ya Emitido"
@@ -234,6 +240,9 @@
     "timezoneDesc": "Tu zona horaria local para los horarios de emisión",
     "selectTimezone": "Seleccionar zona horaria",
     "browserTimezone": "Zona horaria del navegador",
+    "searchTimezone": "Buscar zona horaria...",
+    "noTimezones": "No se encontraron zonas horarias",
+    "detected": "Detectado",
     "language": "Idioma",
     "languageDesc": "Idioma de la aplicación",
     "selectLanguage": "Seleccionar idioma",
@@ -272,6 +281,7 @@
     "network": "Error de red. Por favor intenta de nuevo.",
     "unauthorized": "Por favor inicia sesión para continuar",
     "notFound": "Página no encontrada",
+    "invalidId": "ID de anime inválido",
     "rateLimit": "Demasiadas solicitudes. Por favor espera {seconds} segundos.",
     "serverError": "Error del servidor. Por favor intenta más tarde.",
     "retry": "Reintentar"

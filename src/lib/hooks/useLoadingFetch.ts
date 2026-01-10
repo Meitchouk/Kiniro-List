@@ -10,19 +10,16 @@ export function useLoadingFetch(options: UseLoadingFetchOptions = {}) {
   const { key = "fetch" } = options;
 
   const loadingFetch = useCallback(
-    async <T>(
-      input: RequestInfo | URL,
-      init?: RequestInit
-    ): Promise<T> => {
+    async <T>(input: RequestInfo | URL, init?: RequestInit): Promise<T> => {
       const loadingKey = `${key}-${Date.now()}`;
       try {
         startLoading(loadingKey);
         const response = await fetch(input, init);
-        
+
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
-        
+
         return await response.json();
       } finally {
         stopLoading(loadingKey);
@@ -32,10 +29,7 @@ export function useLoadingFetch(options: UseLoadingFetchOptions = {}) {
   );
 
   const loadingFetchRaw = useCallback(
-    async (
-      input: RequestInfo | URL,
-      init?: RequestInit
-    ): Promise<Response> => {
+    async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
       const loadingKey = `${key}-${Date.now()}`;
       try {
         startLoading(loadingKey);

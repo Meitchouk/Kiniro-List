@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { useAuth } from '@/components/providers/AuthProvider';
-import { LoginPrompt } from '@/components/anime/LoginPrompt';
-import { Skeleton } from '@/components/ui/skeleton';
+import { useAuth } from "@/components/providers/AuthProvider";
+import { LoginPrompt } from "@/components/anime/LoginPrompt";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function MeLayout({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();

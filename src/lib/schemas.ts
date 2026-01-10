@@ -26,12 +26,26 @@ export const animeIdSchema = z.object({
 export const settingsUpdateSchema = z.object({
   timezone: z.string().max(100).optional(),
   calendarView: z.enum(["weekly", "season"]).optional(),
+  filters: z
+    .object({
+      hideAdult: z.boolean(),
+      onlyWatching: z.boolean(),
+    })
+    .optional(),
+  locale: z.enum(["en", "es"]).optional(),
+  theme: z.enum(["light", "dark", "system"]).optional(),
+});
+
+// Settings form schema (client-side validation)
+export const settingsSchema = z.object({
+  timezone: z.string(),
+  locale: z.enum(["en", "es"]),
+  theme: z.enum(["light", "dark", "system"]),
+  calendarView: z.enum(["weekly", "season"]),
   filters: z.object({
     hideAdult: z.boolean(),
     onlyWatching: z.boolean(),
-  }).optional(),
-  locale: z.enum(["en", "es"]).optional(),
-  theme: z.enum(["light", "dark", "system"]).optional(),
+  }),
 });
 
 // ============ Library Schema ============

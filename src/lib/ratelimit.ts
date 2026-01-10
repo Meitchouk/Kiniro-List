@@ -53,9 +53,9 @@ export async function checkRateLimit(
 ): Promise<RateLimitResult> {
   const limiter = limiters[type];
   const identifier = uid ? `uid:${uid}` : `ip:${getClientIP(request)}`;
-  
+
   const result = await limiter.limit(identifier);
-  
+
   return {
     success: result.success,
     limit: result.limit,
@@ -66,15 +66,15 @@ export async function checkRateLimit(
 
 export function rateLimitResponse(result: RateLimitResult): NextResponse {
   const retryAfter = Math.ceil((result.reset - Date.now()) / 1000);
-  
+
   return NextResponse.json(
-    { 
-      error: "Too many requests", 
+    {
+      error: "Too many requests",
       retryAfter,
       limit: result.limit,
       remaining: result.remaining,
     },
-    { 
+    {
       status: 429,
       headers: {
         "Retry-After": String(retryAfter),

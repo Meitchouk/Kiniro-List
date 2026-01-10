@@ -8,11 +8,11 @@ export function getClientIP(request: NextRequest): string {
     const firstIP = forwardedFor.split(",")[0].trim();
     if (firstIP) return firstIP;
   }
-  
+
   // Try x-real-ip (some proxies)
   const realIP = request.headers.get("x-real-ip");
   if (realIP) return realIP.trim();
-  
+
   // Fallback
   return "unknown";
 }

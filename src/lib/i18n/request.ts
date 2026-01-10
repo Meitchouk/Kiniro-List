@@ -8,10 +8,10 @@ export const defaultLocale: Locale = "en";
 export default getRequestConfig(async () => {
   const cookieStore = await cookies();
   const headersList = await headers();
-  
+
   // 1. Try cookie
   let locale = cookieStore.get("NEXT_LOCALE")?.value;
-  
+
   // 2. Try Accept-Language header
   if (!locale || !locales.includes(locale as Locale)) {
     const acceptLanguage = headersList.get("accept-language");
@@ -23,12 +23,12 @@ export default getRequestConfig(async () => {
       locale = preferredLocale;
     }
   }
-  
+
   // 3. Fallback to default
   if (!locale || !locales.includes(locale as Locale)) {
     locale = defaultLocale;
   }
-  
+
   return {
     locale,
     messages: (await import(`@/messages/${locale}.json`)).default,

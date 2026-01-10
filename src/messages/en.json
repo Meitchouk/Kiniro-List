@@ -21,6 +21,7 @@
     "loginRequired": "Please login to access this page",
     "goToLogin": "Go to Login",
     "languageSaveError": "Failed to save language preference",
+    "dataProvidedBy": "Data provided by",
     "back": "Go back",
     "topPage": "Top"
   },
@@ -34,7 +35,8 @@
     "profile": "Profile",
     "library": "My Library",
     "myCalendar": "My Calendar",
-    "settings": "Settings"
+    "settings": "Settings",
+    "menu": "Menu"
   },
   "theme": {
     "light": "Light",
@@ -168,9 +170,13 @@
     "today": "Today",
     "tomorrow": "Tomorrow",
     "empty": "No upcoming episodes in your calendar",
+    "emptyHint": "The calendar only shows anime that is currently airing. Add anime that is currently broadcasting to see it here.",
     "goToLibrary": "Go to Library",
+    "browseSeason": "Browse Current Season",
     "noAiringInfo": "No airing information available",
     "unknown": "Unknown Air Date",
+    "watchOnCrunchyroll": "Watch on Crunchyroll",
+    "searchOnCrunchyroll": "Search on Crunchyroll",
     "airs_in": "Airs Soon",
     "airs_today": "Airs Today",
     "aired": "Already Aired"
@@ -236,6 +242,9 @@
     "timezoneDesc": "Your local timezone for airing times",
     "selectTimezone": "Select timezone",
     "browserTimezone": "Browser timezone",
+    "searchTimezone": "Search timezone...",
+    "noTimezones": "No timezones found",
+    "detected": "Detected",
     "language": "Language",
     "languageDesc": "Display language for the app",
     "selectLanguage": "Select language",
@@ -274,6 +283,7 @@
     "network": "Network error. Please try again.",
     "unauthorized": "Please login to continue",
     "notFound": "Page not found",
+    "invalidId": "Invalid anime ID",
     "rateLimit": "Too many requests. Please wait {seconds} seconds.",
     "serverError": "Server error. Please try again later.",
     "retry": "Retry"

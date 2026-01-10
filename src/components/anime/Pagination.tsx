@@ -2,20 +2,10 @@
 
 import { useTranslations } from "next-intl";
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import type { PaginationInfo } from "@/lib/types";
+import { Button, Typography } from "@/components/ds";
+import type { PaginationProps } from "@/lib/types";
 
-interface PaginationProps {
-  pagination: PaginationInfo;
-  onPageChange: (page: number) => void;
-  compact?: boolean;
-}
-
-export function Pagination({ 
-  pagination, 
-  onPageChange, 
-  compact = false 
-}: PaginationProps) {
+export function Pagination({ pagination, onPageChange, compact = false }: PaginationProps) {
   const t = useTranslations("pagination");
 
   const { currentPage, hasNextPage, lastPage, total } = pagination;
@@ -32,12 +22,7 @@ export function Pagination({
       <div className="flex items-center justify-between gap-2 py-3">
         <div className="flex gap-1">
           {canGoFirst && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => onPageChange(1)}
-              title={t("first")}
-            >
+            <Button variant="outline" size="sm" onClick={() => onPageChange(1)} title={t("first")}>
               <ChevronsLeft className="h-4 w-4" />
             </Button>
           )}
@@ -50,13 +35,12 @@ export function Pagination({
             <ChevronLeft className="h-4 w-4" />
           </Button>
         </div>
-        <span className="text-sm text-muted-foreground">
-          {lastPage > 0 
+        <Typography variant="body2" colorScheme="secondary">
+          {lastPage > 0
             ? t("page", { current: currentPage, total: lastPage })
-            : t("pageSimple", { current: currentPage })
-          }
-          {total > 0 && <span className="text-xs ml-1">({total})</span>}
-        </span>
+            : t("pageSimple", { current: currentPage })}
+          {total > 0 && <span className="ml-1 text-xs">({total})</span>}
+        </Typography>
         <div className="flex gap-1">
           <Button
             variant="outline"
@@ -86,12 +70,7 @@ export function Pagination({
       {/* Mobile-friendly full-width buttons */}
       <div className="flex gap-2 md:hidden">
         {canGoFirst && (
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => onPageChange(1)}
-            title={t("first")}
-          >
+          <Button variant="outline" size="icon" onClick={() => onPageChange(1)} title={t("first")}>
             <ChevronsLeft className="h-4 w-4" />
           </Button>
         )}
@@ -126,14 +105,9 @@ export function Pagination({
       </div>
 
       {/* Desktop centered layout */}
-      <div className="hidden md:flex items-center justify-center gap-2">
+      <div className="hidden items-center justify-center gap-2 md:flex">
         {canGoFirst && (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => onPageChange(1)}
-            title={t("first")}
-          >
+          <Button variant="outline" size="sm" onClick={() => onPageChange(1)} title={t("first")}>
             <ChevronsLeft className="h-4 w-4" />
           </Button>
         )}
@@ -147,13 +121,16 @@ export function Pagination({
           {t("previous")}
         </Button>
 
-        <span className="text-sm text-muted-foreground px-2">
-          {lastPage > 0 
+        <Typography variant="body2" colorScheme="secondary" className="px-2">
+          {lastPage > 0
             ? t("page", { current: currentPage, total: lastPage })
-            : t("pageSimple", { current: currentPage })
-          }
-          {total > 0 && <span className="text-xs ml-1">({total} {t("items")})</span>}
-        </span>
+            : t("pageSimple", { current: currentPage })}
+          {total > 0 && (
+            <span className="ml-1 text-xs">
+              ({total} {t("items")})
+            </span>
+          )}
+        </Typography>
 
         <Button
           variant="outline"
@@ -177,13 +154,12 @@ export function Pagination({
       </div>
 
       {/* Mobile page indicator */}
-      <div className="md:hidden text-center text-xs text-muted-foreground">
-        {lastPage > 0 
+      <Typography variant="caption" colorScheme="secondary" align="center" className="md:hidden">
+        {lastPage > 0
           ? t("page", { current: currentPage, total: lastPage })
-          : t("pageSimple", { current: currentPage })
-        }
+          : t("pageSimple", { current: currentPage })}
         {total > 0 && <span className="ml-1">({total})</span>}
-      </div>
+      </Typography>
     </div>
   );
 }

@@ -1,10 +1,23 @@
 // Types for Kiniro List application
 
+// Re-export component types
+export * from "./types/components";
+
 // ============ AniList Types ============
 
 export type MediaSeason = "WINTER" | "SPRING" | "SUMMER" | "FALL";
 export type MediaStatus = "FINISHED" | "RELEASING" | "NOT_YET_RELEASED" | "CANCELLED" | "HIATUS";
-export type MediaFormat = "TV" | "TV_SHORT" | "MOVIE" | "SPECIAL" | "OVA" | "ONA" | "MUSIC" | "MANGA" | "NOVEL" | "ONE_SHOT";
+export type MediaFormat =
+  | "TV"
+  | "TV_SHORT"
+  | "MOVIE"
+  | "SPECIAL"
+  | "OVA"
+  | "ONA"
+  | "MUSIC"
+  | "MANGA"
+  | "NOVEL"
+  | "ONE_SHOT";
 
 export interface MediaTitle {
   romaji: string;
@@ -131,8 +144,15 @@ export interface RecommendationNode {
 
 // ============ Firestore Types ============
 
+export interface StreamingLink {
+  site: string;
+  url: string;
+  icon?: string | null;
+}
+
 export interface AnimeCache {
   id: number;
+  slug?: string;
   title: MediaTitle;
   coverImage: MediaCoverImage;
   bannerImage?: string | null;
@@ -145,6 +165,7 @@ export interface AnimeCache {
   format?: MediaFormat | null;
   isAdult?: boolean;
   siteUrl?: string | null;
+  streamingLinks?: StreamingLink[];
   updatedAt: Date;
   source: "anilist";
 }
@@ -295,4 +316,14 @@ export interface SettingsUpdateRequest {
   filters?: UserFilters;
   locale?: Locale;
   theme?: ThemePreference;
+}
+
+// ============ Settings Form Types ============
+
+export interface SettingsFormData {
+  timezone: string;
+  locale: Locale;
+  theme: ThemePreference;
+  calendarView: CalendarView;
+  filters: UserFilters;
 }

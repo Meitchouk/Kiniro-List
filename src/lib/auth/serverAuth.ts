@@ -9,17 +9,17 @@ export interface AuthResult {
 
 export async function requireAuth(request: NextRequest): Promise<AuthResult> {
   const authHeader = request.headers.get("authorization");
-  
+
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
     throw new AuthError("Missing or invalid authorization header", 401);
   }
-  
+
   const idToken = authHeader.substring(7);
-  
+
   try {
     const auth = getAdminAuth();
     const decodedToken = await auth.verifyIdToken(idToken);
-    
+
     return {
       uid: decodedToken.uid,
       token: decodedToken,
@@ -31,7 +31,10 @@ export async function requireAuth(request: NextRequest): Promise<AuthResult> {
 }
 
 export class AuthError extends Error {
-  constructor(message: string, public statusCode: number) {
+  constructor(
+    message: string,
+    public statusCode: number
+  ) {
     super(message);
     this.name = "AuthError";
   }
