@@ -1,0 +1,71 @@
+"use client";
+
+import { useTheme } from "next-themes";
+import { Sun, Moon, Monitor } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useTranslations } from "next-intl";
+import { useMediaQuery } from "@/lib/hooks/useMediaQuery";
+
+export function ThemeToggle() {
+  const { theme, setTheme } = useTheme();
+  const t = useTranslations("theme");
+  const isMobile = useMediaQuery("(max-width: 768px)");
+
+  // On mobile, show a simple toggle button between light and dark
+  if (isMobile) {
+    const isDark = theme === "dark";
+    return (
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={() => setTheme(isDark ? "light" : "dark")}
+        className="h-9"
+      >
+        {isDark ? (
+          <>
+            <Sun className="h-4 w-4 mr-2" />
+            Light
+          </>
+        ) : (
+          <>
+            <Moon className="h-4 w-4 mr-2" />
+            Dark
+          </>
+        )}
+      </Button>
+    );
+  }
+
+  // On desktop, show the full dropdown menu
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" size="icon">
+          <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+          <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+          <span className="sr-only">{t("toggle")}</span>
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuItem onClick={() => setTheme("light")}>
+          <Sun className="mr-2 h-4 w-4" />
+          {t("light")}
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => setTheme("dark")}>
+          <Moon className="mr-2 h-4 w-4" />
+          {t("dark")}
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => setTheme("system")}>
+          <Monitor className="mr-2 h-4 w-4" />
+          {t("system")}
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}

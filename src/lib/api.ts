@@ -1,0 +1,211 @@
+"use client";
+
+import { toast } from "sonner";
+import { fetchWithLoading } from "@/lib/fetchInterceptor";
+import type {
+  AnimeListResponse,
+  AnimeDetailResponse,
+  WeeklyScheduleResponse,
+  UserResponse,
+  LibraryEntryWithAnime,
+  CalendarAnimeItem,
+  LibraryUpsertRequest,
+  SettingsUpdateRequest,
+  MediaSeason,
+} from "@/lib/types";
+
+type AuthHeadersGetter = (
+  options?: { forceRefresh?: boolean }
+) => Promise<Record<string, string>>;
+
+let getAuthHeaders: AuthHeadersGetter = async () => ({});
+
+export function setAuthHeadersGetter(getter: AuthHeadersGetter) {
+  getAuthHeaders = getter;
+}
+
+async function fetchWithAuth(
+  url: string,
+  init?: RequestInit,
+  { retryOn401 = true }: { retryOn401?: boolean } = {}
+): Promise<Response> {
+  const initialHeaders = await getAuthHeaders();
+
+  const buildRequest = (headers: Record<string, string>) => ({
+    ...init,
+    headers: {
+      ...(init?.headers || {}),
+      ...headers,
+    },
+  });
+
+  let response = await fetchWithLoading(url, buildRequest(initialHeaders));
+
+  // Retry once with a freshly refreshed token to avoid intermittent 401s
+  if (retryOn401 && response.status === 401) {
+    const refreshedHeaders = await getAuthHeaders({ forceRefresh: true });
+
+    if (refreshedHeaders.Authorization) {
+      response = await fetchWithLoading(url, buildRequest(refreshedHeaders));
+    }
+  }
+
+  return response;
+}
+
+async function handleResponse<T>(response: Response): Promise<T> {
+  if (response.status === 401) {
+    toast.error("Please login to continue");
+    throw new Error("Unauthorized");
+  }
+
+  if (response.status === 429) {
+    const data = await response.json();
+    toast.error(`Too many requests. Please wait ${data.retryAfter} seconds.`);
+    throw new Error("Rate limited");
+  }
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.error || "Request failed");
+  }
+
+  return response.json();
+}
+
+// ============ Public API ============
+
+export async function searchAnime(
+  query: string,
+  page: number = 1
+): Promise<AnimeListResponse> {
+  const params = new URLSearchParams({ q: query, page: String(page) });
+  const response = await fetchWithLoading(`/api/anime/search?${params}`);
+  return handleResponse(response);
+}
+
+export async function getAnimeDetail(id: number): Promise<AnimeDetailResponse> {
+  const response = await fetchWithLoading(`/api/anime/${id}`);
+  return handleResponse(response);
+}
+
+export async function getCurrentSeason(
+  page: number = 1
+): Promise<AnimeListResponse & { season: MediaSeason; year: number }> {
+  const params = new URLSearchParams({ page: String(page) });
+  const response = await fetchWithLoading(`/api/calendar/now?${params}`);
+  return handleResponse(response);
+}
+
+export async function getUpcomingSeason(
+  page: number = 1
+): Promise<AnimeListResponse & { season: MediaSeason; year: number }> {
+  const params = new URLSearchParams({ page: String(page) });
+  const response = await fetchWithLoading(`/api/calendar/upcoming?${params}`);
+  return handleResponse(response);
+}
+
+export async function getSeason(
+  year: number,
+  season: MediaSeason,
+  page: number = 1
+): Promise<AnimeListResponse & { season: MediaSeason; year: number }> {
+  const params = new URLSearchParams({
+    year: String(year),
+    season,
+    page: String(page),
+  });
+  const response = await fetchWithLoading(`/api/calendar/season?${params}`);
+  return handleResponse(response);
+}
+
+export async function getWeeklySchedule(): Promise<WeeklyScheduleResponse> {
+  const response = await fetchWithLoading("/api/schedule/weekly");
+  return handleResponse(response);
+}
+
+// ============ Protected API ============
+
+export async function getCurrentUser(): Promise<UserResponse> {
+  const response = await fetchWithAuth("/api/me");
+  return handleResponse(response);
+}
+
+export async function updateSettings(
+  settings: SettingsUpdateRequest
+): Promise<{ success: boolean }> {
+  const response = await fetchWithAuth("/api/me/settings", {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(settings),
+  });
+  return handleResponse(response);
+}
+
+export async function getLibrary(): Promise<{ entries: LibraryEntryWithAnime[]; items?: LibraryEntryWithAnime[] }> {
+  const response = await fetchWithAuth("/api/me/library");
+  return handleResponse(response);
+}
+
+export async function upsertLibraryEntry(
+  entry: LibraryUpsertRequest
+): Promise<{ success: boolean }> {
+  const response = await fetchWithAuth("/api/me/library", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(entry),
+  });
+  return handleResponse(response);
+}
+
+export async function deleteLibraryEntry(
+  animeId: number
+): Promise<{ success: boolean }> {
+  const response = await fetchWithAuth(`/api/me/library/${animeId}`, {
+    method: "DELETE",
+  });
+  return handleResponse(response);
+}
+
+export async function getMyCalendar(): Promise<{ items: CalendarAnimeItem[] }> {
+  const response = await fetchWithAuth("/api/me/calendar");
+  return handleResponse(response);
+}
+
+// Generic API wrapper for simple use cases
+export const api = {
+  async get<T = unknown>(url: string): Promise<T> {
+    const response = await fetchWithAuth(url);
+    return handleResponse<T>(response);
+  },
+  async post<T = unknown>(url: string, body?: unknown): Promise<T> {
+    const response = await fetchWithAuth(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: body ? JSON.stringify(body) : undefined,
+    });
+    return handleResponse<T>(response);
+  },
+  async patch<T = unknown>(url: string, body?: unknown): Promise<T> {
+    const response = await fetchWithAuth(url, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: body ? JSON.stringify(body) : undefined,
+    });
+    return handleResponse<T>(response);
+  },
+  async delete<T = unknown>(url: string): Promise<T> {
+    const response = await fetchWithAuth(url, {
+      method: "DELETE",
+    });
+    return handleResponse<T>(response);
+  },
+};

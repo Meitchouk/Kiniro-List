@@ -1,0 +1,26 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Users collection: only the authenticated user can read/write their own document
+    match /users/{uid} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+      
+      // User library subcollection: only the authenticated user can read/write
+      match /library/{animeId} {
+        allow read, write: if request.auth != null && request.auth.uid == uid;
+      }
+    }
+    
+    // Anime cache: readable by anyone, writable only by server (admin SDK)
+    match /anime/{animeId} {
+      allow read: if true;
+      allow write: if false; // Only server (admin SDK) can write
+    }
+    
+    // Anime airing cache: readable by anyone, writable only by server (admin SDK)
+    match /animeAiring/{animeId} {
+      allow read: if true;
+      allow write: if false; // Only server (admin SDK) can write
+    }
+  }
+}
