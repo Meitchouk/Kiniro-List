@@ -3,8 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, Badge, Typography } from "@/components/ds";
 import { CountdownBadge } from "@/components/anime/CountdownBadge";
 import { CrunchyrollIcon } from "@/components/icons/CrunchyrollIcon";
 import { Clock } from "lucide-react";
@@ -68,13 +67,13 @@ export function CalendarItemCard({ item, timezone, isUnknown = false }: Calendar
           {isUnknown ? (
             <>
               <Link href={`/anime/${item.anime.id}`} className="min-w-0">
-                <h3 className="font-medium text-sm line-clamp-1 hover:text-primary transition-colors">
+                <Typography variant="body2" weight="medium" className="line-clamp-1 hover:text-primary transition-colors">
                   {animeTitle}
-                </h3>
+                </Typography>
               </Link>
-              <p className="text-xs text-muted-foreground mt-1">
+              <Typography variant="caption" colorScheme="secondary" className="mt-1">
                 {t("calendar.noAiringInfo")}
-              </p>
+              </Typography>
             </>
           ) : (
             <>

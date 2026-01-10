@@ -3,8 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, Badge, Typography, Flex, Stack } from "@/components/ds";
 import { Clock } from "lucide-react";
 import { getLocalizedTitle } from "@/lib/utils/text";
 import { formatAiringTime } from "@/lib/utils/date";
@@ -47,18 +46,20 @@ export function ScheduleItemCard({
               sizes="64px"
             />
           </div>
-          <div className="flex min-w-0 flex-1 flex-col justify-between">
+          <Stack justify="between" className="flex min-w-0 flex-1">
             <div>
-              <h3 className="line-clamp-2 text-sm font-medium group-hover:text-primary">
+              <Typography variant="body2" weight="medium" className="line-clamp-2 group-hover:text-primary">
                 {displayTitle}
-              </h3>
+              </Typography>
             </div>
-            <div className="space-y-1">
-              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                <Clock className="h-3 w-3" />
-                {formatAiringTime(airingAt)}
-              </div>
-              <div className="flex items-center gap-2">
+            <Stack gap={1}>
+              <Flex align="center" gap={2}>
+                <Clock className="h-3 w-3 text-muted-foreground" />
+                <Typography variant="caption" colorScheme="secondary">
+                  {formatAiringTime(airingAt)}
+                </Typography>
+              </Flex>
+              <Flex align="center" gap={2}>
                 <Badge variant="secondary" className="text-xs">
                   {t("airing.episode", { number: episode })}
                 </Badge>
@@ -67,9 +68,9 @@ export function ScheduleItemCard({
                     {t(`format.${format}`)}
                   </Badge>
                 )}
-              </div>
-            </div>
-          </div>
+              </Flex>
+            </Stack>
+          </Stack>
         </CardContent>
       </Card>
     </Link>

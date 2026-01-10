@@ -1,9 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger, Badge, Card, CardContent, Typography, Flex } from "@/components/ds";
 import { Calendar } from "lucide-react";
 import { ScheduleItemCard } from "./ScheduleItemCard";
 import type { WeeklyScheduleItem } from "@/lib/types";
@@ -34,12 +32,12 @@ export function WeeklyScheduleTabs({ schedule }: WeeklyScheduleTabsProps) {
               value={String(day)}
               className="flex flex-col gap-1 py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
             >
-              <span className="hidden text-sm font-medium sm:inline">
+              <Typography variant="body2" weight="medium" className="hidden sm:inline">
                 {t(`schedule.weekdays.${day}`)}
-              </span>
-              <span className="text-sm font-medium sm:hidden">
+              </Typography>
+              <Typography variant="body2" weight="medium" className="sm:hidden">
                 {t(`schedule.weekdays.${day}`).slice(0, 3)}
-              </span>
+              </Typography>
               <Badge variant={isToday ? "secondary" : "outline"} className="text-xs">
                 {animeCount}
               </Badge>
@@ -55,22 +53,22 @@ export function WeeklyScheduleTabs({ schedule }: WeeklyScheduleTabsProps) {
 
         return (
           <TabsContent key={day} value={String(day)} className="pt-10">
-            <div className="mb-4 flex items-center gap-2">
+            <Flex align="center" gap={2} className="mb-4">
               {isToday && <Calendar className="h-5 w-5 text-primary" />}
-              <h2 className="text-xl font-semibold">
+              <Typography variant="h5">
                 {t(`schedule.weekdays.${day}`)}
-              </h2>
+              </Typography>
               <Badge variant={isToday ? "default" : "secondary"}>
                 {animeCount}
               </Badge>
-            </div>
+            </Flex>
 
             {animeCount === 0 ? (
               <Card>
                 <CardContent className="py-12">
-                  <p className="text-center text-muted-foreground">
+                  <Typography variant="body2" colorScheme="secondary" align="center">
                     {t("schedule.noEpisodes")}
-                  </p>
+                  </Typography>
                 </CardContent>
               </Card>
             ) : (

@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { Calendar } from "lucide-react";
 import { DateTime } from "luxon";
+import { Typography, Flex, Grid, Stack } from "@/components/ds";
 import { CalendarItemCard } from "./CalendarItemCard";
 import type { CalendarAnimeItem } from "@/lib/types";
 
@@ -35,17 +36,17 @@ export function CalendarDateGroup({ dateKey, items, timezone }: CalendarDateGrou
   const t = useTranslations();
 
   return (
-    <div>
-      <h2 className="text-lg font-semibold mb-3 flex items-center gap-2">
+    <Stack gap={3}>
+      <Flex align="center" gap={2}>
         <Calendar className="h-5 w-5" />
-        {formatDateHeader(dateKey, timezone, t)}
-      </h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
+        <Typography variant="h6">{formatDateHeader(dateKey, timezone, t)}</Typography>
+      </Flex>
+      <Grid cols={1} mdCols={2} xlCols={3} gap={3}>
         {items.map((item) => (
           <CalendarItemCard key={item.anime.id} item={item} timezone={timezone} />
         ))}
-      </div>
-    </div>
+      </Grid>
+    </Stack>
   );
 }
 
@@ -63,16 +64,16 @@ export function CalendarUnknownGroup({ items, timezone }: CalendarUnknownGroupPr
   if (!items || items.length === 0) return null;
 
   return (
-    <div>
-      <h2 className="text-lg font-semibold mb-3 text-muted-foreground">
+    <Stack gap={3}>
+      <Typography variant="h6" colorScheme="secondary">
         {t("calendar.unknown")}
-      </h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
+      </Typography>
+      <Grid cols={1} mdCols={2} xlCols={3} gap={3}>
         {items.map((item) => (
           <CalendarItemCard key={item.anime.id} item={item} timezone={timezone} isUnknown />
         ))}
-      </div>
-    </div>
+      </Grid>
+    </Stack>
   );
 }
 

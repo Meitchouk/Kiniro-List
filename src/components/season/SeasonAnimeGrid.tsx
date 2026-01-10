@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { Typography, Grid, Stack } from "@/components/ds";
 import { AnimeCard } from "@/components/anime/AnimeCard";
 import { Pagination } from "@/components/anime/Pagination";
 import { EmptyState } from "@/components/common";
@@ -35,15 +36,15 @@ export function SeasonAnimeGrid({
   }
 
   return (
-    <div className="space-y-4">
+    <Stack gap={4}>
       {/* Season info */}
       {showSeasonInfo && season && year && (
-        <p className="mb-6 text-muted-foreground">
+        <Typography variant="body2" colorScheme="secondary" className="mb-6">
           {t("calendar.season", {
             season: t(`calendar.${season}`),
             year,
           })}
-        </p>
+        </Typography>
       )}
 
       {/* Mobile top pagination */}
@@ -56,14 +57,14 @@ export function SeasonAnimeGrid({
       </div>
 
       {/* Anime grid */}
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+      <Grid cols={2} smCols={3} mdCols={4} lgCols={5} xlCols={6} gap={4}>
         {anime.map((item) => (
           <AnimeCard key={item.id} anime={item} />
         ))}
-      </div>
+      </Grid>
 
       {/* Bottom pagination */}
       <Pagination pagination={pagination} onPageChange={onPageChange} />
-    </div>
+    </Stack>
   );
 }
