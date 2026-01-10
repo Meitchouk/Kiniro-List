@@ -3,10 +3,10 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { Card, CardContent, Badge, Typography } from "@/components/ds";
+import { Card, Badge, Typography, Stack, Flex } from "@/components/ds";
 import { CountdownBadge } from "@/components/anime/CountdownBadge";
 import { CrunchyrollIcon } from "@/components/icons/CrunchyrollIcon";
-import { Clock } from "lucide-react";
+import { Clock, Tv, PlayCircle, Star } from "lucide-react";
 import { DateTime } from "luxon";
 import type { CalendarAnimeItem, StreamingLink } from "@/lib/types";
 
@@ -37,97 +37,166 @@ function formatAirTime(isoTime: string, timezone: string) {
 }
 
 /**
- * Calendar item card for my calendar page
+ * Calendar item card for my calendar page - Enhanced design
  */
 export function CalendarItemCard({ item, timezone, isUnknown = false }: CalendarItemCardProps) {
   const t = useTranslations();
   const animeTitle = item.anime?.title?.english || item.anime?.title?.romaji || "";
   const crunchyroll = getCrunchyrollLink(item.anime?.streamingLinks, animeTitle);
-  const slug = item.anime?.slug || "";
+  const slug = item.anime?.slug || String(item.anime?.id || "");
+  const coverImage = item.anime?.coverImage?.large;
+  const totalEpisodes = item.anime?.episodes;
+  const format = item.anime?.format;
+  const genres = item.anime?.genres?.slice(0, 2);
+
+  // Unknown state - simplified card
+  if (isUnknown) {
+    return (
+      <Card className="group overflow-hidden opacity-70 transition-all hover:opacity-100">
+        <div className="flex gap-3 p-3">
+          <Link href={`/anime/${slug}`} className="shrink-0">
+            <div className="relative h-20 w-14 overflow-hidden rounded-md">
+              {coverImage ? (
+                <Image
+                  src={coverImage}
+                  alt={animeTitle}
+                  fill
+                  sizes="56px"
+                  className="object-cover"
+                />
+              ) : (
+                <div className="bg-muted h-full w-full" />
+              )}
+            </div>
+          </Link>
+          <Stack gap={1} className="min-w-0 flex-1">
+            <Link href={`/anime/${slug}`}>
+              <Typography
+                variant="body2"
+                weight="medium"
+                className="hover:text-primary line-clamp-2 transition-colors"
+              >
+                {animeTitle}
+              </Typography>
+            </Link>
+            <Typography variant="caption" colorScheme="secondary">
+              {t("calendar.noAiringInfo")}
+            </Typography>
+          </Stack>
+        </div>
+      </Card>
+    );
+  }
 
   return (
-    <Card
-      className={`hover:bg-accent/50 overflow-hidden transition-colors ${isUnknown ? "opacity-60" : ""}`}
-    >
-      <div className="flex h-full">
-        <Link href={`/anime/${slug}`} className="shrink-0">
-          <div className="relative h-24 w-16 md:h-20 md:w-14">
-            {item.anime?.coverImage?.large ? (
+    <Card className="group hover:shadow-primary/5 overflow-hidden transition-all hover:shadow-lg">
+      <div className="flex">
+        {/* Vertical Image Section */}
+        <Link href={`/anime/${slug}`} className="relative shrink-0">
+          <div className="relative h-48 w-32 overflow-hidden sm:h-56 sm:w-40">
+            {coverImage ? (
               <Image
-                src={item.anime.coverImage.large}
+                src={coverImage}
                 alt={animeTitle}
                 fill
-                className="object-cover"
+                sizes="160px"
+                className="object-cover transition-transform duration-300 group-hover:scale-105"
               />
             ) : (
               <div className="bg-muted h-full w-full" />
             )}
+            {/* Countdown Badge - On image */}
+            {item.secondsToAir && item.secondsToAir > 0 && (
+              <div className="absolute top-2 right-2">
+                <CountdownBadge
+                  statusLabel={item.statusLabel}
+                  secondsToAir={item.secondsToAir}
+                  size="lg"
+                />
+              </div>
+            )}
           </div>
         </Link>
-        <CardContent className="flex min-w-0 flex-1 flex-col justify-between p-2 md:p-2.5">
-          {isUnknown ? (
-            <>
-              <Link href={`/anime/${slug}`} className="min-w-0">
-                <Typography
-                  variant="body2"
-                  weight="medium"
-                  className="hover:text-primary line-clamp-1 transition-colors"
-                >
-                  {animeTitle}
-                </Typography>
-              </Link>
-              <Typography variant="caption" colorScheme="secondary" className="mt-1">
-                {t("calendar.noAiringInfo")}
+
+        {/* Content Section */}
+        <div className="flex min-w-0 flex-1 flex-col justify-between p-4">
+          <Stack gap={2}>
+            {/* Title */}
+            <Link href={`/anime/${slug}`}>
+              <Typography
+                variant="body1"
+                weight="semibold"
+                className="hover:text-primary line-clamp-2 transition-colors"
+              >
+                {animeTitle}
               </Typography>
-            </>
-          ) : (
-            <>
-              <div className="flex items-start justify-between gap-2">
-                <Link href={`/anime/${slug}`} className="min-w-0 flex-1">
-                  <h3 className="hover:text-primary line-clamp-1 text-sm font-medium transition-colors">
-                    {animeTitle}
-                  </h3>
-                </Link>
-                {item.secondsToAir && item.secondsToAir > 0 && (
-                  <CountdownBadge statusLabel={item.statusLabel} secondsToAir={item.secondsToAir} />
-                )}
-              </div>
-              <div className="mt-1.5 flex items-center justify-between gap-2">
-                <div className="text-muted-foreground flex items-center gap-2 text-xs">
-                  {item.nextAiringAt && (
-                    <span className="flex items-center gap-1">
-                      <Clock className="h-3 w-3" />
-                      {formatAirTime(item.nextAiringAt, timezone)}
-                    </span>
-                  )}
-                  {item.nextEpisodeNumber && (
-                    <Badge variant="outline" className="px-1.5 py-0 text-xs">
-                      {t("anime.episode", { number: item.nextEpisodeNumber })}
-                    </Badge>
-                  )}
-                </div>
-                <a
-                  href={crunchyroll.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-1 text-xs text-orange-500 transition-colors hover:text-orange-400"
-                  title={
-                    crunchyroll.isDirect
-                      ? t("calendar.watchOnCrunchyroll")
-                      : t("calendar.searchOnCrunchyroll")
-                  }
-                >
-                  <CrunchyrollIcon className="h-3.5 w-3.5" />
-                  <span className="hidden sm:inline">
-                    {crunchyroll.isDirect
-                      ? t("calendar.watchOnCrunchyroll")
-                      : t("calendar.searchOnCrunchyroll")}
-                  </span>
-                </a>
-              </div>
-            </>
-          )}
-        </CardContent>
+            </Link>
+
+            {/* Episode & Air Time */}
+            <Flex align="center" gap={2} className="flex-wrap">
+              {item.nextEpisodeNumber && (
+                <Badge className="bg-primary/90 text-primary-foreground border-0 text-sm font-semibold">
+                  <PlayCircle className="mr-1 h-3.5 w-3.5" />
+                  {t("anime.episode", { number: item.nextEpisodeNumber })}
+                  {totalEpisodes && <span className="ml-1 opacity-70">/ {totalEpisodes}</span>}
+                </Badge>
+              )}
+              {item.nextAiringAt && (
+                <Badge variant="secondary">
+                  <Clock className="mr-1 h-3 w-3" />
+                  {formatAirTime(item.nextAiringAt, timezone)}
+                </Badge>
+              )}
+            </Flex>
+
+            {/* Meta Info Row */}
+            <Flex align="center" gap={2} className="flex-wrap">
+              {format && (
+                <Badge variant="outline" className="text-xs">
+                  <Tv className="mr-1 h-3 w-3" />
+                  {t(`format.${format}`)}
+                </Badge>
+              )}
+              {genres?.map((genre) => (
+                <Badge key={genre} variant="secondary" className="text-xs">
+                  {genre}
+                </Badge>
+              ))}
+            </Flex>
+          </Stack>
+
+          {/* Actions Row */}
+          <Flex align="center" justify="between" className="mt-3">
+            {/* Pinned indicator */}
+            {item.pinned && (
+              <Flex align="center" gap={1} className="text-xs text-yellow-500">
+                <Star className="h-3.5 w-3.5 fill-current" />
+                <span>{t("calendar.pinned")}</span>
+              </Flex>
+            )}
+            {!item.pinned && <div />}
+
+            {/* Crunchyroll Link */}
+            <a
+              href={crunchyroll.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 rounded-full bg-orange-500/10 px-3 py-1.5 text-xs font-medium text-orange-500 transition-colors hover:bg-orange-500/20"
+              title={
+                crunchyroll.isDirect
+                  ? t("calendar.watchOnCrunchyroll")
+                  : t("calendar.searchOnCrunchyroll")
+              }
+            >
+              <CrunchyrollIcon className="h-4 w-4" />
+              <span className="hidden sm:inline">
+                {crunchyroll.isDirect
+                  ? t("calendar.watchOnCrunchyroll")
+                  : t("calendar.searchOnCrunchyroll")}
+              </span>
+            </a>
+          </Flex>
+        </div>
       </div>
     </Card>
   );

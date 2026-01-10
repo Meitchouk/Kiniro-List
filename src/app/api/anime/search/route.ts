@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { searchAnime } from "@/lib/anilist/client";
-import { upsertManyAnimeCache } from "@/lib/firestore/cache";
+import { upsertManyAnimeCache, getManyAnimeFromCache } from "@/lib/firestore/cache";
 import { checkRateLimit, rateLimitResponse } from "@/lib/ratelimit";
 import { searchQuerySchema } from "@/lib/schemas";
-import type { AnimeCache } from "@/lib/types";
 
 export async function GET(request: NextRequest) {
   try {
@@ -32,29 +31,15 @@ export async function GET(request: NextRequest) {
     // Search AniList
     const { media, pageInfo } = await searchAnime(q, page);
 
-    // Cache anime metadata
+    // Cache anime metadata (with slugs)
     if (media.length > 0) {
       await upsertManyAnimeCache(media);
     }
 
-    // Transform to response format
-    const anime: AnimeCache[] = media.map((m) => ({
-      id: m.id,
-      title: m.title,
-      coverImage: m.coverImage,
-      bannerImage: m.bannerImage,
-      description: m.description || null,
-      genres: m.genres || [],
-      season: m.season,
-      seasonYear: m.seasonYear,
-      status: m.status,
-      episodes: m.episodes,
-      format: m.format,
-      isAdult: m.isAdult || false,
-      siteUrl: m.siteUrl,
-      updatedAt: new Date(),
-      source: "anilist" as const,
-    }));
+    // Always get from cache to ensure we have slugs
+    const animeIds = media.map((m) => m.id);
+    const cachedAnime = await getManyAnimeFromCache(animeIds);
+    const anime = animeIds.map((id) => cachedAnime.get(id)).filter((a) => a !== undefined);
 
     return NextResponse.json({
       anime,

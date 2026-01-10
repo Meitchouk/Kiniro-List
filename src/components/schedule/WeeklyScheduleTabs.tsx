@@ -87,7 +87,7 @@ export function WeeklyScheduleTabs({ schedule }: WeeklyScheduleTabsProps) {
                     format={item.anime.format}
                     airingAt={item.airingAt}
                     episode={item.episode}
-                    slug={item.anime.slug || ""}
+                    slug={item.anime.slug || String(item.anime.id)}
                   />
                 ))}
               </div>

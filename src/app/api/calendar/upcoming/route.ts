@@ -9,7 +9,6 @@ import {
 import { checkRateLimit, rateLimitResponse } from "@/lib/ratelimit";
 import { paginationSchema } from "@/lib/schemas";
 import { getNextSeason } from "@/lib/utils/date";
-import type { AnimeCache, AniListMedia } from "@/lib/types";
 
 const PER_PAGE = 20;
 
@@ -36,14 +35,13 @@ export async function GET(request: NextRequest) {
 
     // Try to get from season cache first
     let allAnimeIds = await getSeasonFromCache(season, year);
-    let allMedia: AniListMedia[] = [];
 
     if (!allAnimeIds) {
       // Cache miss: fetch ALL anime from AniList for this season
-      allMedia = await getAllSeasonAnime(season, year);
+      const allMedia = await getAllSeasonAnime(season, year);
       allAnimeIds = allMedia.map((m) => m.id);
 
-      // Cache the season anime IDs and individual anime data
+      // Cache the season anime IDs and individual anime data (with slugs)
       if (allMedia.length > 0) {
         await Promise.all([
           upsertSeasonCache(season, year, allAnimeIds),
@@ -55,35 +53,9 @@ export async function GET(request: NextRequest) {
     // Paginate locally with reliable page info
     const { items: paginatedIds, pageInfo } = paginateLocally(allAnimeIds, page, PER_PAGE);
 
-    // Get anime data from cache
-    let anime: AnimeCache[];
-    if (allMedia.length > 0) {
-      // We just fetched from AniList, use that data
-      const paginatedMedia = allMedia.filter((m) => paginatedIds.includes(m.id));
-      anime = paginatedMedia.map((m) => ({
-        id: m.id,
-        title: m.title,
-        coverImage: m.coverImage,
-        bannerImage: m.bannerImage,
-        description: m.description || null,
-        genres: m.genres || [],
-        season: m.season,
-        seasonYear: m.seasonYear,
-        status: m.status,
-        episodes: m.episodes,
-        format: m.format,
-        isAdult: m.isAdult || false,
-        siteUrl: m.siteUrl,
-        updatedAt: new Date(),
-        source: "anilist" as const,
-      }));
-    } else {
-      // Get from cache
-      const cachedAnime = await getManyAnimeFromCache(paginatedIds);
-      anime = paginatedIds
-        .map((id) => cachedAnime.get(id))
-        .filter((a): a is AnimeCache => a !== undefined);
-    }
+    // Always get from cache to ensure we have slugs
+    const cachedAnime = await getManyAnimeFromCache(paginatedIds);
+    const anime = paginatedIds.map((id) => cachedAnime.get(id)).filter((a) => a !== undefined);
 
     return NextResponse.json({
       anime,
