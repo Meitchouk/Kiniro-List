@@ -20,7 +20,9 @@
     "loginWithGoogle": "Login with Google",
     "loginRequired": "Please login to access this page",
     "goToLogin": "Go to Login",
-    "languageSaveError": "Failed to save language preference"
+    "languageSaveError": "Failed to save language preference",
+    "back": "Go back",
+    "topPage": "Top"
   },
   "nav": {
     "home": "Home",
@@ -89,7 +91,27 @@
     "duration": "Duration",
     "studios": "Studios",
     "trailer": "Trailer",
+    "openExternal": "Open externally",
+    "trailerUnavailableInline": "Inline playback not available for this trailer",
     "externalLinks": "Links",
+    "linkType": {
+      "STREAMING": "Streaming",
+      "SOCIAL": "Social Media",
+      "INFO": "Info",
+      "OFFICIAL": "Official"
+    },
+    "linkLanguage": {
+      "EN": "English",
+      "JA": "Japanese",
+      "ES": "Spanish",
+      "FR": "French",
+      "DE": "German",
+      "IT": "Italian",
+      "PT": "Portuguese",
+      "RU": "Russian",
+      "ZH": "Chinese",
+      "KO": "Korean"
+    },
     "tags": "Tags",
     "relations": "Related Anime",
     "recommendations": "Recommendations"
@@ -155,6 +177,8 @@
   },
   "schedule": {
     "title": "Weekly Schedule",
+    "subtitle": "View all anime airing this week",
+    "noEpisodes": "No episodes airing this day",
     "weekdays": {
       "0": "Sunday",
       "1": "Monday",

@@ -23,15 +23,23 @@ export function GoogleButton({ className }: { className?: string }) {
         try {
             await signIn();
         } catch (err: unknown) {
-            const code = (err as { code?: string })?.code || "unknown";
+            const error = err as any;
+            const code = error?.code || "unknown";
+            const message = error?.message || "";
+            
+            console.error("Sign in error:", code, message);
+            
             if (code === "auth/configuration-not-found") {
                 toast.error(t("errors.authConfigNotFound"));
             } else if (code === "auth/operation-not-allowed") {
                 toast.error(t("errors.authProviderDisabled"));
+            } else if (message.includes("Failed to fetch user data")) {
+                toast.error("Error al cargar datos del usuario. Por favor intenta de nuevo.");
+            } else if (message) {
+                toast.error(`Error: ${message}`);
             } else {
-                toast.error(t("common.error"));
+                toast.error(t("errors.generic"));
             }
-            throw err;
         }
     };
 

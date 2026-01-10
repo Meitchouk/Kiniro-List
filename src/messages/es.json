@@ -20,7 +20,9 @@
     "loginWithGoogle": "Iniciar sesión con Google",
     "loginRequired": "Por favor inicia sesión para acceder a esta página",
     "goToLogin": "Ir a iniciar sesión",
-    "languageSaveError": "Error al guardar preferencia de idioma"
+    "languageSaveError": "Error al guardar preferencia de idioma",
+    "back": "Volver atrás",
+    "topPage": "Arriba"
   },
   "nav": {
     "home": "Inicio",
@@ -89,7 +91,27 @@
     "duration": "Duración",
     "studios": "Estudios",
     "trailer": "Tráiler",
+    "openExternal": "Abrir externo",
+    "trailerUnavailableInline": "Reproducción en la página no disponible para este tráiler",
     "externalLinks": "Enlaces",
+    "linkType": {
+      "STREAMING": "Transmisión",
+      "SOCIAL": "Redes Sociales",
+      "INFO": "Información",
+      "OFFICIAL": "Oficial"
+    },
+    "linkLanguage": {
+      "EN": "Inglés",
+      "JA": "Japonés",
+      "ES": "Español",
+      "FR": "Francés",
+      "DE": "Alemán",
+      "IT": "Italiano",
+      "PT": "Portugués",
+      "RU": "Ruso",
+      "ZH": "Chino",
+      "KO": "Coreano"
+    },
     "tags": "Etiquetas",
     "relations": "Anime Relacionado",
     "recommendations": "Recomendaciones"
@@ -154,8 +176,8 @@
     "aired": "Ya Emitido"
   },
   "schedule": {
-    "title": "Horario Semanal",
-    "weekdays": {
+    "title": "Horario Semanal",    "subtitle": "Ve todo el anime que se emite esta semana",
+    "noEpisodes": "No hay episodios este d\u00eda",    "weekdays": {
       "0": "Domingo",
       "1": "Lunes",
       "2": "Martes",

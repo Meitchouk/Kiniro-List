@@ -8,17 +8,19 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { PageHeader } from "@/components/layout/PageHeader";
 import { ErrorBanner } from "@/components/anime/ErrorBanner";
 import { getWeeklySchedule } from "@/lib/api";
 import { getLocalizedTitle } from "@/lib/utils/text";
 import { formatAiringTime } from "@/lib/utils/date";
+import { Calendar, Clock } from "lucide-react";
 
 const weekdays = [0, 1, 2, 3, 4, 5, 6];
 
 function ScheduleSkeleton() {
   return (
-    <div className="space-y-4">
-      {Array.from({ length: 5 }).map((_, i) => (
+    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      {Array.from({ length: 6 }).map((_, i) => (
         <Skeleton key={i} className="h-24 w-full" />
       ))}
     </div>
@@ -38,99 +40,149 @@ export default function WeeklySchedulePage() {
 
   if (isLoading) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <h1 className="mb-6 text-3xl font-bold">{t("schedule.title")}</h1>
-        <ScheduleSkeleton />
+      <div className="flex flex-col">
+        <PageHeader title={t("schedule.title")} showBack={true} />
+        <div className="container mx-auto px-4 py-8">
+          <p className="mb-6 text-muted-foreground">
+            {t("schedule.subtitle")}
+          </p>
+          <ScheduleSkeleton />
+        </div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <h1 className="mb-6 text-3xl font-bold">{t("schedule.title")}</h1>
-        <ErrorBanner onRetry={() => refetch()} />
+      <div className="flex flex-col">
+        <PageHeader title={t("schedule.title")} showBack={true} />
+        <div className="container mx-auto px-4 py-8">
+          <ErrorBanner onRetry={() => refetch()} />
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="mb-6 text-3xl font-bold">{t("schedule.title")}</h1>
+    <div className="flex flex-col">
+      <PageHeader title={t("schedule.title")} showBack={true} />
+      <div className="container mx-auto px-4 py-8">
+      <p className="mb-6 text-muted-foreground">
+        {t("schedule.subtitle")}
+      </p>
 
       <Tabs defaultValue={String(today)} className="w-full">
-        <TabsList className="mb-6 flex w-full flex-wrap gap-1">
-          {weekdays.map((day) => (
-            <TabsTrigger
-              key={day}
-              value={String(day)}
-              className="flex-1 min-w-fit"
-            >
-              <span className="hidden sm:inline">
-                {t(`schedule.weekdays.${day}`)}
-              </span>
-              <span className="sm:hidden">
-                {t(`schedule.weekdays.${day}`).slice(0, 3)}
-              </span>
-              {data && (
-                <Badge variant="secondary" className="ml-2">
-                  {data.schedule[day]?.length || 0}
+        <TabsList className="mb-6 grid w-full grid-cols-7 gap-1">
+          {weekdays.map((day) => {
+            const isToday = day === today;
+            const animeCount = data?.schedule[day]?.length || 0;
+
+            return (
+              <TabsTrigger
+                key={day}
+                value={String(day)}
+                className="flex flex-col gap-1 py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+              >
+                <span className="hidden text-sm font-medium sm:inline">
+                  {t(`schedule.weekdays.${day}`)}
+                </span>
+                <span className="text-sm font-medium sm:hidden">
+                  {t(`schedule.weekdays.${day}`).slice(0, 3)}
+                </span>
+                <Badge
+                  variant={isToday ? "secondary" : "outline"}
+                  className="text-xs"
+                >
+                  {animeCount}
                 </Badge>
-              )}
-            </TabsTrigger>
-          ))}
+              </TabsTrigger>
+            );
+          })}
         </TabsList>
 
-        {weekdays.map((day) => (
-          <TabsContent key={day} value={String(day)}>
-            {data && data.schedule[day]?.length === 0 ? (
-              <p className="text-center text-muted-foreground py-8">
-                {t("common.noResults")}
-              </p>
-            ) : (
-              <div className="space-y-3">
-                {data?.schedule[day]?.map((item) => {
-                  const title = getLocalizedTitle(item.anime.title);
-                  const coverImage =
-                    item.anime.coverImage.large || "/placeholder.png";
+        {weekdays.map((day) => {
+          const isToday = day === today;
+          const animeCount = data?.schedule[day]?.length || 0;
 
-                  return (
-                    <Link key={item.anime.id} href={`/anime/${item.anime.id}`}>
-                      <Card className="transition-all hover:shadow-md hover:-translate-y-0.5">
-                        <CardContent className="flex gap-4 p-4">
-                          <div className="relative h-20 w-14 shrink-0 overflow-hidden rounded">
-                            <Image
-                              src={coverImage}
-                              alt={title}
-                              fill
-                              className="object-cover"
-                              sizes="56px"
-                            />
-                          </div>
-                          <div className="flex flex-1 flex-col justify-center">
-                            <h3 className="font-medium line-clamp-1">{title}</h3>
-                            <p className="text-sm text-muted-foreground">
-                              {t("airing.episode", { number: item.episode })}
-                            </p>
-                            <p className="text-sm text-muted-foreground">
-                              {formatAiringTime(item.airingAt)}
-                            </p>
-                          </div>
-                          {item.anime.format && (
-                            <Badge variant="outline" className="self-center">
-                              {t(`format.${item.anime.format}`)}
-                            </Badge>
-                          )}
-                        </CardContent>
-                      </Card>
-                    </Link>
-                  );
-                })}
+          return (
+            <TabsContent key={day} value={String(day)} className="pt-10">
+              <div className="mb-4 flex items-center gap-2">
+                {isToday && <Calendar className="h-5 w-5 text-primary" />}
+                <h2 className="text-xl font-semibold">
+                  {t(`schedule.weekdays.${day}`)}
+                </h2>
+                <Badge variant={isToday ? "default" : "secondary"}>
+                  {animeCount}
+                </Badge>
               </div>
-            )}
-          </TabsContent>
-        ))}
+
+              {animeCount === 0 ? (
+                <Card>
+                  <CardContent className="py-12">
+                    <p className="text-center text-muted-foreground">
+                      {t("schedule.noEpisodes")}
+                    </p>
+                  </CardContent>
+                </Card>
+              ) : (
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                  {data?.schedule[day]?.map((item) => {
+                    const title = getLocalizedTitle(item.anime.title);
+                    const coverImage =
+                      item.anime.coverImage.large || "/placeholder.png";
+
+                    return (
+                      <Link
+                        key={item.anime.id}
+                        href={`/anime/${item.anime.id}`}
+                        className="group"
+                      >
+                        <Card className="h-full transition-all hover:shadow-lg hover:-translate-y-1">
+                          <CardContent className="flex gap-3 p-4">
+                            <div className="relative h-24 w-16 shrink-0 overflow-hidden rounded">
+                              <Image
+                                src={coverImage}
+                                alt={title}
+                                fill
+                                className="object-cover"
+                                sizes="64px"
+                              />
+                            </div>
+                            <div className="flex min-w-0 flex-1 flex-col justify-between">
+                              <div>
+                                <h3 className="line-clamp-2 text-sm font-medium group-hover:text-primary">
+                                  {title}
+                                </h3>
+                              </div>
+                              <div className="space-y-1">
+                                <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                                  <Clock className="h-3 w-3" />
+                                  {formatAiringTime(item.airingAt)}
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <Badge variant="secondary" className="text-xs">
+                                    {t("airing.episode", { number: item.episode })}
+                                  </Badge>
+                                  {item.anime.format && (
+                                    <Badge variant="outline" className="text-xs">
+                                      {t(`format.${item.anime.format}`)}
+                                    </Badge>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </Link>
+                    );
+                  })}
+                </div>
+              )}
+            </TabsContent>
+          );
+        })}
       </Tabs>
+      </div>
     </div>
   );
 }

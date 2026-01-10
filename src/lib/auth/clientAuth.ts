@@ -35,11 +35,12 @@ export function onAuthChange(callback: (user: User | null) => void): () => void 
   return onAuthStateChanged(auth, callback);
 }
 
-export async function getIdToken(): Promise<string | null> {
+export async function getIdToken(forceRefresh: boolean = false): Promise<string | null> {
   const auth = getFirebaseAuth();
   const user = auth.currentUser;
   if (!user) return null;
-  return user.getIdToken();
+  // Force refresh optionally to avoid using an expired token
+  return user.getIdToken(forceRefresh);
 }
 
 export function getCurrentUser(): User | null {

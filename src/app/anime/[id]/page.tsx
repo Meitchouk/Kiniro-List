@@ -5,18 +5,17 @@ import Image from "next/image";
 import Link from "next/link";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
-import { 
-  ExternalLink, 
-  Plus, 
-  Check, 
-  Trash2, 
+import {
+  ExternalLink,
+  Trash2,
   Star,
   Heart,
   Clock,
   TrendingUp,
   Calendar,
   Play,
-  Link as LinkIcon
+  Link as LinkIcon,
+  Globe2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -24,12 +23,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
+import { PageHeader } from "@/components/layout/PageHeader";
 import { AnimeDetailSkeleton } from "@/components/anime/AnimeCardSkeleton";
 import { ErrorBanner } from "@/components/anime/ErrorBanner";
 import { LibraryStatusSelect } from "@/components/anime/LibraryStatusSelect";
@@ -41,6 +38,14 @@ import { getAiringStatusLabel, getSecondsToAir } from "@/lib/utils/date";
 import { toast } from "sonner";
 import type { LibraryStatus } from "@/lib/types";
 
+function getTrailerEmbedUrl(trailer?: { id?: string | null; site?: string | null; thumbnail?: string | null } | null) {
+  if (!trailer?.id || !trailer.site) return null;
+  const site = trailer.site.toLowerCase();
+  if (site === "youtube") return `https://www.youtube.com/embed/${trailer.id}`;
+  if (site === "dailymotion") return `https://www.dailymotion.com/embed/video/${trailer.id}`;
+  return null;
+}
+
 export default function AnimeDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const animeId = parseInt(id, 10);
@@ -48,8 +53,8 @@ export default function AnimeDetailPage({ params }: { params: Promise<{ id: stri
   const { user, getAuthHeaders } = useAuth();
   const queryClient = useQueryClient();
 
-  const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState<LibraryStatus>("watching");
+  const [trailerOpen, setTrailerOpen] = useState(false);
 
   // Fetch anime detail
   const { data: anime, isLoading, error, refetch } = useQuery({
@@ -73,11 +78,7 @@ export default function AnimeDetailPage({ params }: { params: Promise<{ id: stri
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["library"] });
-      setDialogOpen(false);
       toast.success(t("anime.addToLibrary"));
-    },
-    onError: () => {
-      toast.error(t("errors.generic"));
     },
   });
 
@@ -89,9 +90,6 @@ export default function AnimeDetailPage({ params }: { params: Promise<{ id: stri
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["library"] });
       toast.success(t("anime.removeFromLibrary"));
-    },
-    onError: () => {
-      toast.error(t("errors.generic"));
     },
   });
 
@@ -107,10 +105,15 @@ export default function AnimeDetailPage({ params }: { params: Promise<{ id: stri
   if (!anime) return <ErrorBanner message={t("errors.notFound")} />;
 
   const title = getLocalizedTitle(anime.title);
+  // Short title for header (English or Romaji, max 30 chars)
+  const shortTitle = (anime.title.english || anime.title.romaji || "").substring(0, 30) + 
+    ((anime.title.english || anime.title.romaji || "").length > 30 ? "..." : "");
+  
   const coverImage = anime.coverImage.extraLarge || anime.coverImage.large || "/placeholder.png";
   const airingTimestamp = anime.nextAiringAt
     ? Math.floor(new Date(anime.nextAiringAt).getTime() / 1000)
     : null;
+  const trailerEmbedUrl = getTrailerEmbedUrl(anime.trailer);
 
   // Get animation studios
   const animationStudios = anime.studios?.nodes.filter((s) => s.isAnimationStudio) || [];
@@ -121,10 +124,12 @@ export default function AnimeDetailPage({ params }: { params: Promise<{ id: stri
     : null;
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="flex flex-col">
+      <PageHeader title={shortTitle} showBack={true} />
+      <div className="container mx-auto px-4 py-8">
       {/* Banner */}
       {anime.bannerImage && (
-        <div className="relative mb-8 h-48 w-full overflow-hidden rounded-xl md:h-64">
+        <div className="relative -mx-4 mb-8 h-56 w-screen overflow-hidden md:mx-0 md:h-64 md:rounded-xl lg:h-80">
           <Image
             src={anime.bannerImage}
             alt={title}
@@ -138,7 +143,7 @@ export default function AnimeDetailPage({ params }: { params: Promise<{ id: stri
 
       <div className="flex flex-col gap-8 lg:flex-row">
         {/* Left Column: Cover + Stats */}
-        <div className="shrink-0 space-y-6 lg:w-80">
+        <div className="shrink-0 space-y-6 lg:w-80 order-2 lg:order-1">
           {/* Cover Image */}
           <div className="relative mx-auto h-105 w-75 overflow-hidden rounded-lg shadow-xl">
             <Image
@@ -215,37 +220,71 @@ export default function AnimeDetailPage({ params }: { params: Promise<{ id: stri
             </Card>
           )}
 
-          {/* Trailer */}
-          {anime.trailer && anime.trailer.site && (
+          {anime.trailer && (
             <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">{t("anime.trailer")}</CardTitle>
+              <CardHeader className="pb-2">
+                <div className="flex items-center justify-between gap-2">
+                  <CardTitle className="text-lg">{t("anime.trailer")}</CardTitle>
+                  {anime.trailer.site && anime.trailer.id && (
+                    <Button asChild size="sm" variant="ghost" className="text-xs">
+                      <a
+                        href={
+                          anime.trailer.site === "youtube"
+                            ? `https://www.youtube.com/watch?v=${anime.trailer.id}`
+                            : anime.trailer.site === "dailymotion"
+                            ? `https://www.dailymotion.com/video/${anime.trailer.id}`
+                            : "#"
+                        }
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        {t("anime.openExternal")}
+                      </a>
+                    </Button>
+                  )}
+                </div>
               </CardHeader>
               <CardContent>
-                <a
-                  href={
-                    anime.trailer.site === "youtube"
-                      ? `https://www.youtube.com/watch?v=${anime.trailer.id}`
-                      : anime.trailer.site === "dailymotion"
-                      ? `https://www.dailymotion.com/video/${anime.trailer.id}`
-                      : "#"
-                  }
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="block"
+                <button
+                  type="button"
+                  onClick={() => trailerEmbedUrl && setTrailerOpen(true)}
+                  className="group relative block w-full overflow-hidden rounded-md border border-border/60 bg-muted/40"
                 >
-                  <div className="relative aspect-video overflow-hidden rounded-md">
+                  <div className="relative aspect-video overflow-hidden">
                     <Image
                       src={anime.trailer.thumbnail || "/placeholder.png"}
                       alt="Trailer"
                       fill
-                      className="object-cover transition-opacity hover:opacity-75"
+                      className="object-cover transition duration-200 group-hover:scale-105"
                     />
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <Play className="h-12 w-12 text-white opacity-90" />
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/20 transition group-hover:bg-black/30">
+                      <Play className="h-12 w-12 text-white drop-shadow" />
                     </div>
                   </div>
-                </a>
+                </button>
+
+                {trailerEmbedUrl ? (
+                  <Dialog open={trailerOpen} onOpenChange={setTrailerOpen}>
+                    <DialogContent className="max-w-5xl border-border bg-background/95 p-0">
+                      <DialogHeader className="sr-only">
+                        <DialogTitle>{t("anime.trailer")}</DialogTitle>
+                      </DialogHeader>
+                      <div className="aspect-video w-full overflow-hidden rounded-md">
+                        <iframe
+                          src={trailerEmbedUrl}
+                          title="Trailer"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          allowFullScreen
+                          className="h-full w-full"
+                        />
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                ) : (
+                  <p className="mt-3 text-xs text-muted-foreground">
+                    {t("anime.trailerUnavailableInline")}
+                  </p>
+                )}
               </CardContent>
             </Card>
           )}
@@ -257,25 +296,69 @@ export default function AnimeDetailPage({ params }: { params: Promise<{ id: stri
                 <CardTitle className="text-lg">{t("anime.externalLinks")}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-2">
-                {anime.externalLinks.slice(0, 8).map((link, index) => (
-                  <a
-                    key={`link-${link.id}-${index}`}
-                    href={link.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2 text-sm text-primary hover:underline"
-                  >
-                    <LinkIcon className="h-3 w-3" />
-                    {link.site}
-                  </a>
-                ))}
+                {anime.externalLinks.slice(0, 8).map((link, index) => {
+                  const language = link.language;
+                  const linkType = link.type;
+                  const accent = link.color || undefined;
+                  
+                  const getLanguageLabel = (lang: string | null | undefined): string => {
+                    if (!lang) return "";
+                    const normalized = lang.substring(0, 2).toUpperCase();
+                    return t(`anime.linkLanguage.${normalized}` as const) || lang;
+                  };
+                  
+                  const getTypeLabel = (type: string | null | undefined): string => {
+                    if (!type) return "";
+                    return t(`anime.linkType.${type}` as const) || type;
+                  };
+
+                  return (
+                    <a
+                      key={`link-${link.id}-${index}`}
+                      href={link.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="group flex items-center gap-3 rounded-md border border-border/60 bg-muted/40 px-3 py-2 transition hover:border-primary hover:bg-primary/5"
+                      style={accent ? { borderColor: accent + "66" } : undefined}
+                    >
+                      <div className="flex h-8 w-8 items-center justify-center rounded-md bg-background/80 ring-1 ring-border/60">
+                        {link.icon ? (
+                          <Image
+                            src={link.icon}
+                            alt={link.site}
+                            className="h-5 w-5 object-contain"
+                            width={20}
+                            height={20}
+                          />
+                        ) : link.site.toLowerCase().includes("official") ? (
+                          <Globe2 className="h-4 w-4 text-muted-foreground" />
+                        ) : (
+                          <LinkIcon className="h-4 w-4 text-muted-foreground" />
+                        )}
+                      </div>
+
+                      <div className="flex min-w-0 flex-1 items-center justify-between gap-3">
+                        <div className="flex min-w-0 flex-col">
+                          <span className="truncate font-medium text-foreground">
+                            {link.site}
+                          </span>
+                          <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                            {linkType && <span>{getTypeLabel(linkType)}</span>}
+                            {language && <span>{getLanguageLabel(language)}</span>}
+                          </div>
+                        </div>
+                        <ExternalLink className="h-4 w-4 shrink-0 text-muted-foreground transition group-hover:text-primary" />
+                      </div>
+                    </a>
+                  );
+                })}
               </CardContent>
             </Card>
           )}
         </div>
 
         {/* Right Column: Main Content */}
-        <div className="flex-1 space-y-6">
+        <div className="flex-1 space-y-6 order-1 lg:order-2">
           {/* Title */}
           <div>
             <h1 className="text-3xl font-bold md:text-4xl">{title}</h1>
@@ -324,54 +407,94 @@ export default function AnimeDetailPage({ params }: { params: Promise<{ id: stri
             </Card>
           )}
 
+          {/* Add to Library Section */}
+          {user && !libraryEntry && (
+            <Card className="border-2 border-primary/30">
+              <CardHeader>
+                <CardTitle className="text-base">{t("anime.addToLibrary")}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-3 gap-2 md:grid-cols-5">
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setSelectedStatus("watching");
+                      addMutation.mutate();
+                    }}
+                    disabled={addMutation.isPending}
+                    className="border-2 border-blue-600 text-blue-600 hover:bg-blue-600/10"
+                  >
+                    {t("library.watching")}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setSelectedStatus("planned");
+                      addMutation.mutate();
+                    }}
+                    disabled={addMutation.isPending}
+                    className="border-2 border-amber-600 text-amber-600 hover:bg-amber-600/10"
+                  >
+                    {t("library.planned")}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setSelectedStatus("completed");
+                      addMutation.mutate();
+                    }}
+                    disabled={addMutation.isPending}
+                    className="border-2 border-green-600 text-green-600 hover:bg-green-600/10"
+                  >
+                    {t("library.completed")}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setSelectedStatus("paused");
+                      addMutation.mutate();
+                    }}
+                    disabled={addMutation.isPending}
+                    className="border-2 border-gray-600 text-gray-600 hover:bg-gray-600/10"
+                  >
+                    {t("library.paused")}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setSelectedStatus("dropped");
+                      addMutation.mutate();
+                    }}
+                    disabled={addMutation.isPending}
+                    className="border-2 border-red-600 text-red-600 hover:bg-red-600/10"
+                  >
+                    {t("library.dropped")}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
           {/* Actions */}
           <div className="flex flex-wrap gap-3">
-            {user && (
-              <>
-                {libraryEntry ? (
-                  <div className="flex items-center gap-2">
-                    <LibraryStatusSelect
-                      value={libraryEntry.status}
-                      onChange={(status) => {
-                        setSelectedStatus(status);
-                        addMutation.mutate();
-                      }}
-                    />
-                    <Button
-                      variant="destructive"
-                      size="icon"
-                      onClick={() => removeMutation.mutate()}
-                      disabled={removeMutation.isPending}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                ) : (
-                  <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-                    <DialogTrigger asChild>
-                      <Button>
-                        <Plus className="mr-2 h-4 w-4" />
-                        {t("anime.addToLibrary")}
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent>
-                      <DialogHeader>
-                        <DialogTitle>{t("anime.addToLibrary")}</DialogTitle>
-                        <DialogDescription>{title}</DialogDescription>
-                      </DialogHeader>
-                      <div className="py-4">
-                        <LibraryStatusSelect value={selectedStatus} onChange={setSelectedStatus} />
-                      </div>
-                      <DialogFooter>
-                        <Button onClick={() => addMutation.mutate()} disabled={addMutation.isPending}>
-                          <Check className="mr-2 h-4 w-4" />
-                          {t("common.add")}
-                        </Button>
-                      </DialogFooter>
-                    </DialogContent>
-                  </Dialog>
-                )}
-              </>
+            {libraryEntry && (
+              <div className="flex items-center gap-2">
+                <LibraryStatusSelect
+                  value={libraryEntry.status}
+                  onChange={(status) => {
+                    setSelectedStatus(status);
+                    addMutation.mutate();
+                  }}
+                />
+                <Button
+                  variant="destructive"
+                  size="icon"
+                  onClick={() => removeMutation.mutate()}
+                  disabled={removeMutation.isPending}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
             )}
             {anime.siteUrl && (
               <Button variant="outline" asChild>
@@ -528,6 +651,7 @@ export default function AnimeDetailPage({ params }: { params: Promise<{ id: stri
             </Card>
           )}
         </div>
+      </div>
       </div>
     </div>
   );

@@ -14,12 +14,43 @@ import type {
   MediaSeason,
 } from "@/lib/types";
 
-type AuthHeadersGetter = () => Promise<Record<string, string>>;
+type AuthHeadersGetter = (
+  options?: { forceRefresh?: boolean }
+) => Promise<Record<string, string>>;
 
 let getAuthHeaders: AuthHeadersGetter = async () => ({});
 
 export function setAuthHeadersGetter(getter: AuthHeadersGetter) {
   getAuthHeaders = getter;
+}
+
+async function fetchWithAuth(
+  url: string,
+  init?: RequestInit,
+  { retryOn401 = true }: { retryOn401?: boolean } = {}
+): Promise<Response> {
+  const initialHeaders = await getAuthHeaders();
+
+  const buildRequest = (headers: Record<string, string>) => ({
+    ...init,
+    headers: {
+      ...(init?.headers || {}),
+      ...headers,
+    },
+  });
+
+  let response = await fetchWithLoading(url, buildRequest(initialHeaders));
+
+  // Retry once with a freshly refreshed token to avoid intermittent 401s
+  if (retryOn401 && response.status === 401) {
+    const refreshedHeaders = await getAuthHeaders({ forceRefresh: true });
+
+    if (refreshedHeaders.Authorization) {
+      response = await fetchWithLoading(url, buildRequest(refreshedHeaders));
+    }
+  }
+
+  return response;
 }
 
 async function handleResponse<T>(response: Response): Promise<T> {
@@ -96,20 +127,17 @@ export async function getWeeklySchedule(): Promise<WeeklyScheduleResponse> {
 // ============ Protected API ============
 
 export async function getCurrentUser(): Promise<UserResponse> {
-  const headers = await getAuthHeaders();
-  const response = await fetchWithLoading("/api/me", { headers });
+  const response = await fetchWithAuth("/api/me");
   return handleResponse(response);
 }
 
 export async function updateSettings(
   settings: SettingsUpdateRequest
 ): Promise<{ success: boolean }> {
-  const headers = await getAuthHeaders();
-  const response = await fetchWithLoading("/api/me/settings", {
+  const response = await fetchWithAuth("/api/me/settings", {
     method: "PATCH",
     headers: {
       "Content-Type": "application/json",
-      ...headers,
     },
     body: JSON.stringify(settings),
   });
@@ -117,20 +145,17 @@ export async function updateSettings(
 }
 
 export async function getLibrary(): Promise<{ entries: LibraryEntryWithAnime[]; items?: LibraryEntryWithAnime[] }> {
-  const headers = await getAuthHeaders();
-  const response = await fetchWithLoading("/api/me/library", { headers });
+  const response = await fetchWithAuth("/api/me/library");
   return handleResponse(response);
 }
 
 export async function upsertLibraryEntry(
   entry: LibraryUpsertRequest
 ): Promise<{ success: boolean }> {
-  const headers = await getAuthHeaders();
-  const response = await fetchWithLoading("/api/me/library", {
+  const response = await fetchWithAuth("/api/me/library", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      ...headers,
     },
     body: JSON.stringify(entry),
   });
@@ -140,56 +165,46 @@ export async function upsertLibraryEntry(
 export async function deleteLibraryEntry(
   animeId: number
 ): Promise<{ success: boolean }> {
-  const headers = await getAuthHeaders();
-  const response = await fetchWithLoading(`/api/me/library/${animeId}`, {
+  const response = await fetchWithAuth(`/api/me/library/${animeId}`, {
     method: "DELETE",
-    headers,
   });
   return handleResponse(response);
 }
 
 export async function getMyCalendar(): Promise<{ items: CalendarAnimeItem[] }> {
-  const headers = await getAuthHeaders();
-  const response = await fetchWithLoading("/api/me/calendar", { headers });
+  const response = await fetchWithAuth("/api/me/calendar");
   return handleResponse(response);
 }
 
 // Generic API wrapper for simple use cases
 export const api = {
   async get<T = unknown>(url: string): Promise<T> {
-    const headers = await getAuthHeaders();
-    const response = await fetchWithLoading(url, { headers });
+    const response = await fetchWithAuth(url);
     return handleResponse<T>(response);
   },
   async post<T = unknown>(url: string, body?: unknown): Promise<T> {
-    const headers = await getAuthHeaders();
-    const response = await fetchWithLoading(url, {
+    const response = await fetchWithAuth(url, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        ...headers,
       },
       body: body ? JSON.stringify(body) : undefined,
     });
     return handleResponse<T>(response);
   },
   async patch<T = unknown>(url: string, body?: unknown): Promise<T> {
-    const headers = await getAuthHeaders();
-    const response = await fetchWithLoading(url, {
+    const response = await fetchWithAuth(url, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
-        ...headers,
       },
       body: body ? JSON.stringify(body) : undefined,
     });
     return handleResponse<T>(response);
   },
   async delete<T = unknown>(url: string): Promise<T> {
-    const headers = await getAuthHeaders();
-    const response = await fetchWithLoading(url, {
+    const response = await fetchWithAuth(url, {
       method: "DELETE",
-      headers,
     });
     return handleResponse<T>(response);
   },

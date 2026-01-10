@@ -3,16 +3,17 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Menu, Search } from "lucide-react";
+import { Menu, Search, Calendar, Clock, BookOpen } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Separator } from "@/components/ui/separator";
 import { ThemeToggle } from "./ThemeToggle";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { UserMenu } from "./UserMenu";
@@ -25,14 +26,14 @@ export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navLinks = [
-    { href: "/calendar/now", label: t("nav.calendarNow") },
-    { href: "/calendar/upcoming", label: t("nav.calendarUpcoming") },
-    { href: "/schedule/weekly", label: t("nav.schedule") },
+    { href: "/calendar/now", label: t("nav.calendarNow"), icon: Calendar },
+    { href: "/calendar/upcoming", label: t("nav.calendarUpcoming"), icon: Clock },
+    { href: "/schedule/weekly", label: t("nav.schedule"), icon: Clock },
   ];
 
   const userLinks = [
-    { href: "/me/library", label: t("nav.library") },
-    { href: "/me/calendar", label: t("nav.myCalendar") },
+    { href: "/me/library", label: t("nav.library"), icon: BookOpen },
+    { href: "/me/calendar", label: t("nav.myCalendar"), icon: Calendar },
   ];
 
   return (
@@ -46,86 +47,152 @@ export function Header() {
         </Link>
 
         {/* Desktop Navigation */}
-        <nav className="hidden md:flex md:flex-1 md:items-center md:gap-6">
-          {navLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={`text-sm font-medium transition-colors hover:text-primary ${
-                pathname === link.href
-                  ? "text-primary"
-                  : "text-muted-foreground"
-              }`}
-            >
-              {link.label}
-            </Link>
-          ))}
-          {user &&
-            userLinks.map((link) => (
+        <nav className="hidden md:flex md:flex-1 md:items-center md:gap-3">
+          {navLinks.map((link) => {
+            const Icon = link.icon;
+            return (
               <Link
                 key={link.href}
                 href={link.href}
-                className={`text-sm font-medium transition-colors hover:text-primary ${
+                className={`flex items-center gap-1.5 text-xs font-medium transition-colors hover:text-primary whitespace-nowrap ${
                   pathname === link.href
                     ? "text-primary"
                     : "text-muted-foreground"
                 }`}
               >
+                <Icon className="h-3.5 w-3.5" />
                 {link.label}
               </Link>
-            ))}
+            );
+          })}
+          {user &&
+            userLinks.map((link) => {
+              const Icon = link.icon;
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={`flex items-center gap-1.5 text-xs font-medium transition-colors hover:text-primary whitespace-nowrap ${
+                    pathname === link.href
+                      ? "text-primary"
+                      : "text-muted-foreground"
+                  }`}
+                >
+                  <Icon className="h-3.5 w-3.5" />
+                  {link.label}
+                </Link>
+              );
+            })}
         </nav>
 
         {/* Right side actions */}
         <div className="flex flex-1 items-center justify-end gap-2">
-          {/* Search button */}
-          <Button variant="ghost" size="icon" asChild>
-            <Link href="/search">
-              <Search className="h-5 w-5" />
-              <span className="sr-only">{t("common.search")}</span>
-            </Link>
-          </Button>
+          {/* Desktop actions */}
+          <div className="hidden items-center gap-2 md:flex">
+            <Button variant="ghost" size="icon" asChild>
+              <Link href="/search">
+                <Search className="h-5 w-5" />
+                <span className="sr-only">{t("common.search")}</span>
+              </Link>
+            </Button>
+            <LanguageSwitcher />
+            <ThemeToggle />
+            {!loading && <UserMenu />}
+          </div>
 
-          {/* Language switcher */}
-          <LanguageSwitcher />
-
-          {/* Theme toggle */}
-          <ThemeToggle />
-
-          {/* User menu or login */}
-          {!loading && <UserMenu />}
-
-          {/* Mobile menu */}
+          {/* Mobile drawer menu */}
           <div className="md:hidden">
-            <DropdownMenu open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
-              <DropdownMenuTrigger asChild>
+            <Dialog open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+              <DialogTrigger asChild>
                 <Button variant="ghost" size="icon">
                   <Menu className="h-5 w-5" />
                   <span className="sr-only">Menu</span>
                 </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
-                {navLinks.map((link) => (
-                  <DropdownMenuItem key={link.href} asChild>
-                    <Link href={link.href} onClick={() => setMobileMenuOpen(false)}>
-                      {link.label}
-                    </Link>
-                  </DropdownMenuItem>
-                ))}
-                {user && (
-                  <>
-                    <DropdownMenuSeparator />
-                    {userLinks.map((link) => (
-                      <DropdownMenuItem key={link.href} asChild>
-                        <Link href={link.href} onClick={() => setMobileMenuOpen(false)}>
-                          {link.label}
-                        </Link>
-                      </DropdownMenuItem>
-                    ))}
-                  </>
-                )}
-              </DropdownMenuContent>
-            </DropdownMenu>
+              </DialogTrigger>
+              <DialogContent className="fixed right-0 top-0 bottom-0 left-auto z-50 h-full w-80 max-w-full translate-y-0 rounded-none border-l bg-background p-0 sm:max-w-sm transition-transform duration-300 ease-out data-[state=open]:translate-x-0 data-[state=closed]:translate-x-full overflow-y-auto flex flex-col">
+                <DialogHeader className="p-4 pb-3 sticky top-0 bg-background border-b">
+                  <DialogTitle className="text-lg font-semibold">{t("common.appName")}</DialogTitle>
+                </DialogHeader>
+
+                <div className="flex-1 p-4 space-y-3">
+                  <div className="space-y-1.5">
+                    {navLinks.map((link) => {
+                      const Icon = link.icon;
+                      return (
+                        <Button
+                          key={link.href}
+                          variant="ghost"
+                          className="w-full justify-start h-11 text-sm"
+                          asChild
+                          onClick={() => setMobileMenuOpen(false)}
+                        >
+                          <Link href={link.href}>
+                            <Icon className="h-4 w-4 mr-3" />
+                            {link.label}
+                          </Link>
+                        </Button>
+                      );
+                    })}
+                  </div>
+
+                  {user && (
+                    <div className="space-y-1.5">
+                      <Separator className="my-2" />
+                      {userLinks.map((link) => {
+                        const Icon = link.icon;
+                        return (
+                          <Button
+                            key={link.href}
+                            variant="ghost"
+                            className="w-full justify-start h-11 text-sm"
+                            asChild
+                            onClick={() => setMobileMenuOpen(false)}
+                          >
+                            <Link href={link.href}>
+                              <Icon className="h-4 w-4 mr-3" />
+                              {link.label}
+                            </Link>
+                          </Button>
+                        );
+                      })}
+                    </div>
+                  )}
+
+                  <Separator className="my-2" />
+
+                  <div className="space-y-2">
+                    <Button
+                      variant="secondary"
+                      className="w-full justify-start h-11 text-sm"
+                      asChild
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <Link href="/search">
+                        <div className="flex items-center gap-2">
+                          <Search className="h-4 w-4" />
+                          <span>{t("common.search")}</span>
+                        </div>
+                      </Link>
+                    </Button>
+                    
+                    <div className="flex items-center justify-between gap-3">
+                      <span className="text-sm font-medium">{t("language.select")}</span>
+                      <LanguageSwitcher />
+                    </div>
+                    
+                    <div className="flex items-center justify-between gap-3">
+                      <span className="text-sm font-medium">{t("theme.toggle")}</span>
+                      <ThemeToggle />
+                    </div>
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
+          </div>
+
+          {/* Mobile user menu stays outside drawer */}
+          <div className="md:hidden">
+            {!loading && <UserMenu />}
           </div>
         </div>
       </div>

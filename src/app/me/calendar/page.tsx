@@ -8,6 +8,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
+import { PageHeader } from '@/components/layout/PageHeader';
 import { ErrorBanner } from '@/components/anime/ErrorBanner';
 import { CountdownBadge } from '@/components/anime/CountdownBadge';
 import { Calendar, Clock, Play } from 'lucide-react';
@@ -115,7 +116,9 @@ export default function MyCalendarPage() {
 
   if (isLoading) {
     return (
-      <div className="container mx-auto px-4 py-8">
+      <div className="flex flex-col">
+        <PageHeader title={t('myCalendar.title')} showBack={true} />
+        <div className="container mx-auto px-4 py-8">
         <Skeleton className="h-8 w-48 mb-6" />
         <div className="space-y-6">
           {Array.from({ length: 3 }).map((_, i) => (
@@ -129,14 +132,18 @@ export default function MyCalendarPage() {
             </div>
           ))}
         </div>
+        </div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <ErrorBanner message={t('errors.generic')} onRetry={() => refetch()} />
+      <div className="flex flex-col">
+        <PageHeader title={t('myCalendar.title')} showBack={true} />
+        <div className="container mx-auto px-4 py-8">
+          <ErrorBanner message={t('errors.generic')} onRetry={() => refetch()} />
+        </div>
       </div>
     );
   }
@@ -144,7 +151,9 @@ export default function MyCalendarPage() {
   const hasItems = data?.items && data.items.length > 0;
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="flex flex-col">
+      <PageHeader title={t('myCalendar.title')} showBack={true} />
+      <div className="container mx-auto px-4 py-8">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
           <Calendar className="h-6 w-6" />
@@ -275,7 +284,6 @@ export default function MyCalendarPage() {
             </div>
           )}
         </div>
-      )}
-    </div>
+      )}      </div>    </div>
   );
 }

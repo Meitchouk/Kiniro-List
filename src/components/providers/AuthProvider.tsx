@@ -13,7 +13,7 @@ interface AuthContextType {
   loading: boolean;
   signIn: () => Promise<void>;
   logOut: () => Promise<void>;
-  getAuthHeaders: () => Promise<Record<string, string>>;
+  getAuthHeaders: (options?: { forceRefresh?: boolean }) => Promise<Record<string, string>>;
   refetchUser: () => Promise<void>;
 }
 
@@ -28,7 +28,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const fetchUserData = async (firebaseUser: User) => {
     try {
       startLoading("fetchUserData");
-      const token = await firebaseUser.getIdToken();
+      // Force refresh to avoid stale tokens after sign-in
+      const token = await firebaseUser.getIdToken(true);
       const timezone = getTimezone();
       const locale = document.cookie
         .split("; ")
@@ -44,12 +45,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         },
       });
 
-      if (response.ok) {
-        const data = await response.json();
-        setUserData(data);
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(`Failed to fetch user data: ${response.status}`, errorText);
+        throw new Error(`Failed to fetch user data: ${response.status} ${response.statusText}`);
       }
+
+      const data = await response.json();
+      setUserData(data);
     } catch (error) {
       console.error("Failed to fetch user data:", error);
+      // Don't re-throw - let the error be handled in the useEffect
+      return error;
     } finally {
       stopLoading("fetchUserData");
     }
@@ -59,7 +66,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const unsubscribe = onAuthChange(async (firebaseUser) => {
       setUser(firebaseUser);
       if (firebaseUser) {
-        await fetchUserData(firebaseUser);
+        const err = await fetchUserData(firebaseUser);
+        if (err) {
+          console.error("Failed to fetch user data during auth change:", err);
+        }
       } else {
         setUserData(null);
       }
@@ -75,7 +85,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       startLoading("signIn");
       const firebaseUser = await signInWithGoogle();
-      await fetchUserData(firebaseUser);
+      const err = await fetchUserData(firebaseUser);
+      if (err) throw err;
     } catch (error) {
       console.error("Sign in error:", error);
       throw error;
@@ -97,8 +108,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const getAuthHeaders = async (): Promise<Record<string, string>> => {
-    const token = await getIdToken();
+  const getAuthHeaders = async (
+    options?: { forceRefresh?: boolean }
+  ): Promise<Record<string, string>> => {
+    const token = await getIdToken(options?.forceRefresh);
     const timezone = userData?.timezone || getTimezone();
     const locale = userData?.locale || "en";
     const theme = userData?.theme || "system";

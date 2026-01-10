@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
+import { PageHeader } from '@/components/layout/PageHeader';
 import { ErrorBanner } from '@/components/anime/ErrorBanner';
 import { LibraryStatusSelect } from '@/components/anime/LibraryStatusSelect';
 import { Trash2 } from 'lucide-react';
@@ -68,12 +69,15 @@ export default function LibraryPage() {
 
   if (isLoading) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <Skeleton className="h-8 w-48 mb-6" />
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <Skeleton key={i} className="h-40" />
-          ))}
+      <div className="flex flex-col">
+        <PageHeader title={t('library.title')} showBack={true} />
+        <div className="container mx-auto px-4 py-8">
+          <Skeleton className="h-8 w-48 mb-6" />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <Skeleton key={i} className="h-40" />
+            ))}
+          </div>
         </div>
       </div>
     );
@@ -81,8 +85,11 @@ export default function LibraryPage() {
 
   if (error) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <ErrorBanner message={t('errors.generic')} />
+      <div className="flex flex-col">
+        <PageHeader title={t('library.title')} showBack={true} />
+        <div className="container mx-auto px-4 py-8">
+          <ErrorBanner message={t('errors.generic')} />
+        </div>
       </div>
     );
   }
@@ -152,8 +159,9 @@ export default function LibraryPage() {
   );
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold mb-6">{t('library.title')}</h1>
+    <div className="flex flex-col">
+      <PageHeader title={t('library.title')} showBack={true} />
+      <div className="container mx-auto px-4 py-8">
 
       {items.length === 0 ? (
         <Card>
@@ -166,9 +174,13 @@ export default function LibraryPage() {
         </Card>
       ) : (
         <Tabs defaultValue="watching">
-          <TabsList className="mb-6 flex-wrap h-auto gap-1">
+          <TabsList className="mb-6 flex-wrap h-auto gap-2 bg-transparent p-0">
             {statuses.map((status) => (
-              <TabsTrigger key={status} value={status} className="gap-2">
+              <TabsTrigger 
+                key={status} 
+                value={status} 
+                className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground hover:bg-muted border border-border rounded-md px-4 py-2"
+              >
                 {t(`library.${status}`)}
                 <Badge variant="secondary" className="ml-1">
                   {getItemsByStatus(status).length}
@@ -196,6 +208,7 @@ export default function LibraryPage() {
           ))}
         </Tabs>
       )}
+      </div>
     </div>
   );
 }

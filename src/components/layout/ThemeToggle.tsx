@@ -10,11 +10,39 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useTranslations } from "next-intl";
+import { useMediaQuery } from "@/lib/hooks/useMediaQuery";
 
 export function ThemeToggle() {
-  const { setTheme } = useTheme();
+  const { theme, setTheme } = useTheme();
   const t = useTranslations("theme");
+  const isMobile = useMediaQuery("(max-width: 768px)");
 
+  // On mobile, show a simple toggle button between light and dark
+  if (isMobile) {
+    const isDark = theme === "dark";
+    return (
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={() => setTheme(isDark ? "light" : "dark")}
+        className="h-9"
+      >
+        {isDark ? (
+          <>
+            <Sun className="h-4 w-4 mr-2" />
+            Light
+          </>
+        ) : (
+          <>
+            <Moon className="h-4 w-4 mr-2" />
+            Dark
+          </>
+        )}
+      </Button>
+    );
+  }
+
+  // On desktop, show the full dropdown menu
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
