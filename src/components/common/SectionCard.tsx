@@ -1,6 +1,6 @@
 "use client";
 
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardContent, Flex } from "@/components/ds";
 import type { ReactNode } from "react";
 
 interface SectionCardProps {
@@ -16,9 +16,11 @@ interface SectionCardProps {
 export function SectionCard({ title, action, children, className }: SectionCardProps) {
   return (
     <Card className={className}>
-      <CardHeader className={action ? "flex flex-row items-center justify-between" : undefined}>
-        <CardTitle className="text-lg">{title}</CardTitle>
-        {action}
+      <CardHeader>
+        <Flex align="center" justify="between">
+          <CardTitle className="text-lg">{title}</CardTitle>
+          {action}
+        </Flex>
       </CardHeader>
       <CardContent>{children}</CardContent>
     </Card>

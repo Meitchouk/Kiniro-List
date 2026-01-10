@@ -1,6 +1,6 @@
 "use client";
 
-import { Card, CardContent, CardDescription, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, Typography, Flex } from "@/components/ds";
 import type { ReactNode } from "react";
 
 interface EmptyStateProps {
@@ -22,16 +22,16 @@ export function EmptyState({ icon, title, description, action }: EmptyStateProps
             {icon}
           </div>
         )}
-        <CardTitle className="mb-2">{title}</CardTitle>
+        <Typography variant="h5" className="mb-2">{title}</Typography>
         {description && (
-          <CardDescription className="mb-6 max-w-md mx-auto">
+          <Typography variant="body2" colorScheme="secondary" className="mb-6 max-w-md mx-auto">
             {description}
-          </CardDescription>
+          </Typography>
         )}
         {action && (
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+          <Flex direction="column" gap={3} justify="center" className="sm:flex-row">
             {action}
-          </div>
+          </Flex>
         )}
       </CardContent>
     </Card>

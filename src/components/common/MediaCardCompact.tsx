@@ -2,8 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, Badge, Typography } from "@/components/ds";
 import { getLocalizedTitle } from "@/lib/utils/text";
 import type { MediaTitle, MediaCoverImage, MediaFormat } from "@/lib/types";
 
@@ -50,11 +49,11 @@ export function MediaCardCompact({
           </div>
           <CardContent className="flex-1 p-3 flex flex-col justify-between min-w-0">
             <div>
-              <h3 className="line-clamp-2 text-sm font-medium group-hover:text-primary transition-colors">
+              <Typography variant="body2" weight="medium" className="line-clamp-2 group-hover:text-primary transition-colors">
                 {displayTitle}
-              </h3>
+              </Typography>
               {subtitle && (
-                <p className="text-xs text-muted-foreground mt-0.5">{subtitle}</p>
+                <Typography variant="caption" colorScheme="secondary" className="mt-0.5">{subtitle}</Typography>
               )}
             </div>
             <div className="flex items-center gap-2 mt-1">

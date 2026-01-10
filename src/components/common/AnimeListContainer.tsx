@@ -2,6 +2,7 @@
 
 import { ReactNode } from "react";
 import { useTranslations } from "next-intl";
+import { Typography, Grid } from "@/components/ds";
 import { AnimeGridSkeleton } from "@/components/anime/AnimeCardSkeleton";
 import { Pagination } from "@/components/anime/Pagination";
 import { ErrorBanner } from "@/components/anime/ErrorBanner";
@@ -45,9 +46,9 @@ export function AnimeListContainer({
 
   if (isEmpty) {
     return (
-      <p className="text-center text-muted-foreground">
+      <Typography variant="body1" colorScheme="secondary" align="center">
         {emptyMessage || t("common.noResults")}
-      </p>
+      </Typography>
     );
   }
 
@@ -66,9 +67,9 @@ export function AnimeListContainer({
         </div>
       )}
 
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+      <Grid cols={2} smCols={3} mdCols={4} lgCols={5} xlCols={6} gap={4}>
         {children}
-      </div>
+      </Grid>
 
       {/* Bottom pagination */}
       {pagination && onPageChange && (

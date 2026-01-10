@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ds";
 import { LucideIcon } from "lucide-react";
 import { ReactNode } from "react";
 

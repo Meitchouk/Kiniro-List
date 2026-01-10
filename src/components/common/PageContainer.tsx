@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Skeleton, Container } from "@/components/ds";
 import { ErrorBanner } from "@/components/anime/ErrorBanner";
 import { PageHeader } from "@/components/layout/PageHeader";
 
@@ -31,7 +31,7 @@ export function PageContainer({
     return (
       <div className="flex flex-col">
         <PageHeader title={title} showBack={showBack} />
-        <div className="container mx-auto px-4 py-8">
+        <Container className="py-8">
           {loadingSkeleton || (
             <div className="space-y-6">
               <Skeleton className="h-8 w-48" />
@@ -39,7 +39,7 @@ export function PageContainer({
               <Skeleton className="h-48 w-full" />
             </div>
           )}
-        </div>
+        </Container>
       </div>
     );
   }
@@ -48,9 +48,9 @@ export function PageContainer({
     return (
       <div className="flex flex-col">
         <PageHeader title={title} showBack={showBack} />
-        <div className="container mx-auto px-4 py-8">
+        <Container className="py-8">
           <ErrorBanner onRetry={onRetry} />
-        </div>
+        </Container>
       </div>
     );
   }
@@ -58,9 +58,9 @@ export function PageContainer({
   return (
     <div className="flex flex-col">
       <PageHeader title={title} showBack={showBack} />
-      <div className="container mx-auto px-4 py-8">
+      <Container className="py-8">
         {children}
-      </div>
+      </Container>
     </div>
   );
 }
