@@ -142,6 +142,7 @@ export interface StreamingLink {
 
 export interface AnimeCache {
   id: number;
+  slug?: string;
   title: MediaTitle;
   coverImage: MediaCoverImage;
   bannerImage?: string | null;

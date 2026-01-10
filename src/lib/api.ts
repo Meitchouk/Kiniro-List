@@ -89,6 +89,15 @@ export async function getAnimeDetail(id: number): Promise<AnimeDetailResponse> {
   return handleResponse(response);
 }
 
+export async function getAnimeIdBySlug(slug: string): Promise<number | null> {
+  const response = await fetchWithLoading(`/api/anime/slug/${slug}`);
+  if (response.status === 404) {
+    return null;
+  }
+  const data = await handleResponse<{ animeId: number }>(response);
+  return data.animeId;
+}
+
 export async function getCurrentSeason(
   page: number = 1
 ): Promise<AnimeListResponse & { season: MediaSeason; year: number }> {

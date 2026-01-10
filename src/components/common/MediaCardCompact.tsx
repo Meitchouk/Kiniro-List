@@ -3,11 +3,10 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Card, CardContent, Badge, Typography } from "@/components/ds";
-import { getLocalizedTitle } from "@/lib/utils/text";
+import { getLocalizedTitle, createAnimeSlug } from "@/lib/utils/text";
 import type { MediaTitle, MediaCoverImage, MediaFormat } from "@/lib/types";
 
 interface MediaCardCompactProps {
-  id: number;
   title: MediaTitle;
   coverImage: MediaCoverImage;
   format?: MediaFormat | null;
@@ -23,7 +22,6 @@ interface MediaCardCompactProps {
  * Compact media card for lists (library, relations, recommendations, etc.)
  */
 export function MediaCardCompact({
-  id,
   title,
   coverImage,
   format,
@@ -33,9 +31,10 @@ export function MediaCardCompact({
 }: MediaCardCompactProps) {
   const displayTitle = getLocalizedTitle(title);
   const cover = coverImage.large || "/placeholder.png";
+  const slug = createAnimeSlug(displayTitle);
 
   return (
-    <Link href={`/anime/${id}`} className="group">
+    <Link href={`/anime/${slug}`} className="group">
       <Card className="h-full overflow-hidden transition-all hover:shadow-lg hover:-translate-y-1">
         <div className="flex">
           <div className="relative w-16 h-24 shrink-0">

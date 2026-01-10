@@ -35,3 +35,27 @@ export function getLocalizedTitle(
   }
   return title.romaji;
 }
+
+/**
+ * Generate a URL-friendly slug from a title
+ * Example: "My Hero Academia" -> "my-hero-academia"
+ */
+export function generateSlug(text: string): string {
+  return text
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "") // Remove diacritics
+    .replace(/[^a-z0-9\s-]/g, "") // Remove special characters
+    .replace(/\s+/g, "-") // Replace spaces with hyphens
+    .replace(/-+/g, "-") // Replace multiple hyphens with single
+    .replace(/^-|-$/g, "") // Remove leading/trailing hyphens
+    .substring(0, 100); // Limit length
+}
+
+/**
+ * Create a SEO-friendly slug for anime URLs (no ID)
+ * Example: "My Hero Academia" -> "my-hero-academia"
+ */
+export function createAnimeSlug(title: string): string {
+  return generateSlug(title);
+}

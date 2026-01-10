@@ -5,15 +5,15 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { Card, CardContent, CardHeader, CardTitle, Badge } from "@/components/ds";
 import { Star } from "lucide-react";
-import { getLocalizedTitle } from "@/lib/utils/text";
-import type { MediaTitle, MediaCoverImage, MediaFormat } from "@/lib/types";
+import { getLocalizedTitle, createAnimeSlug } from "@/lib/utils/text";
+import type { MediaTitle, MediaCoverImage } from "@/lib/types";
 
 interface RecommendationNode {
   mediaRecommendation: {
     id: number;
     title: MediaTitle;
     coverImage: MediaCoverImage;
-    format?: MediaFormat | null;
+    format?: string | null;
     averageScore?: number | null;
   };
 }
@@ -40,10 +40,12 @@ export function AnimeRecommendations({ recommendations, maxItems = 6 }: AnimeRec
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {recommendations.slice(0, maxItems).map((rec, index) => {
             const media = rec.mediaRecommendation;
+            const recTitle = getLocalizedTitle(media.title);
+            const recSlug = createAnimeSlug(recTitle);
             return (
               <Link
                 key={`recommendation-${media.id}-${index}`}
-                href={`/anime/${media.id}`}
+                href={`/anime/${recSlug}`}
                 className="flex gap-3 rounded-lg border p-3 transition-colors hover:bg-accent"
               >
                 <div className="relative h-20 w-14 shrink-0 overflow-hidden rounded">

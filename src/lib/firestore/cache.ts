@@ -1,12 +1,110 @@
 import { getAdminFirestore } from "@/lib/firebase/admin";
-import { Timestamp, FieldValue } from "firebase-admin/firestore";
-import type { AnimeCache, AnimeAiringCache, AniListMedia } from "@/lib/types";
-import { sanitizeHtml } from "@/lib/utils/text";
+import { Timestamp, FieldValue, Firestore } from "firebase-admin/firestore";
+import type { AnimeCache, AnimeAiringCache, AniListMedia, MediaTitle } from "@/lib/types";
+import { sanitizeHtml, generateSlug, getLocalizedTitle } from "@/lib/utils/text";
 
 const ANIME_CACHE_TTL_DAYS = 7;
 const AIRING_CACHE_TTL_MINUTES = 60;
 
+// ============ Slug Helpers ============
+
+/**
+ * Generate a unique slug for an anime.
+ * If the slug already exists for a different anime, append a suffix.
+ */
+async function generateUniqueSlug(
+  db: Firestore,
+  animeId: number,
+  title: MediaTitle
+): Promise<string> {
+  const displayTitle = getLocalizedTitle(title);
+  let slug = generateSlug(displayTitle);
+  
+  if (!slug) {
+    // Fallback to romaji if english produces empty slug
+    slug = generateSlug(title.romaji);
+  }
+  
+  if (!slug) {
+    // Last resort: use ID
+    return `anime-${animeId}`;
+  }
+
+  // Check if this anime already has a slug
+  const existingDoc = await db.collection("anime").doc(String(animeId)).get();
+  if (existingDoc.exists) {
+    const existingSlug = existingDoc.data()?.slug;
+    if (existingSlug) {
+      return existingSlug; // Keep existing slug
+    }
+  }
+
+  // Check if slug is already taken by another anime
+  const slugQuery = await db.collection("anime")
+    .where("slug", "==", slug)
+    .limit(1)
+    .get();
+  
+  if (slugQuery.empty) {
+    return slug; // Slug is available
+  }
+  
+  // Slug is taken - try with romaji if we used english
+  if (title.english && title.romaji !== title.english) {
+    const romajiSlug = generateSlug(title.romaji);
+    if (romajiSlug && romajiSlug !== slug) {
+      const romajiQuery = await db.collection("anime")
+        .where("slug", "==", romajiSlug)
+        .limit(1)
+        .get();
+      if (romajiQuery.empty) {
+        return romajiSlug;
+      }
+    }
+  }
+  
+  // Add year suffix if available
+  const animeDoc = await db.collection("anime").doc(String(animeId)).get();
+  const year = animeDoc.data()?.seasonYear;
+  if (year) {
+    const yearSlug = `${slug}-${year}`;
+    const yearQuery = await db.collection("anime")
+      .where("slug", "==", yearSlug)
+      .limit(1)
+      .get();
+    if (yearQuery.empty) {
+      return yearSlug;
+    }
+  }
+
+  // Last resort: append anime ID
+  return `${slug}-${animeId}`;
+}
+
 // ============ Anime Cache ============
+
+/**
+ * Get anime by slug
+ */
+export async function getAnimeBySlug(slug: string): Promise<AnimeCache | null> {
+  const db = getAdminFirestore();
+  const query = await db.collection("anime")
+    .where("slug", "==", slug)
+    .limit(1)
+    .get();
+  
+  if (query.empty) {
+    return null;
+  }
+  
+  const doc = query.docs[0];
+  const data = doc.data() as AnimeCache & { updatedAt: Timestamp };
+  
+  return {
+    ...data,
+    updatedAt: data.updatedAt?.toDate() || new Date(),
+  };
+}
 
 export async function getAnimeFromCache(animeId: number): Promise<AnimeCache | null> {
   const db = getAdminFirestore();
@@ -41,8 +139,12 @@ export async function upsertAnimeCache(media: AniListMedia): Promise<AnimeCache>
     ?.filter(link => link.type === "STREAMING")
     .map(link => ({ site: link.site, url: link.url, icon: link.icon })) || [];
 
-  const animeData: Omit<AnimeCache, "updatedAt"> & { updatedAt: FieldValue } = {
+  // Generate unique slug
+  const slug = await generateUniqueSlug(db, media.id, media.title);
+
+  const animeData: Omit<AnimeCache, "updatedAt"> & { updatedAt: FieldValue; slug: string } = {
     id: media.id,
+    slug,
     title: media.title,
     coverImage: media.coverImage,
     bannerImage: media.bannerImage,
@@ -64,15 +166,25 @@ export async function upsertAnimeCache(media: AniListMedia): Promise<AnimeCache>
   
   return {
     ...animeData,
+    slug,
     updatedAt: new Date(),
   } as AnimeCache;
 }
 
 export async function upsertManyAnimeCache(mediaList: AniListMedia[]): Promise<void> {
   const db = getAdminFirestore();
+  
+  // Generate slugs for all media first (need to do this before batch)
+  const slugs = await Promise.all(
+    mediaList.map(media => generateUniqueSlug(db, media.id, media.title))
+  );
+  
   const batch = db.batch();
   
-  for (const media of mediaList) {
+  for (let i = 0; i < mediaList.length; i++) {
+    const media = mediaList[i];
+    const slug = slugs[i];
+    
     // Extract streaming links from external links
     const streamingLinks = media.externalLinks
       ?.filter(link => link.type === "STREAMING")
@@ -81,6 +193,7 @@ export async function upsertManyAnimeCache(mediaList: AniListMedia[]): Promise<v
     const ref = db.collection("anime").doc(String(media.id));
     batch.set(ref, {
       id: media.id,
+      slug,
       title: media.title,
       coverImage: media.coverImage,
       bannerImage: media.bannerImage,

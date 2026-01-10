@@ -42,7 +42,7 @@ export function Header() {
       <div className="container mx-auto flex h-14 items-center px-4">
         {/* Logo */}
         <Link href="/" className="mr-6 flex items-center space-x-2">
-          <Typography variant="h5" as="span" className="text-primary">
+          <Typography variant="h3" as="span" className="text-primary">
             {t("common.appName")}
           </Typography>
         </Link>

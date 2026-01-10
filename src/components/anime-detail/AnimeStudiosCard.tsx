@@ -19,7 +19,13 @@ interface AnimeStudiosCardProps {
 export function AnimeStudiosCard({ studios }: AnimeStudiosCardProps) {
   const t = useTranslations("anime");
   
-  const animationStudios = studios.filter((s) => s.isAnimationStudio);
+  // Filter animation studios and remove duplicates by ID
+  const animationStudios = studios
+    .filter((s) => s.isAnimationStudio)
+    .filter((studio, index, self) => 
+      index === self.findIndex((s) => s.id === studio.id)
+    );
+    
   if (animationStudios.length === 0) return null;
 
   return (
@@ -29,8 +35,8 @@ export function AnimeStudiosCard({ studios }: AnimeStudiosCardProps) {
       </CardHeader>
       <CardContent>
         <Stack gap={2}>
-          {animationStudios.map((studio, index) => (
-            <Typography key={`studio-${studio.id}-${index}`} variant="body2" weight="medium">
+          {animationStudios.map((studio) => (
+            <Typography key={`studio-${studio.id}`} variant="body2" weight="medium">
               {studio.name}
             </Typography>
           ))}

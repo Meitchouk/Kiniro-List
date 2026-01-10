@@ -281,6 +281,7 @@
     "network": "Error de red. Por favor intenta de nuevo.",
     "unauthorized": "Por favor inicia sesión para continuar",
     "notFound": "Página no encontrada",
+    "invalidId": "ID de anime inválido",
     "rateLimit": "Demasiadas solicitudes. Por favor espera {seconds} segundos.",
     "serverError": "Error del servidor. Por favor intenta más tarde.",
     "retry": "Reintentar"

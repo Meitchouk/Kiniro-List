@@ -21,7 +21,7 @@ export function QuickLinkCard({ href, icon: Icon, title, subtitle }: QuickLinkCa
             <IconWrapper icon={Icon} size="lg" colorScheme="primary" />
             <Stack gap={1}>
               <Typography variant="body1" weight="semibold">{title}</Typography>
-              <Typography variant="body2" colorScheme="secondary">{subtitle}</Typography>
+              <Typography variant="caption" colorScheme="secondary">{subtitle}</Typography>
             </Stack>
           </Flex>
         </CardContent>

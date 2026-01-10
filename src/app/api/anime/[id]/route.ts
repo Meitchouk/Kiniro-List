@@ -4,7 +4,7 @@ import {
   getAnimeFromCache, 
   upsertAnimeCache,
   getAiringFromCache,
-  upsertAiringCache 
+  upsertAiringCache
 } from "@/lib/firestore/cache";
 import { checkRateLimit, rateLimitResponse } from "@/lib/ratelimit";
 import { animeIdSchema } from "@/lib/schemas";
@@ -40,7 +40,7 @@ export async function GET(
     const media = await getAnimeById(animeId);
     
     if (!anime) {
-      // Cache basic info for future list views
+      // Cache basic info for future list views (also generates slug)
       anime = await upsertAnimeCache(media);
     }
 

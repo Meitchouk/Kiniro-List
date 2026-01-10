@@ -5,12 +5,11 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { Card, CardContent, Badge, Typography, Flex, Stack } from "@/components/ds";
 import { Clock } from "lucide-react";
-import { getLocalizedTitle } from "@/lib/utils/text";
+import { getLocalizedTitle, createAnimeSlug } from "@/lib/utils/text";
 import { formatAiringTime } from "@/lib/utils/date";
 import type { MediaTitle, MediaCoverImage, MediaFormat } from "@/lib/types";
 
 interface ScheduleItemCardProps {
-  id: number;
   title: MediaTitle;
   coverImage: MediaCoverImage;
   format?: MediaFormat | null;
@@ -22,7 +21,6 @@ interface ScheduleItemCardProps {
  * Schedule item card for weekly schedule
  */
 export function ScheduleItemCard({
-  id,
   title,
   coverImage,
   format,
@@ -32,9 +30,10 @@ export function ScheduleItemCard({
   const t = useTranslations();
   const displayTitle = getLocalizedTitle(title);
   const cover = coverImage.large || "/placeholder.png";
+  const slug = createAnimeSlug(displayTitle);
 
   return (
-    <Link href={`/anime/${id}`} className="group">
+    <Link href={`/anime/${slug}`} className="group">
       <Card className="h-full transition-all hover:shadow-lg hover:-translate-y-1">
         <CardContent className="flex gap-3 p-4">
           <div className="relative h-24 w-16 shrink-0 overflow-hidden rounded">

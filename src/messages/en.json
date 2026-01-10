@@ -283,6 +283,7 @@
     "network": "Network error. Please try again.",
     "unauthorized": "Please login to continue",
     "notFound": "Page not found",
+    "invalidId": "Invalid anime ID",
     "rateLimit": "Too many requests. Please wait {seconds} seconds.",
     "serverError": "Server error. Please try again later.",
     "retry": "Retry"

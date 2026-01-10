@@ -5,7 +5,7 @@ import { Skeleton, Card, CardContent, Grid } from "@/components/ds";
 export function AnimeCardSkeleton() {
   return (
     <Card className="overflow-hidden">
-      <div className="relative aspect-[3/4] overflow-hidden">
+      <div className="relative aspect-3/4 overflow-hidden">
         <Skeleton className="absolute inset-0" />
       </div>
       <CardContent className="p-3 h-32 flex flex-col">
@@ -32,7 +32,7 @@ export function AnimeDetailSkeleton() {
     <div className="container mx-auto px-4 py-8">
       <div className="flex flex-col gap-8 md:flex-row">
         <div className="shrink-0">
-          <Skeleton className="h-[400px] w-[280px] rounded-lg" />
+          <Skeleton className="h-100 w-70 rounded-lg" />
         </div>
         <div className="flex-1 space-y-4">
           <Skeleton className="h-8 w-3/4" />

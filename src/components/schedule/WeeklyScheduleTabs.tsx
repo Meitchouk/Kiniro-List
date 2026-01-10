@@ -76,7 +76,6 @@ export function WeeklyScheduleTabs({ schedule }: WeeklyScheduleTabsProps) {
                 {items.map((item) => (
                   <ScheduleItemCard
                     key={item.anime.id}
-                    id={item.anime.id}
                     title={item.anime.title}
                     coverImage={item.anime.coverImage}
                     format={item.anime.format}

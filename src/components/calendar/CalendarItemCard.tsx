@@ -8,6 +8,7 @@ import { CountdownBadge } from "@/components/anime/CountdownBadge";
 import { CrunchyrollIcon } from "@/components/icons/CrunchyrollIcon";
 import { Clock } from "lucide-react";
 import { DateTime } from "luxon";
+import { createAnimeSlug } from "@/lib/utils/text";
 import type { CalendarAnimeItem, StreamingLink } from "@/lib/types";
 
 interface CalendarItemCardProps {
@@ -45,11 +46,12 @@ export function CalendarItemCard({ item, timezone, isUnknown = false }: Calendar
   const t = useTranslations();
   const animeTitle = item.anime?.title?.english || item.anime?.title?.romaji || "";
   const crunchyroll = getCrunchyrollLink(item.anime?.streamingLinks, animeTitle);
+  const slug = createAnimeSlug(animeTitle);
 
   return (
     <Card className={`overflow-hidden hover:bg-accent/50 transition-colors ${isUnknown ? "opacity-60" : ""}`}>
       <div className="flex h-full">
-        <Link href={`/anime/${item.anime.id}`} className="shrink-0">
+        <Link href={`/anime/${slug}`} className="shrink-0">
           <div className="relative w-16 h-24 md:w-14 md:h-20">
             {item.anime?.coverImage?.large ? (
               <Image
@@ -66,7 +68,7 @@ export function CalendarItemCard({ item, timezone, isUnknown = false }: Calendar
         <CardContent className="flex-1 p-2 md:p-2.5 flex flex-col justify-between min-w-0">
           {isUnknown ? (
             <>
-              <Link href={`/anime/${item.anime.id}`} className="min-w-0">
+              <Link href={`/anime/${slug}`} className="min-w-0">
                 <Typography variant="body2" weight="medium" className="line-clamp-1 hover:text-primary transition-colors">
                   {animeTitle}
                 </Typography>
@@ -78,7 +80,7 @@ export function CalendarItemCard({ item, timezone, isUnknown = false }: Calendar
           ) : (
             <>
               <div className="flex items-start justify-between gap-2">
-                <Link href={`/anime/${item.anime.id}`} className="min-w-0 flex-1">
+                <Link href={`/anime/${slug}`} className="min-w-0 flex-1">
                   <h3 className="font-medium text-sm line-clamp-1 hover:text-primary transition-colors">
                     {animeTitle}
                   </h3>
