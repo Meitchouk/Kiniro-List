@@ -12,7 +12,7 @@ export function AnimeCard({ anime, showBadges = true }: AnimeCardProps) {
 
   const title = getLocalizedTitle(anime.title);
   const coverImage = anime.coverImage.extraLarge || anime.coverImage.large || "/placeholder.png";
-  const slug = anime.slug || "";
+  const slug = anime.slug || String(anime.id);
 
   return (
     <Link href={`/anime/${slug}`}>

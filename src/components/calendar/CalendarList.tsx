@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { Calendar } from "lucide-react";
 import { DateTime } from "luxon";
 import { Typography, Flex, Grid, Stack } from "@/components/ds";
@@ -17,9 +17,10 @@ interface CalendarDateGroupProps {
 function formatDateHeader(
   dateKey: string,
   timezone: string,
+  locale: string,
   t: ReturnType<typeof useTranslations>
 ) {
-  const dt = DateTime.fromISO(dateKey).setZone(timezone);
+  const dt = DateTime.fromISO(dateKey).setZone(timezone).setLocale(locale);
   const today = DateTime.now().setZone(timezone).startOf("day");
   const tomorrow = today.plus({ days: 1 });
   const itemDate = dt.startOf("day");
@@ -30,7 +31,7 @@ function formatDateHeader(
     return t("calendar.tomorrow");
   }
 
-  return dt.toFormat("EEEE, MMMM d");
+  return dt.toFormat("EEEE, d 'de' MMMM");
 }
 
 /**
@@ -38,14 +39,15 @@ function formatDateHeader(
  */
 export function CalendarDateGroup({ dateKey, items, timezone }: CalendarDateGroupProps) {
   const t = useTranslations();
+  const locale = useLocale();
 
   return (
-    <Stack gap={3}>
+    <Stack gap={4}>
       <Flex align="center" gap={2}>
         <Calendar className="h-5 w-5" />
-        <Typography variant="h6">{formatDateHeader(dateKey, timezone, t)}</Typography>
+        <Typography variant="h6">{formatDateHeader(dateKey, timezone, locale, t)}</Typography>
       </Flex>
-      <Grid cols={1} mdCols={2} xlCols={3} gap={3}>
+      <Grid cols={1} mdCols={2} lgCols={2} xlCols={3} gap={4}>
         {items.map((item) => (
           <CalendarItemCard key={item.anime.id} item={item} timezone={timezone} />
         ))}
