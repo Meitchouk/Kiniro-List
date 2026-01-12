@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { Card, CardContent, Badge, Button, Typography, Flex } from "@/components/ds";
 import { LibraryStatusSelect } from "@/components/anime/LibraryStatusSelect";
 import { Trash2 } from "lucide-react";
+import { createAnimeSlug } from "@/lib/utils/text";
 import type { LibraryStatus, LibraryEntryWithAnime } from "@/lib/types";
 
 interface LibraryItemCardProps {
@@ -30,7 +31,7 @@ export function LibraryItemCard({
 
   const title = item.anime?.title?.english || item.anime?.title?.romaji || `Anime #${item.animeId}`;
   const coverImage = item.anime?.coverImage?.large;
-  const slug = item.anime?.slug || String(item.anime?.id || "");
+  const slug = item.anime?.slug || createAnimeSlug(title) || String(item.anime?.id || item.animeId);
 
   return (
     <Card className="overflow-hidden">
