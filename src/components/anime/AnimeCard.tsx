@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { Card, CardContent, Badge, Typography } from "@/components/ds";
-import { getLocalizedTitle } from "@/lib/utils/text";
+import { createAnimeSlug, getLocalizedTitle } from "@/lib/utils/text";
 import type { AnimeCardProps } from "@/lib/types";
 
 export function AnimeCard({ anime, showBadges = true }: AnimeCardProps) {
@@ -12,7 +12,7 @@ export function AnimeCard({ anime, showBadges = true }: AnimeCardProps) {
 
   const title = getLocalizedTitle(anime.title);
   const coverImage = anime.coverImage.extraLarge || anime.coverImage.large || "/placeholder.png";
-  const slug = anime.slug || String(anime.id);
+  const slug = anime.slug || createAnimeSlug(title) || String(anime.id);
 
   return (
     <Link href={`/anime/${slug}`}>
