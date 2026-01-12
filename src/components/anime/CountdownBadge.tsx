@@ -12,7 +12,8 @@ export function CountdownBadge({
   statusLabel,
   secondsToAir,
   nextEpisodeNumber,
-}: CountdownBadgeProps) {
+  size = "default",
+}: CountdownBadgeProps & { size?: "default" | "lg" }) {
   const t = useTranslations();
   const [countdown, setCountdown] = useState(secondsToAir || 0);
 
@@ -31,10 +32,20 @@ export function CountdownBadge({
   const getBadgeVariant = () => getAiringBadgeVariant(statusLabel);
   const getLabel = () => getAiringLabelText(statusLabel, countdown, t, formatCountdown);
 
+  const sizeClasses = {
+    default: "",
+    lg: "px-3 py-1.5 text-sm font-semibold shadow-lg",
+  };
+
+  const iconClasses = {
+    default: "mr-1 h-3 w-3",
+    lg: "mr-1.5 h-4 w-4",
+  };
+
   return (
     <Flex align="center" gap={2}>
-      <Badge variant={getBadgeVariant()}>
-        <Clock className="mr-1 h-3 w-3" />
+      <Badge variant={getBadgeVariant()} className={sizeClasses[size]}>
+        <Clock className={iconClasses[size]} />
         {getLabel()}
       </Badge>
       {nextEpisodeNumber && (

@@ -30,7 +30,7 @@ export function LibraryItemCard({
 
   const title = item.anime?.title?.english || item.anime?.title?.romaji || `Anime #${item.animeId}`;
   const coverImage = item.anime?.coverImage?.large;
-  const slug = item.anime?.slug || "";
+  const slug = item.anime?.slug || String(item.anime?.id || "");
 
   return (
     <Card className="overflow-hidden">

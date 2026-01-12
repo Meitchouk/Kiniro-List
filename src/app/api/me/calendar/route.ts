@@ -11,13 +11,7 @@ import {
   upsertManyAnimeCache,
 } from "@/lib/firestore/cache";
 import { getAiringStatusLabel, getSecondsToAir } from "@/lib/utils/date";
-import type {
-  UserDocument,
-  LibraryEntry,
-  CalendarAnimeItem,
-  AnimeAiringCache,
-  AnimeCache,
-} from "@/lib/types";
+import type { UserDocument, LibraryEntry, CalendarAnimeItem, AnimeAiringCache } from "@/lib/types";
 
 export async function GET(request: NextRequest) {
   try {
@@ -105,33 +99,10 @@ export async function GET(request: NextRequest) {
       if (freshAnime.length > 0) {
         await upsertManyAnimeCache(freshAnime);
 
-        // Update local cache with fresh data
-        for (const media of freshAnime) {
-          // Extract streaming links
-          const streamingLinks =
-            media.externalLinks
-              ?.filter((link) => link.type === "STREAMING")
-              .map((link) => ({ site: link.site, url: link.url, icon: link.icon })) || [];
-
-          const cacheEntry: AnimeCache = {
-            id: media.id,
-            title: media.title,
-            coverImage: media.coverImage,
-            bannerImage: media.bannerImage,
-            description: media.description,
-            genres: media.genres || [],
-            season: media.season,
-            seasonYear: media.seasonYear,
-            status: media.status,
-            episodes: media.episodes,
-            format: media.format,
-            isAdult: media.isAdult || false,
-            siteUrl: media.siteUrl,
-            streamingLinks,
-            source: "anilist",
-            updatedAt: new Date(),
-          };
-          animeCache.set(media.id, cacheEntry);
+        // Re-fetch from cache to get complete data with slugs
+        const refreshedCache = await getManyAnimeFromCache(missingOrStaleIds);
+        for (const [id, anime] of refreshedCache) {
+          animeCache.set(id, anime);
         }
       }
     }

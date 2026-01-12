@@ -1,9 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getReleasingAnime } from "@/lib/anilist/client";
-import { upsertManyAnimeCache } from "@/lib/firestore/cache";
+import { upsertManyAnimeCache, getManyAnimeFromCache } from "@/lib/firestore/cache";
 import { checkRateLimit, rateLimitResponse } from "@/lib/ratelimit";
 import { getWeekday } from "@/lib/utils/date";
-import type { AnimeCache, WeeklyScheduleItem } from "@/lib/types";
+import type { WeeklyScheduleItem, AniListMedia } from "@/lib/types";
+
+interface AiringMediaItem {
+  media: AniListMedia;
+  airingAt: number;
+  episode: number;
+}
 
 export async function GET(request: NextRequest) {
   try {
@@ -14,50 +20,49 @@ export async function GET(request: NextRequest) {
     }
 
     // Fetch multiple pages to get more anime
-    const allMedia: WeeklyScheduleItem[] = [];
+    const airingItems: AiringMediaItem[] = [];
     let page = 1;
     let hasMore = true;
 
     while (hasMore && page <= 3) {
       const { media, pageInfo } = await getReleasingAnime(page, 50);
 
-      // Cache anime metadata
+      // Cache anime metadata (this generates slugs)
       if (media.length > 0) {
         await upsertManyAnimeCache(media);
       }
 
-      // Add anime with airing info
+      // Collect anime with airing info
       for (const m of media) {
         if (m.nextAiringEpisode) {
-          const animeCache: AnimeCache = {
-            id: m.id,
-            title: m.title,
-            coverImage: m.coverImage,
-            bannerImage: m.bannerImage,
-            description: m.description || null,
-            genres: m.genres || [],
-            season: m.season,
-            seasonYear: m.seasonYear,
-            status: m.status,
-            episodes: m.episodes,
-            format: m.format,
-            isAdult: m.isAdult || false,
-            siteUrl: m.siteUrl,
-            updatedAt: new Date(),
-            source: "anilist" as const,
-          };
-
-          allMedia.push({
-            anime: animeCache,
+          airingItems.push({
+            media: m,
             airingAt: m.nextAiringEpisode.airingAt,
             episode: m.nextAiringEpisode.episode,
-            weekday: getWeekday(m.nextAiringEpisode.airingAt),
           });
         }
       }
 
       hasMore = pageInfo.hasNextPage;
       page++;
+    }
+
+    // Get all anime from cache to get slugs
+    const animeIds = airingItems.map((item) => item.media.id);
+    const animeCache = await getManyAnimeFromCache(animeIds);
+
+    // Build schedule items with slugs from cache
+    const allMedia: WeeklyScheduleItem[] = [];
+    for (const item of airingItems) {
+      const cachedAnime = animeCache.get(item.media.id);
+      if (cachedAnime) {
+        allMedia.push({
+          anime: cachedAnime,
+          airingAt: item.airingAt,
+          episode: item.episode,
+          weekday: getWeekday(item.airingAt),
+        });
+      }
     }
 
     // Group by weekday
