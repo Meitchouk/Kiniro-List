@@ -13,3 +13,6 @@ export type { PageHeaderProps } from "./PageHeader";
 
 export { PageLayout, SimplePage } from "./PageLayout";
 export type { PageLayoutProps, SimplePageProps } from "./PageLayout";
+
+export { Carousel } from "./Carousel";
+export type { CarouselComponentProps } from "./Carousel";

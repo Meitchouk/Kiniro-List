@@ -71,6 +71,7 @@ ehthumbs.db
 # Logs
 logs
 *.log
+/app-logs
 
 # Cache
 .cache
@@ -79,3 +80,4 @@ logs
 
 # Local development
 *.local
+.github/copilot-instructions.md

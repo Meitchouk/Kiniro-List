@@ -1,7 +1,10 @@
-// Types for Kiniro List application
+/**
+ * Type definitions for Kiniro List application
+ * Central export point for all application types
+ */
 
 // Re-export component types
-export * from "./types/components";
+export * from "./components";
 
 // ============ AniList Types ============
 

@@ -9,7 +9,7 @@ import {
   useEffect,
   type ReactNode,
 } from "react";
-import { setLoadingCallbacks, clearLoadingCallbacks } from "@/lib/fetchInterceptor";
+import { setLoadingCallbacks, clearLoadingCallbacks } from "@/lib/api/fetchInterceptor";
 
 interface LoadingContextType {
   isLoading: boolean;

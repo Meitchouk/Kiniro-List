@@ -1,0 +1,667 @@
+{
+  "info": {
+    "_postman_id": "kiniro-list-api-collection",
+    "name": "Kiniro List - Complete API",
+    "description": "Complete API collection for Kiniro List anime tracking application.\n\nIncludes:\n- Health & Monitoring\n- Anime endpoints\n- Calendar endpoints\n- Schedule endpoints\n- Search endpoints\n- User library & settings (authenticated)\n- System logs & debugging",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "authToken",
+      "value": "",
+      "type": "string",
+      "description": "Firebase Auth ID Token for authenticated endpoints"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health & Monitoring",
+      "description": "Health checks and monitoring endpoints",
+      "item": [
+        {
+          "name": "Alive (Liveness Probe)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/alive",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "alive"]
+            },
+            "description": "Simple liveness check. Returns immediately with minimal overhead.\n\nUse for:\n- Kubernetes liveness probes\n- Simple uptime monitoring\n- Quick connectivity tests"
+          },
+          "response": []
+        },
+        {
+          "name": "Health Check (Detailed)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "health"]
+            },
+            "description": "Detailed health check with component status.\n\nChecks:\n- Redis/Upstash connectivity\n- Firebase configuration\n- Disk space for logs\n- Memory usage\n\nReturns 503 if unhealthy, 200 otherwise."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Anime",
+      "description": "Anime data endpoints",
+      "item": [
+        {
+          "name": "Get Anime by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/anime/21",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "anime", "21"]
+            },
+            "description": "Get detailed anime information by AniList ID."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Anime by Slug",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/anime/slug/one-piece",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "anime", "slug", "one-piece"]
+            },
+            "description": "Get detailed anime information by URL slug."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Popular Anime",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/anime/popular?page=1&perPage=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "anime", "popular"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "perPage", "value": "20" }
+              ]
+            },
+            "description": "Get list of popular anime with pagination."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Trending Anime",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/anime/trending?page=1&perPage=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "anime", "trending"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "perPage", "value": "20" }
+              ]
+            },
+            "description": "Get list of trending anime with pagination."
+          },
+          "response": []
+        },
+        {
+          "name": "Search Anime",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/anime/search?query=naruto&page=1&perPage=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "anime", "search"],
+              "query": [
+                { "key": "query", "value": "naruto" },
+                { "key": "page", "value": "1" },
+                { "key": "perPage", "value": "20" }
+              ]
+            },
+            "description": "Search for anime by title."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Calendar",
+      "description": "Anime calendar and schedule endpoints",
+      "item": [
+        {
+          "name": "Get Current Season",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/calendar/now?page=1&perPage=50",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "calendar", "now"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "perPage", "value": "50" }
+              ]
+            },
+            "description": "Get anime airing in the current season."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Season by Year",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/calendar/season?year=2026&season=WINTER&page=1&perPage=50",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "calendar", "season"],
+              "query": [
+                { "key": "year", "value": "2026" },
+                { "key": "season", "value": "WINTER", "description": "WINTER, SPRING, SUMMER, FALL" },
+                { "key": "page", "value": "1" },
+                { "key": "perPage", "value": "50" }
+              ]
+            },
+            "description": "Get anime for a specific season and year."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Upcoming Anime",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/calendar/upcoming?page=1&perPage=50",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "calendar", "upcoming"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "perPage", "value": "50" }
+              ]
+            },
+            "description": "Get upcoming anime releases."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Schedule",
+      "description": "Weekly schedule endpoints",
+      "item": [
+        {
+          "name": "Get Weekly Schedule",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/schedule/weekly",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "schedule", "weekly"]
+            },
+            "description": "Get weekly anime airing schedule grouped by day."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Search",
+      "description": "Search endpoints",
+      "item": [
+        {
+          "name": "Get Top Search Results",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/search/top?query=attack on titan&limit=5",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "search", "top"],
+              "query": [
+                { "key": "query", "value": "attack on titan" },
+                { "key": "limit", "value": "5" }
+              ]
+            },
+            "description": "Quick search returning top N results (for autocomplete)."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "User (Authenticated)",
+      "description": "User-specific endpoints requiring authentication.\n\nSet the `authToken` variable with a valid Firebase ID token.",
+      "item": [
+        {
+          "name": "Get Current User",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "me"]
+            },
+            "description": "Get current user profile information."
+          },
+          "response": []
+        },
+        {
+          "name": "Get User Library",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/me/library?status=WATCHING&page=1&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "me", "library"],
+              "query": [
+                { "key": "status", "value": "WATCHING", "description": "WATCHING, COMPLETED, PLANNING, DROPPED, PAUSED" },
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            },
+            "description": "Get user's anime library with optional status filter."
+          },
+          "response": []
+        },
+        {
+          "name": "Add/Update Library Entry",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"WATCHING\",\n  \"progress\": 5,\n  \"score\": 8\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/me/library",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "me", "library"]
+            },
+            "description": "Add or update an anime in user's library."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Library Entry by Anime ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/me/library/21",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "me", "library", "21"]
+            },
+            "description": "Get a specific library entry by anime ID."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Library Entry",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/me/library/21",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "me", "library", "21"]
+            },
+            "description": "Remove an anime from user's library."
+          },
+          "response": []
+        },
+        {
+          "name": "Get User Calendar",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/me/calendar",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "me", "calendar"]
+            },
+            "description": "Get personalized calendar based on user's library."
+          },
+          "response": []
+        },
+        {
+          "name": "Get User Settings",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/me/settings",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "me", "settings"]
+            },
+            "description": "Get user preferences and settings."
+          },
+          "response": []
+        },
+        {
+          "name": "Update User Settings",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"theme\": \"dark\",\n  \"language\": \"en\",\n  \"timezone\": \"America/New_York\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/me/settings",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "me", "settings"]
+            },
+            "description": "Update user preferences and settings."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "System Logs",
+      "description": "Logging and debugging endpoints",
+      "item": [
+        {
+          "name": "Query Logs",
+          "item": [
+            {
+              "name": "Get Logs (All Filters)",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/system-logs?level=&source=&context=&search=&startDate=&endDate=&page=1&limit=50",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "system-logs"],
+                  "query": [
+                    { "key": "level", "value": "", "description": "trace, debug, info, warn, error, fatal" },
+                    { "key": "source", "value": "", "description": "server, client" },
+                    { "key": "context", "value": "", "description": "Filter by context (partial match)" },
+                    { "key": "search", "value": "", "description": "Search in message, stack, metadata" },
+                    { "key": "startDate", "value": "", "description": "ISO date (e.g., 2026-01-01T00:00:00Z)" },
+                    { "key": "endDate", "value": "", "description": "ISO date (e.g., 2026-01-31T23:59:59Z)" },
+                    { "key": "page", "value": "1" },
+                    { "key": "limit", "value": "50", "description": "Max: 100" }
+                  ]
+                },
+                "description": "Query logs with optional filters and pagination."
+              },
+              "response": []
+            },
+            {
+              "name": "Get Logs - Errors Only",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/system-logs?level=error&page=1&limit=20",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "system-logs"],
+                  "query": [
+                    { "key": "level", "value": "error" },
+                    { "key": "page", "value": "1" },
+                    { "key": "limit", "value": "20" }
+                  ]
+                },
+                "description": "Get only error-level logs."
+              },
+              "response": []
+            },
+            {
+              "name": "Get Logs - Server Only",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/system-logs?source=server&page=1&limit=50",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "system-logs"],
+                  "query": [
+                    { "key": "source", "value": "server" },
+                    { "key": "page", "value": "1" },
+                    { "key": "limit", "value": "50" }
+                  ]
+                },
+                "description": "Get only server-side logs."
+              },
+              "response": []
+            },
+            {
+              "name": "Get Logs - Client Only",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/system-logs?source=client&page=1&limit=50",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "system-logs"],
+                  "query": [
+                    { "key": "source", "value": "client" },
+                    { "key": "page", "value": "1" },
+                    { "key": "limit", "value": "50" }
+                  ]
+                },
+                "description": "Get only client-side logs (frontend)."
+              },
+              "response": []
+            },
+            {
+              "name": "Get Logs - By Context",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/system-logs?context=next:request&page=1&limit=50",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "system-logs"],
+                  "query": [
+                    { "key": "context", "value": "next:request" },
+                    { "key": "page", "value": "1" },
+                    { "key": "limit", "value": "50" }
+                  ]
+                },
+                "description": "Get logs filtered by context (e.g., next:request, next:compiler)."
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Statistics",
+          "item": [
+            {
+              "name": "Get Log Statistics",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/system-logs/stats",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "system-logs", "stats"]
+                },
+                "description": "Get log statistics: total count, by level, by source, log files list."
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Client Log Webhooks",
+          "item": [
+            {
+              "name": "Report Single Log",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"level\": \"error\",\n  \"message\": \"Test error from Postman\",\n  \"context\": \"postman-test\",\n  \"url\": \"http://localhost:3000/test\",\n  \"stack\": \"Error: Test error\\n    at TestFunction (test.js:10:5)\",\n  \"metadata\": {\n    \"browser\": \"Postman\",\n    \"testRun\": true\n  }\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/system-logs/report",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "system-logs", "report"]
+                },
+                "description": "Report a single log entry from frontend.\n\nLevels: trace, debug, info, warn, error, fatal"
+              },
+              "response": []
+            },
+            {
+              "name": "Report Batch Logs",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"logs\": [\n    {\n      \"level\": \"info\",\n      \"message\": \"User navigated to home\",\n      \"context\": \"navigation\",\n      \"url\": \"http://localhost:3000/\"\n    },\n    {\n      \"level\": \"warn\",\n      \"message\": \"Slow API response detected\",\n      \"context\": \"performance\",\n      \"metadata\": { \"duration\": 3500 }\n    },\n    {\n      \"level\": \"error\",\n      \"message\": \"Failed to load image\",\n      \"context\": \"media\",\n      \"url\": \"http://localhost:3000/anime/123\",\n      \"stack\": \"Error: Image load failed\\n    at loadImage (image.js:50:10)\"\n    }\n  ]\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/system-logs/report/batch",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "system-logs", "report", "batch"]
+                },
+                "description": "Report multiple log entries at once (batch webhook).\n\nOptimized for client logger's buffering system."
+              },
+              "response": []
+            },
+            {
+              "name": "Report Client Error (Legacy)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"message\": \"Uncaught TypeError: Cannot read property 'x' of undefined\",\n  \"stack\": \"TypeError: Cannot read property 'x' of undefined\\n    at Component.render (component.tsx:45:12)\\n    at renderWithHooks (react-dom.js:123:10)\",\n  \"context\": \"React.ErrorBoundary\",\n  \"url\": \"http://localhost:3000/anime/123\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/system-logs/client-errors",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "system-logs", "client-errors"]
+                },
+                "description": "Legacy endpoint for reporting client errors only.\n\nPrefer using /api/system-logs/report with level='error' instead."
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Management",
+          "item": [
+            {
+              "name": "Clear All Logs",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/system-logs",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "system-logs"]
+                },
+                "description": "⚠️ DANGER: Delete all log files. Use with caution!"
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

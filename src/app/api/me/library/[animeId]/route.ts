@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAuth, AuthError } from "@/lib/auth/serverAuth";
-import { checkRateLimit, rateLimitResponse } from "@/lib/ratelimit";
+import { checkRateLimit, rateLimitResponse } from "@/lib/redis/ratelimit";
 import { getAdminFirestore } from "@/lib/firebase/admin";
-import { libraryDeleteSchema } from "@/lib/schemas";
+import { libraryDeleteSchema } from "@/lib/validation/schemas";
 
 export async function DELETE(
   request: NextRequest,
