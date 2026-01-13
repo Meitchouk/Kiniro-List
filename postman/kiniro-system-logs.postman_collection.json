@@ -1,0 +1,380 @@
+{
+  "info": {
+    "_postman_id": "kiniro-system-logs-collection",
+    "name": "Kiniro List - System Logs API",
+    "description": "API endpoints for querying and managing application logs.\n\nThis collection includes:\n- Query logs with filters and pagination\n- Get log statistics\n- Report client-side logs (webhook)\n- Clear all logs",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Query Logs",
+      "description": "Endpoints for querying logs",
+      "item": [
+        {
+          "name": "Get Logs (All Filters)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/system-logs?level=&source=&context=&search=&startDate=&endDate=&page=1&limit=50",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "system-logs"],
+              "query": [
+                {
+                  "key": "level",
+                  "value": "",
+                  "description": "Filter by log level: trace, debug, info, warn, error, fatal"
+                },
+                {
+                  "key": "source",
+                  "value": "",
+                  "description": "Filter by source: server, client"
+                },
+                {
+                  "key": "context",
+                  "value": "",
+                  "description": "Filter by context string (partial match)"
+                },
+                {
+                  "key": "search",
+                  "value": "",
+                  "description": "Search in message, stack, and metadata"
+                },
+                {
+                  "key": "startDate",
+                  "value": "",
+                  "description": "Filter logs after this ISO date (e.g., 2026-01-01T00:00:00Z)"
+                },
+                {
+                  "key": "endDate",
+                  "value": "",
+                  "description": "Filter logs before this ISO date (e.g., 2026-01-31T23:59:59Z)"
+                },
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Page number (default: 1)"
+                },
+                {
+                  "key": "limit",
+                  "value": "50",
+                  "description": "Items per page (default: 50, max: 100)"
+                }
+              ]
+            },
+            "description": "Query logs with optional filters and pagination."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Logs - Errors Only",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/system-logs?level=error&page=1&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "system-logs"],
+              "query": [
+                { "key": "level", "value": "error" },
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            },
+            "description": "Get only error-level logs."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Logs - Server Only",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/system-logs?source=server&page=1&limit=50",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "system-logs"],
+              "query": [
+                { "key": "source", "value": "server" },
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "50" }
+              ]
+            },
+            "description": "Get only server-side logs (backend)."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Logs - Client Only",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/system-logs?source=client&page=1&limit=50",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "system-logs"],
+              "query": [
+                { "key": "source", "value": "client" },
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "50" }
+              ]
+            },
+            "description": "Get only client-side logs (frontend)."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Logs - Client Errors",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/system-logs?source=client&level=error&page=1&limit=50",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "system-logs"],
+              "query": [
+                { "key": "source", "value": "client" },
+                { "key": "level", "value": "error" },
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "50" }
+              ]
+            },
+            "description": "Get only error logs from the frontend."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Logs - Search",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/system-logs?search=timeout&page=1&limit=50",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "system-logs"],
+              "query": [
+                { "key": "search", "value": "timeout" },
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "50" }
+              ]
+            },
+            "description": "Search logs by text."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Logs - Date Range",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/system-logs?startDate=2026-01-01T00:00:00Z&endDate=2026-01-31T23:59:59Z&page=1&limit=50",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "system-logs"],
+              "query": [
+                { "key": "startDate", "value": "2026-01-01T00:00:00Z" },
+                { "key": "endDate", "value": "2026-01-31T23:59:59Z" },
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "50" }
+              ]
+            },
+            "description": "Get logs within a specific date range."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Statistics",
+      "description": "Log statistics",
+      "item": [
+        {
+          "name": "Get Log Stats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/system-logs/stats",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "system-logs", "stats"]
+            },
+            "description": "Get statistics including count by level and source (server/client)."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Webhooks - Report Logs",
+      "description": "Endpoints for frontend to send logs to backend",
+      "item": [
+        {
+          "name": "Report Single Log",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"level\": \"info\",\n  \"message\": \"User clicked on anime card\",\n  \"context\": \"AnimeCard\",\n  \"url\": \"http://localhost:3000/anime/123\",\n  \"metadata\": {\n    \"animeId\": 123,\n    \"action\": \"click\"\n  }\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/system-logs/report",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "system-logs", "report"]
+            },
+            "description": "Report a single log entry from the frontend.\n\n**Required:**\n- `level`: trace, debug, info, warn, error, fatal\n- `message`: Log message (max 1000 chars)\n\n**Optional:**\n- `context`: Component or module name\n- `url`: Current page URL\n- `stack`: Stack trace (for errors)\n- `metadata`: Additional data"
+          },
+          "response": []
+        },
+        {
+          "name": "Report Log - Error with Stack",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"level\": \"error\",\n  \"message\": \"Cannot read property 'title' of undefined\",\n  \"context\": \"AnimeCard\",\n  \"url\": \"http://localhost:3000/anime/123\",\n  \"stack\": \"TypeError: Cannot read property 'title' of undefined\\n    at AnimeCard (webpack://kiniro-list/./src/components/anime/AnimeCard.tsx:25:15)\\n    at renderWithHooks (webpack://kiniro-list/./node_modules/react-dom/cjs/react-dom.development.js:14985:18)\",\n  \"metadata\": {\n    \"animeId\": 123,\n    \"userId\": \"user-456\"\n  }\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/system-logs/report",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "system-logs", "report"]
+            },
+            "description": "Report an error with full stack trace."
+          },
+          "response": []
+        },
+        {
+          "name": "Report Log - Warning",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"level\": \"warn\",\n  \"message\": \"Slow API response detected\",\n  \"context\": \"ApiClient\",\n  \"url\": \"http://localhost:3000/search\",\n  \"metadata\": {\n    \"endpoint\": \"/api/anime/search\",\n    \"responseTime\": 3500\n  }\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/system-logs/report",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "system-logs", "report"]
+            },
+            "description": "Report a warning (e.g., performance issues)."
+          },
+          "response": []
+        },
+        {
+          "name": "Report Log - Debug",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"level\": \"debug\",\n  \"message\": \"Component mounted\",\n  \"context\": \"AnimeDetailPage\",\n  \"url\": \"http://localhost:3000/anime/123\",\n  \"metadata\": {\n    \"animeId\": 123,\n    \"renderTime\": 45\n  }\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/system-logs/report",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "system-logs", "report"]
+            },
+            "description": "Report a debug log."
+          },
+          "response": []
+        },
+        {
+          "name": "Report Batch Logs",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"logs\": [\n    {\n      \"level\": \"info\",\n      \"message\": \"Page loaded\",\n      \"context\": \"HomePage\",\n      \"url\": \"http://localhost:3000\"\n    },\n    {\n      \"level\": \"debug\",\n      \"message\": \"Fetched trending anime\",\n      \"context\": \"TrendingSection\",\n      \"url\": \"http://localhost:3000\",\n      \"metadata\": { \"count\": 10 }\n    },\n    {\n      \"level\": \"info\",\n      \"message\": \"User navigated to anime detail\",\n      \"context\": \"Router\",\n      \"url\": \"http://localhost:3000/anime/123\",\n      \"metadata\": { \"animeId\": 123 }\n    }\n  ]\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/system-logs/report/batch",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "system-logs", "report", "batch"]
+            },
+            "description": "Report multiple logs in a single request.\n\nOptimized for the client logger's buffering system.\n\n**Max 100 logs per batch.**"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Legacy - Client Errors",
+      "description": "Legacy endpoint for error-only reporting",
+      "item": [
+        {
+          "name": "Report Client Error (Legacy)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"Something went wrong\",\n  \"stack\": \"Error: Something went wrong\\n    at Component.tsx:15:10\",\n  \"context\": \"MyComponent\",\n  \"url\": \"http://localhost:3000/page\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/system-logs/client-errors",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "system-logs", "client-errors"]
+            },
+            "description": "Legacy endpoint - use /api/system-logs/report instead."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Management",
+      "description": "Log management operations",
+      "item": [
+        {
+          "name": "Clear All Logs",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/system-logs?confirm=true",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "system-logs"],
+              "query": [
+                {
+                  "key": "confirm",
+                  "value": "true",
+                  "description": "Required confirmation"
+                }
+              ]
+            },
+            "description": "Delete all log files.\n\n⚠️ Requires `?confirm=true`"
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

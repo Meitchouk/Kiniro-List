@@ -62,14 +62,20 @@
       "calendarDesc": "See when your favorite shows air with personalized notifications.",
       "discover": "Discover New Shows",
       "discoverDesc": "Browse seasonal anime and find your next favorite series."
-    }
+    },
+    "trendingTitle": "Trending now",
+    "trendingSubtitle": "Most viewed today across Kiniro List",
+    "popularTitle": "Top popular worldwide",
+    "popularSubtitle": "Highest popularity on AniList (all time)",
+    "popularBadge": "Popular"
   },
   "search": {
     "title": "Search Anime",
     "placeholder": "Search for anime...",
     "searching": "Searching...",
     "resultsFor": "Results for \"{query}\"",
-    "noQuery": "Enter a search term to find anime"
+    "noQuery": "Enter a search term to find anime",
+    "topQueries": "Popular searches today"
   },
   "anime": {
     "episodes": "{count} episodes",

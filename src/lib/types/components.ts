@@ -9,6 +9,7 @@ import type { AnimeCache, AiringStatusLabel, LibraryStatus, PaginationInfo } fro
 export interface AnimeCardProps {
   anime: AnimeCache;
   showBadges?: boolean;
+  rank?: number; // Optional: podium rank for trending display
 }
 
 // ============ Countdown Badge Types ============

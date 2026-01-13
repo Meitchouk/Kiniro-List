@@ -1,14 +1,14 @@
-import { NextRequest, NextResponse } from "next/server";
 import { getAnimeById } from "@/lib/anilist/client";
 import {
   getAnimeFromCache,
   upsertAnimeCache,
-  getAiringFromCache,
   upsertAiringCache,
+  getAiringFromCache,
 } from "@/lib/firestore/cache";
-import { checkRateLimit, rateLimitResponse } from "@/lib/ratelimit";
-import { animeIdSchema } from "@/lib/schemas";
-import type { AnimeDetailResponse } from "@/lib/types";
+import { checkRateLimit, rateLimitResponse, getOrSetJSON, trackAnimeView } from "@/lib/redis";
+import { AniListMedia, AnimeDetailResponse } from "@/lib/types";
+import { animeIdSchema } from "@/lib/validation";
+import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -31,7 +31,10 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     let anime = await getAnimeFromCache(animeId);
 
     // Fetch from AniList (always for detail view to get all fields)
-    const media = await getAnimeById(animeId);
+    // Use a brief Redis cache to avoid repeated calls during bursts
+    const media = await getOrSetJSON<AniListMedia>(`cache:anime:detail:${animeId}`, 60, () =>
+      getAnimeById(animeId)
+    );
 
     if (!anime) {
       // Cache basic info for future list views (also generates slug)
@@ -78,6 +81,9 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       nextAiringAt: airingInfo?.nextAiringAt?.toISOString() || null,
       nextEpisodeNumber: airingInfo?.nextEpisodeNumber || null,
     };
+
+    // Track view for trending metrics (non-blocking)
+    trackAnimeView(animeId).catch(() => {});
 
     return NextResponse.json(response);
   } catch (error) {

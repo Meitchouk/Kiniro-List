@@ -3,6 +3,14 @@
  * Organized by category for easy imports
  */
 
+// Class name utilities (cn)
+import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
+}
+
 // Date utilities
 export * from "./date";
 

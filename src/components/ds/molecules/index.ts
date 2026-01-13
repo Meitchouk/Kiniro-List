@@ -23,3 +23,7 @@ export type { EmptyStateProps, NoResultsProps, NoDataProps } from "./EmptyState"
 // Forms
 export { FormField, FormSection, ValidationMessage } from "./FormField";
 export type { FormFieldProps, FormSectionProps, ValidationMessageProps } from "./FormField";
+
+// Cards
+export { PosterCard } from "./PosterCard";
+export type { PosterCardProps } from "./PosterCard";

@@ -1,5 +1,9 @@
 import { NextRequest } from "next/server";
 
+/**
+ * Extract the client IP address from a request.
+ * Handles various proxy headers used by Vercel and other providers.
+ */
 export function getClientIP(request: NextRequest): string {
   // Try x-forwarded-for first (Vercel and most proxies)
   const forwardedFor = request.headers.get("x-forwarded-for");

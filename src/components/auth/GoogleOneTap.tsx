@@ -6,6 +6,7 @@ import { useAuth } from "@/components/providers/AuthProvider";
 import { signInWithGoogleIdToken } from "@/lib/auth/clientAuth";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
+import { googleOAuth } from "@/lib/config";
 
 declare global {
   interface Window {
@@ -47,7 +48,7 @@ export function GoogleOneTap() {
   const { user } = useAuth();
   const t = useTranslations("errors");
   const initialized = useRef(false);
-  const clientId = process.env.NEXT_PUBLIC_GOOGLE_OAUTH_CLIENT_ID;
+  const clientId = googleOAuth.clientId;
 
   useEffect(() => {
     if (user) {

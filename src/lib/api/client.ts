@@ -1,7 +1,7 @@
 "use client";
 
 import { toast } from "sonner";
-import { fetchWithLoading } from "@/lib/fetchInterceptor";
+import { fetchWithLoading } from "./fetchInterceptor";
 import type {
   AnimeListResponse,
   AnimeDetailResponse,
@@ -12,6 +12,7 @@ import type {
   LibraryUpsertRequest,
   SettingsUpdateRequest,
   MediaSeason,
+  AnimeCache,
 } from "@/lib/types";
 
 type AuthHeadersGetter = (options?: { forceRefresh?: boolean }) => Promise<Record<string, string>>;
@@ -125,6 +126,36 @@ export async function getSeason(
 
 export async function getWeeklySchedule(): Promise<WeeklyScheduleResponse> {
   const response = await fetchWithLoading("/api/schedule/weekly");
+  return handleResponse(response);
+}
+
+export async function getTrendingAnimeList(
+  limit: number = 20,
+  scope: "day" | "all" = "day"
+): Promise<{
+  anime: AnimeCache[];
+  pagination: {
+    currentPage: number;
+    hasNextPage: boolean;
+    lastPage: number;
+    perPage: number;
+    total: number;
+  };
+}> {
+  const params = new URLSearchParams({ limit: String(limit), scope });
+  const response = await fetchWithLoading(`/api/anime/trending?${params}`);
+  return handleResponse(response);
+}
+
+export async function getTopSearchQueries(limit: number = 10): Promise<{ queries: string[] }> {
+  const params = new URLSearchParams({ limit: String(limit) });
+  const response = await fetchWithLoading(`/api/search/top?${params}`);
+  return handleResponse(response);
+}
+
+export async function getPopularAnimeList(limit: number = 50): Promise<AnimeListResponse> {
+  const params = new URLSearchParams({ limit: String(limit) });
+  const response = await fetchWithLoading(`/api/anime/popular?${params}`);
   return handleResponse(response);
 }
 
