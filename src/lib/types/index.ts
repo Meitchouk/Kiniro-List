@@ -177,8 +177,42 @@ export interface AnimeAiringCache {
   animeId: number;
   nextAiringAt?: Date | null;
   nextEpisodeNumber?: number | null;
+  lastAiringAt?: Date | null;
   lastFetchedAt: Date;
   updatedAt: Date;
+}
+
+/**
+ * Airing history entry for tracking aired episodes per user
+ * Stored in: users/{uid}/airingHistory/{animeId}_{episode}
+ */
+export interface AiringHistoryEntry {
+  animeId: number;
+  episode: number;
+  airingAt: Date;
+  detectedAt: Date;
+  expiresAt: Date;
+}
+
+/**
+ * My calendar schedule item - extends WeeklyScheduleItem with library status
+ */
+export interface MyCalendarScheduleItem {
+  anime: AnimeCache;
+  airingAt: number;
+  episode: number;
+  weekday: number;
+  libraryStatus: LibraryStatus;
+  isAired: boolean;
+  pinned?: boolean;
+}
+
+/**
+ * Response for /api/me/calendar with weekly schedule format
+ */
+export interface MyCalendarResponse {
+  schedule: Record<number, MyCalendarScheduleItem[]>;
+  timezone: string;
 }
 
 export type LibraryStatus = "watching" | "planned" | "completed" | "paused" | "dropped";
@@ -279,6 +313,7 @@ export interface CalendarAnimeItem {
   libraryStatus: LibraryStatus;
   nextAiringAt?: string | null;
   nextEpisodeNumber?: number | null;
+  displayAiringAt?: string | null;
   statusLabel: AiringStatusLabel;
   secondsToAir?: number;
   pinned?: boolean;

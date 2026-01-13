@@ -227,6 +227,7 @@ export async function getAiringFromCache(animeId: number): Promise<AnimeAiringCa
     lastFetchedAt: Timestamp;
     updatedAt: Timestamp;
     nextAiringAt?: Timestamp | null;
+    lastAiringAt?: Timestamp | null;
   };
 
   // Check if stale
@@ -242,6 +243,7 @@ export async function getAiringFromCache(animeId: number): Promise<AnimeAiringCa
     animeId: data.animeId,
     nextAiringAt: data.nextAiringAt?.toDate() || null,
     nextEpisodeNumber: data.nextEpisodeNumber,
+    lastAiringAt: data.lastAiringAt?.toDate() || null,
     lastFetchedAt: lastFetchedAt,
     updatedAt: data.updatedAt.toDate(),
   };
@@ -254,6 +256,30 @@ export async function upsertAiringCache(
 ): Promise<void> {
   const db = getAdminFirestore();
 
+  const existingDoc = await db.collection("animeAiring").doc(String(animeId)).get();
+  const existingData = existingDoc.data() as
+    | (AnimeAiringCache & { nextAiringAt?: Timestamp | null; lastAiringAt?: Timestamp | null })
+    | undefined;
+
+  const previousNextAiringMs = existingData?.nextAiringAt
+    ? existingData.nextAiringAt.toMillis()
+    : null;
+  const previousLastAiringMs = existingData?.lastAiringAt
+    ? existingData.lastAiringAt.toMillis()
+    : null;
+
+  let lastAiringAtTimestamp: Timestamp | null = previousLastAiringMs
+    ? Timestamp.fromMillis(previousLastAiringMs)
+    : null;
+
+  if (previousNextAiringMs) {
+    if (nextAiringAt && nextAiringAt * 1000 > previousNextAiringMs) {
+      lastAiringAtTimestamp = Timestamp.fromMillis(previousNextAiringMs);
+    } else if (!nextAiringAt) {
+      lastAiringAtTimestamp = Timestamp.fromMillis(previousNextAiringMs);
+    }
+  }
+
   await db
     .collection("animeAiring")
     .doc(String(animeId))
@@ -262,6 +288,7 @@ export async function upsertAiringCache(
         animeId,
         nextAiringAt: nextAiringAt ? Timestamp.fromMillis(nextAiringAt * 1000) : null,
         nextEpisodeNumber,
+        lastAiringAt: lastAiringAtTimestamp,
         lastFetchedAt: FieldValue.serverTimestamp(),
         updatedAt: FieldValue.serverTimestamp(),
       },
@@ -275,7 +302,41 @@ export async function upsertManyAiringCache(
   const db = getAdminFirestore();
   const batch = db.batch();
 
+  const animeIds = Array.from(airingData.keys());
+  const refs = animeIds.map((id) => db.collection("animeAiring").doc(String(id)));
+  const existingDocs = refs.length > 0 ? await db.getAll(...refs) : [];
+
+  const existingMap = new Map<
+    number,
+    { nextAiringAtMs: number | null; lastAiringAtMs: number | null }
+  >();
+
+  existingDocs.forEach((doc) => {
+    if (!doc.exists) return;
+    const data = doc.data() as {
+      nextAiringAt?: Timestamp | null;
+      lastAiringAt?: Timestamp | null;
+    };
+    const nextAiringAtMs = data.nextAiringAt ? data.nextAiringAt.toMillis() : null;
+    const lastAiringAtMs = data.lastAiringAt ? data.lastAiringAt.toMillis() : null;
+    existingMap.set(Number(doc.id), { nextAiringAtMs, lastAiringAtMs });
+  });
+
   for (const [animeId, data] of airingData) {
+    const prev = existingMap.get(animeId);
+    const previousNextAiringMs = prev?.nextAiringAtMs || null;
+    const previousLastAiringMs = prev?.lastAiringAtMs || null;
+
+    let lastAiringAtMs: number | null = previousLastAiringMs || null;
+
+    if (previousNextAiringMs) {
+      if (data?.airingAt && data.airingAt * 1000 > previousNextAiringMs) {
+        lastAiringAtMs = previousNextAiringMs;
+      } else if (!data?.airingAt) {
+        lastAiringAtMs = previousNextAiringMs;
+      }
+    }
+
     const ref = db.collection("animeAiring").doc(String(animeId));
     batch.set(
       ref,
@@ -283,6 +344,7 @@ export async function upsertManyAiringCache(
         animeId,
         nextAiringAt: data ? Timestamp.fromMillis(data.airingAt * 1000) : null,
         nextEpisodeNumber: data?.episode || null,
+        lastAiringAt: lastAiringAtMs ? Timestamp.fromMillis(lastAiringAtMs) : null,
         lastFetchedAt: FieldValue.serverTimestamp(),
         updatedAt: FieldValue.serverTimestamp(),
       },
@@ -347,6 +409,7 @@ export async function getManyAiringFromCache(
         lastFetchedAt: Timestamp;
         updatedAt: Timestamp;
         nextAiringAt?: Timestamp | null;
+        lastAiringAt?: Timestamp | null;
       };
 
       const lastFetchedAt = data.lastFetchedAt.toDate();
@@ -358,6 +421,7 @@ export async function getManyAiringFromCache(
           animeId: data.animeId,
           nextAiringAt: data.nextAiringAt?.toDate() || null,
           nextEpisodeNumber: data.nextEpisodeNumber,
+          lastAiringAt: data.lastAiringAt?.toDate() || null,
           lastFetchedAt: lastFetchedAt,
           updatedAt: data.updatedAt.toDate(),
         });

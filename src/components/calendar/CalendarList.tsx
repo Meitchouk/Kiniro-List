@@ -98,13 +98,15 @@ export function CalendarList({ items, timezone }: CalendarListProps) {
     const grouped: Record<string, CalendarAnimeItem[]> = {};
 
     items.forEach((item) => {
-      if (!item.nextAiringAt) {
+      const airingAt = item.displayAiringAt || item.nextAiringAt;
+
+      if (!airingAt) {
         if (!grouped["unknown"]) grouped["unknown"] = [];
         grouped["unknown"].push(item);
         return;
       }
 
-      const dt = DateTime.fromISO(item.nextAiringAt).setZone(timezone);
+      const dt = DateTime.fromISO(airingAt).setZone(timezone);
       const dateKey = dt.toFormat("yyyy-MM-dd");
 
       if (!grouped[dateKey]) grouped[dateKey] = [];
@@ -115,8 +117,8 @@ export function CalendarList({ items, timezone }: CalendarListProps) {
     Object.keys(grouped).forEach((key) => {
       if (key !== "unknown") {
         grouped[key].sort((a, b) => {
-          const aTime = a.nextAiringAt ? new Date(a.nextAiringAt).getTime() : 0;
-          const bTime = b.nextAiringAt ? new Date(b.nextAiringAt).getTime() : 0;
+          const aTime = new Date(a.displayAiringAt || a.nextAiringAt || 0).getTime();
+          const bTime = new Date(b.displayAiringAt || b.nextAiringAt || 0).getTime();
           return aTime - bTime;
         });
       }
@@ -126,10 +128,18 @@ export function CalendarList({ items, timezone }: CalendarListProps) {
   }, [items, timezone]);
 
   const sortedDates = useMemo(() => {
+    const today = DateTime.now().setZone(timezone).startOf("day");
+
     return Object.keys(groupedItems)
-      .filter((key) => key !== "unknown")
+      .filter((key) => {
+        if (key === "unknown") return false;
+
+        // Include today and future dates
+        const itemDate = DateTime.fromISO(key).setZone(timezone).startOf("day");
+        return itemDate >= today;
+      })
       .sort((a, b) => a.localeCompare(b));
-  }, [groupedItems]);
+  }, [groupedItems, timezone]);
 
   return (
     <div className="space-y-8">

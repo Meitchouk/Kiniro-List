@@ -23,7 +23,9 @@
     "languageSaveError": "Error al guardar preferencia de idioma",
     "dataProvidedBy": "Datos proporcionados por",
     "back": "Volver atrás",
-    "topPage": "Arriba"
+    "topPage": "Arriba",
+    "showMore": "Ver {count} más",
+    "showLess": "Mostrar menos"
   },
   "nav": {
     "home": "Inicio",
@@ -239,7 +241,12 @@
   "myCalendar": {
     "title": "Mi Calendario",
     "empty": "No hay próximos episodios",
-    "emptyDesc": "Agrega anime a tu lista de viendo para ver su horario aquí"
+    "emptyDesc": "Agrega anime a tu lista de viendo para ver su horario aquí",
+    "weekSummary": "{total} episodios esta semana ({aired} emitidos)",
+    "airedCount": "{count} emitidos",
+    "noEpisodes": "No hay episodios este día",
+    "episodesThisWeek": "{count} episodios",
+    "goToToday": "Hoy"
   },
   "settings": {
     "title": "Configuración",

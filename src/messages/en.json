@@ -23,7 +23,9 @@
     "languageSaveError": "Failed to save language preference",
     "dataProvidedBy": "Data provided by",
     "back": "Go back",
-    "topPage": "Top"
+    "topPage": "Top",
+    "showMore": "Show {count} more",
+    "showLess": "Show less"
   },
   "nav": {
     "home": "Home",
@@ -241,7 +243,12 @@
   "myCalendar": {
     "title": "My Calendar",
     "empty": "No upcoming episodes",
-    "emptyDesc": "Add anime to your watching list to see their schedule here"
+    "emptyDesc": "Add anime to your watching list to see their schedule here",
+    "weekSummary": "{total} episodes this week ({aired} aired)",
+    "airedCount": "{count} aired",
+    "noEpisodes": "No episodes on this day",
+    "episodesThisWeek": "{count} episodes",
+    "goToToday": "Today"
   },
   "settings": {
     "title": "Settings",

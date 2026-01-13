@@ -51,7 +51,7 @@ export function AnimeCarouselSection({
       <Carousel<AnimeCache>
         items={items}
         getKey={(anime) => anime.id}
-        renderItem={(anime, idx) => <AnimeCard anime={anime} rank={idx + 1} />}
+        renderItem={(anime, idx) => <AnimeCard anime={anime} rank={idx + 1} priority={idx === 0} />}
         autoIntervalMs={autoIntervalMs}
         gap={4}
       />

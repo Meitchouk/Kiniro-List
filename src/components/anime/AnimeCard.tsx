@@ -5,7 +5,7 @@ import { PosterCard } from "@/components/ds";
 import { createAnimeSlug, getLocalizedTitle } from "@/lib/utils/text";
 import type { AnimeCardProps } from "@/lib/types";
 
-export function AnimeCard({ anime, showBadges = true, rank }: AnimeCardProps) {
+export function AnimeCard({ anime, showBadges = true, rank, priority = false }: AnimeCardProps) {
   const t = useTranslations();
 
   const title = getLocalizedTitle(anime.title);
@@ -18,6 +18,7 @@ export function AnimeCard({ anime, showBadges = true, rank }: AnimeCardProps) {
       title={title}
       coverImage={coverImage}
       rank={rank}
+      priority={priority}
       badges={
         showBadges
           ? [
