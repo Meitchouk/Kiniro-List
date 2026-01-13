@@ -3,6 +3,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
 import { Inter } from "next/font/google";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { Analytics } from "@vercel/analytics/next";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { QueryProvider } from "@/components/providers/QueryProvider";
 import { AuthProvider } from "@/components/providers/AuthProvider";
@@ -50,7 +51,10 @@ export default async function RootLayout({
             </NextIntlClientProvider>
           </QueryProvider>
         </ThemeProvider>
+
+        {/* Vercel Analytics */}
         <SpeedInsights />
+        <Analytics />
       </body>
     </html>
   );
