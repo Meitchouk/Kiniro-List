@@ -4,16 +4,33 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { useQuery } from "@tanstack/react-query";
-import { getCurrentUser, getMyCalendar, setAuthHeadersGetter } from "@/lib/api";
+import { getMyCalendar, setAuthHeadersGetter } from "@/lib/api";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { ErrorBanner } from "@/components/anime/ErrorBanner";
-import { CalendarList } from "@/components/calendar";
-import { Calendar, Clock } from "lucide-react";
-import { DateTime } from "luxon";
+import { MyCalendarGrid } from "@/components/calendar";
+import { Calendar } from "lucide-react";
+
+function CalendarSkeleton() {
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <Skeleton className="h-10 w-64" />
+        <Skeleton className="h-8 w-32" />
+      </div>
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7">
+        {Array.from({ length: 7 }).map((_, i) => (
+          <div key={i} className="space-y-3">
+            <Skeleton className="h-20 w-full rounded-lg" />
+            <Skeleton className="h-52 w-full" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 export default function MyCalendarPage() {
   const t = useTranslations();
@@ -24,12 +41,6 @@ export default function MyCalendarPage() {
     setAuthHeadersGetter(getAuthHeaders);
   }
 
-  const { data: userData } = useQuery({
-    queryKey: ["me"],
-    queryFn: () => getCurrentUser(),
-    enabled: !!user,
-  });
-
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ["my-calendar"],
     queryFn: () => getMyCalendar(),
@@ -37,26 +48,12 @@ export default function MyCalendarPage() {
     refetchInterval: 60000,
   });
 
-  const timezone = userData?.timezone || DateTime.local().zoneName || "UTC";
-
   if (isLoading) {
     return (
       <div className="flex flex-col">
         <PageHeader title={t("myCalendar.title")} showBack={true} />
         <div className="container mx-auto px-4 py-8">
-          <Skeleton className="mb-6 h-8 w-48" />
-          <div className="space-y-6">
-            {Array.from({ length: 3 }).map((_, i) => (
-              <div key={i}>
-                <Skeleton className="mb-3 h-6 w-32" />
-                <div className="space-y-3">
-                  {Array.from({ length: 2 }).map((_, j) => (
-                    <Skeleton key={j} className="h-24" />
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
+          <CalendarSkeleton />
         </div>
       </div>
     );
@@ -73,23 +70,13 @@ export default function MyCalendarPage() {
     );
   }
 
-  const hasItems = data?.items && data.items.length > 0;
+  const hasItems = data?.schedule && Object.values(data.schedule).some((items) => items.length > 0);
+  const timezone = data?.timezone || "UTC";
 
   return (
     <div className="flex flex-col">
       <PageHeader title={t("myCalendar.title")} showBack={true} />
       <div className="container mx-auto px-4 py-8">
-        <div className="mb-6 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Calendar className="h-6 w-6" />
-            <h1 className="text-2xl font-bold">{t("nav.myCalendar")}</h1>
-          </div>
-          <Badge variant="outline" className="gap-1">
-            <Clock className="h-3 w-3" />
-            {timezone}
-          </Badge>
-        </div>
-
         {!hasItems ? (
           <Card>
             <CardContent className="py-12 text-center">
@@ -109,7 +96,7 @@ export default function MyCalendarPage() {
             </CardContent>
           </Card>
         ) : (
-          <CalendarList items={data.items} timezone={timezone} />
+          <MyCalendarGrid schedule={data.schedule} timezone={timezone} />
         )}
       </div>
     </div>

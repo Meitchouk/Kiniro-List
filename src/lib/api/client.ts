@@ -8,7 +8,7 @@ import type {
   WeeklyScheduleResponse,
   UserResponse,
   LibraryEntryWithAnime,
-  CalendarAnimeItem,
+  MyCalendarResponse,
   LibraryUpsertRequest,
   SettingsUpdateRequest,
   MediaSeason,
@@ -207,7 +207,7 @@ export async function deleteLibraryEntry(animeId: number): Promise<{ success: bo
   return handleResponse(response);
 }
 
-export async function getMyCalendar(): Promise<{ items: CalendarAnimeItem[] }> {
+export async function getMyCalendar(): Promise<MyCalendarResponse> {
   const response = await fetchWithAuth("/api/me/calendar");
   return handleResponse(response);
 }

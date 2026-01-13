@@ -10,8 +10,17 @@ import {
   upsertManyAiringCache,
   upsertManyAnimeCache,
 } from "@/lib/firestore/cache";
-import { getAiringStatusLabel, getSecondsToAir } from "@/lib/utils/date";
-import type { UserDocument, LibraryEntry, CalendarAnimeItem, AnimeAiringCache } from "@/lib/types";
+import {
+  getAiringHistoryForAnime,
+  addManyAiringHistoryEntries,
+} from "@/lib/firestore/airingHistory";
+import { DateTime } from "luxon";
+import type {
+  UserDocument,
+  LibraryEntry,
+  MyCalendarScheduleItem,
+  MyCalendarResponse,
+} from "@/lib/types";
 
 export async function GET(request: NextRequest) {
   try {
@@ -47,6 +56,8 @@ export async function GET(request: NextRequest) {
       updatedAt: Timestamp;
     };
 
+    const timezone = userData.timezone || "UTC";
+
     // Get library entries
     let libraryQuery = db.collection("users").doc(uid).collection("library");
 
@@ -58,7 +69,7 @@ export async function GET(request: NextRequest) {
     const librarySnapshot = await libraryQuery.get();
 
     if (librarySnapshot.empty) {
-      return NextResponse.json({ items: [] });
+      return NextResponse.json({ schedule: {}, timezone } as MyCalendarResponse);
     }
 
     // Get library entries
@@ -78,6 +89,7 @@ export async function GET(request: NextRequest) {
     });
 
     const animeIds = libraryEntries.map((e) => e.animeId);
+    const libraryMap = new Map(libraryEntries.map((e) => [e.animeId, e]));
 
     // Get anime metadata from cache
     const animeCache = await getManyAnimeFromCache(animeIds);
@@ -115,11 +127,23 @@ export async function GET(request: NextRequest) {
 
     // If no releasing anime, return empty calendar
     if (releasingAnimeIds.length === 0) {
-      return NextResponse.json({ items: [] });
+      return NextResponse.json({ schedule: {}, timezone } as MyCalendarResponse);
     }
 
-    // Get airing info from cache for releasing anime
+    // Get current airing info from cache
     const airingCache = await getManyAiringFromCache(releasingAnimeIds);
+
+    // Store previous airing info before fetching fresh data (for change detection)
+    const previousAiringMap = new Map<
+      number,
+      { nextAiringAt: number | null; episode: number | null }
+    >();
+    for (const [id, airing] of airingCache) {
+      previousAiringMap.set(id, {
+        nextAiringAt: airing.nextAiringAt ? Math.floor(airing.nextAiringAt.getTime() / 1000) : null,
+        episode: airing.nextEpisodeNumber || null,
+      });
+    }
 
     // Find IDs that need fresh airing info (not in cache or stale)
     const staleAiringIds = releasingAnimeIds.filter((id) => !airingCache.has(id));
@@ -129,66 +153,130 @@ export async function GET(request: NextRequest) {
       const freshAiring = await getBatchAiringInfo(staleAiringIds);
       await upsertManyAiringCache(freshAiring);
 
-      // Update local cache
-      for (const [id, data] of freshAiring) {
-        if (data) {
-          const airingEntry: AnimeAiringCache = {
-            animeId: id,
-            nextAiringAt: new Date(data.airingAt * 1000),
-            nextEpisodeNumber: data.episode,
-            lastFetchedAt: new Date(),
-            updatedAt: new Date(),
-          };
-          airingCache.set(id, airingEntry);
-        }
+      // Re-fetch updated airing data for stale IDs
+      const refreshedAiring = await getManyAiringFromCache(staleAiringIds);
+      for (const [id, entry] of refreshedAiring) {
+        airingCache.set(id, entry);
       }
     }
 
-    // Build calendar items - only include RELEASING anime
-    const items: CalendarAnimeItem[] = [];
+    // Detect aired episodes by comparing previous vs current nextAiringAt
+    const airedEpisodesToRecord: Array<{ animeId: number; episode: number; airingAt: Date }> = [];
 
-    for (const entry of libraryEntries) {
-      const anime = animeCache.get(entry.animeId);
+    for (const [animeId, currentAiring] of airingCache) {
+      const prev = previousAiringMap.get(animeId);
+      if (!prev || !prev.nextAiringAt || !prev.episode) continue;
+
+      const currentNextAiringAt = currentAiring.nextAiringAt
+        ? Math.floor(currentAiring.nextAiringAt.getTime() / 1000)
+        : null;
+
+      // If nextAiringAt changed (moved forward), the previous episode aired
+      if (currentNextAiringAt && currentNextAiringAt > prev.nextAiringAt) {
+        airedEpisodesToRecord.push({
+          animeId,
+          episode: prev.episode,
+          airingAt: new Date(prev.nextAiringAt * 1000),
+        });
+      }
+    }
+
+    // Record newly detected aired episodes
+    if (airedEpisodesToRecord.length > 0) {
+      await addManyAiringHistoryEntries(uid, airedEpisodesToRecord);
+    }
+
+    // Get airing history for all releasing anime (past episodes within last month)
+    const airingHistory = await getAiringHistoryForAnime(uid, releasingAnimeIds);
+
+    // Build weekly schedule
+    const now = DateTime.now().setZone(timezone);
+    const startOfWeek = now.startOf("week").minus({ days: 1 }); // Include Sunday
+    const endOfWeek = startOfWeek.plus({ days: 7 });
+
+    const schedule: Record<number, MyCalendarScheduleItem[]> = {
+      0: [], // Sunday
+      1: [], // Monday
+      2: [], // Tuesday
+      3: [], // Wednesday
+      4: [], // Thursday
+      5: [], // Friday
+      6: [], // Saturday
+    };
+
+    // Process each releasing anime
+    for (const animeId of releasingAnimeIds) {
+      const anime = animeCache.get(animeId);
       if (!anime) continue;
-
-      // Only include RELEASING anime in the calendar
-      if (anime.status !== "RELEASING") continue;
 
       // Filter adult content if enabled
       if (userData.filters.hideAdult && anime.isAdult) continue;
 
-      const airing = airingCache.get(entry.animeId);
-      const airingTimestamp = airing?.nextAiringAt
-        ? Math.floor(airing.nextAiringAt.getTime() / 1000)
-        : null;
+      const library = libraryMap.get(animeId);
+      if (!library) continue;
 
-      items.push({
-        anime,
-        libraryStatus: entry.status,
-        nextAiringAt: airing?.nextAiringAt?.toISOString() || null,
-        nextEpisodeNumber: airing?.nextEpisodeNumber || null,
-        statusLabel: getAiringStatusLabel(airingTimestamp),
-        secondsToAir: airingTimestamp ? getSecondsToAir(airingTimestamp) : undefined,
-        pinned: entry.pinned,
+      const airing = airingCache.get(animeId);
+      const history = airingHistory.get(animeId) || [];
+
+      // Add future episode (from nextAiringAt)
+      if (airing?.nextAiringAt) {
+        const airingTimestamp = Math.floor(airing.nextAiringAt.getTime() / 1000);
+        const airingDt = DateTime.fromSeconds(airingTimestamp).setZone(timezone);
+
+        // Include if within this week
+        if (airingDt >= startOfWeek && airingDt < endOfWeek) {
+          const weekday = airingDt.weekday % 7; // Convert to 0-6 (Sunday-Saturday)
+
+          schedule[weekday].push({
+            anime,
+            airingAt: airingTimestamp,
+            episode: airing.nextEpisodeNumber || 1,
+            weekday,
+            libraryStatus: library.status,
+            isAired: false,
+            pinned: library.pinned,
+          });
+        }
+      }
+
+      // Add past episodes from history (within this week)
+      for (const entry of history) {
+        const airingTimestamp = Math.floor(entry.airingAt.getTime() / 1000);
+        const airingDt = DateTime.fromSeconds(airingTimestamp).setZone(timezone);
+
+        if (airingDt >= startOfWeek && airingDt < endOfWeek) {
+          const weekday = airingDt.weekday % 7;
+
+          // Avoid duplicates (same anime + episode)
+          const existing = schedule[weekday].find(
+            (item) => item.anime.id === animeId && item.episode === entry.episode
+          );
+
+          if (!existing) {
+            schedule[weekday].push({
+              anime,
+              airingAt: airingTimestamp,
+              episode: entry.episode,
+              weekday,
+              libraryStatus: library.status,
+              isAired: true,
+              pinned: library.pinned,
+            });
+          }
+        }
+      }
+    }
+
+    // Sort each day: pinned first, then by air time
+    for (const day of Object.keys(schedule)) {
+      schedule[Number(day)].sort((a, b) => {
+        if (a.pinned && !b.pinned) return -1;
+        if (!a.pinned && b.pinned) return 1;
+        return a.airingAt - b.airingAt;
       });
     }
 
-    // Sort: pinned first, then by next airing time (ascending)
-    items.sort((a, b) => {
-      // Pinned items first
-      if (a.pinned && !b.pinned) return -1;
-      if (!a.pinned && b.pinned) return 1;
-
-      // Then by airing time
-      if (a.nextAiringAt && b.nextAiringAt) {
-        return new Date(a.nextAiringAt).getTime() - new Date(b.nextAiringAt).getTime();
-      }
-      if (a.nextAiringAt) return -1;
-      if (b.nextAiringAt) return 1;
-      return 0;
-    });
-
-    return NextResponse.json({ items });
+    return NextResponse.json({ schedule, timezone } as MyCalendarResponse);
   } catch (error) {
     console.error("Get calendar error:", error);
     return NextResponse.json({ error: "Failed to get calendar" }, { status: 500 });
