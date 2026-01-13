@@ -54,12 +54,13 @@ function getCrunchyrollLink(
 interface CalendarEpisodeCardProps {
   item: MyCalendarScheduleItem;
   timezone: string;
+  priority?: boolean;
 }
 
 /**
  * Fixed-size episode card for calendar view
  */
-function CalendarEpisodeCard({ item, timezone }: CalendarEpisodeCardProps) {
+function CalendarEpisodeCard({ item, timezone, priority = false }: CalendarEpisodeCardProps) {
   const t = useTranslations();
   const title = getLocalizedTitle(item.anime.title);
   const cover = item.anime.coverImage.large || "/placeholder.png";
@@ -77,6 +78,7 @@ function CalendarEpisodeCard({ item, timezone }: CalendarEpisodeCardProps) {
             src={cover}
             alt={title}
             fill
+            priority={priority}
             className="object-cover transition-transform group-hover:scale-105"
             sizes={`${CARD_WIDTH}px`}
           />
@@ -185,11 +187,12 @@ function DayColumn({ date, items, timezone, isToday }: DayColumnProps) {
           </div>
         ) : (
           <>
-            {displayedItems.map((item) => (
+            {displayedItems.map((item, idx) => (
               <CalendarEpisodeCard
                 key={`${item.anime.id}-${item.episode}`}
                 item={item}
                 timezone={timezone}
+                priority={idx === 0}
               />
             ))}
             {hasMore && (
