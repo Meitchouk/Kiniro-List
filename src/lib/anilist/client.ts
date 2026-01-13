@@ -1,7 +1,8 @@
 // Server-only AniList GraphQL client
 import type { AniListMedia, MediaSeason, PaginationInfo } from "@/lib/types";
+import { anilist } from "@/lib/config";
 
-const ANILIST_API = process.env.ANILIST_API || "";
+const ANILIST_API = anilist.apiUrl;
 
 interface GraphQLResponse<T> {
   data: T;

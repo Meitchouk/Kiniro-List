@@ -2,11 +2,12 @@ import { Ratelimit } from "@upstash/ratelimit";
 import { Redis } from "@upstash/redis";
 import { NextRequest, NextResponse } from "next/server";
 import { getClientIP } from "./ip";
+import { upstash } from "@/lib/config";
 
 // Create Redis client
 const redis = new Redis({
-  url: process.env.UPSTASH_REDIS_REST_URL!,
-  token: process.env.UPSTASH_REDIS_REST_TOKEN!,
+  url: upstash.url,
+  token: upstash.token,
 });
 
 // Different rate limit configurations

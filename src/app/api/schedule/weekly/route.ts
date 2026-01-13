@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getReleasingAnime } from "@/lib/anilist/client";
 import { upsertManyAnimeCache, getManyAnimeFromCache } from "@/lib/firestore/cache";
-import { checkRateLimit, rateLimitResponse } from "@/lib/ratelimit";
+import { checkRateLimit, rateLimitResponse } from "@/lib/redis/ratelimit";
 import { getWeekday } from "@/lib/utils/date";
 import type { WeeklyScheduleItem, AniListMedia } from "@/lib/types";
-import { getOrSetJSON } from "@/lib/redisCache";
+import { getOrSetJSON } from "@/lib/redis/cache";
 
 interface AiringMediaItem {
   media: AniListMedia;

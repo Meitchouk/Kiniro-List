@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { searchAnime } from "@/lib/anilist/client";
 import { upsertManyAnimeCache, getManyAnimeFromCache } from "@/lib/firestore/cache";
-import { checkRateLimit, rateLimitResponse } from "@/lib/ratelimit";
-import { searchQuerySchema } from "@/lib/schemas";
-import { getOrSetJSON } from "@/lib/redisCache";
-import { trackSearchQuery } from "@/lib/metrics";
+import { checkRateLimit, rateLimitResponse } from "@/lib/redis/ratelimit";
+import { searchQuerySchema } from "@/lib/validation/schemas";
+import { getOrSetJSON } from "@/lib/redis/cache";
+import { trackSearchQuery } from "@/lib/redis/metrics";
 import type { AniListMedia, PaginationInfo } from "@/lib/types";
 
 export async function GET(request: NextRequest) {

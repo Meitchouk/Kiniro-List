@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAuth, AuthError } from "@/lib/auth/serverAuth";
-import { checkRateLimit, rateLimitResponse } from "@/lib/ratelimit";
+import { checkRateLimit, rateLimitResponse } from "@/lib/redis/ratelimit";
 import { getAdminFirestore } from "@/lib/firebase/admin";
 import { FieldValue, Timestamp } from "firebase-admin/firestore";
-import { libraryUpsertSchema } from "@/lib/schemas";
+import { libraryUpsertSchema } from "@/lib/validation/schemas";
 import { getManyAnimeFromCache } from "@/lib/firestore/cache";
 import type { LibraryEntry, LibraryEntryWithAnime } from "@/lib/types";
 

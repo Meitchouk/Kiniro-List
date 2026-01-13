@@ -3,7 +3,7 @@ import { Calendar, Clock, Search, Library, Star, Globe, Flame } from "lucide-rea
 import { HeroSection, FeatureCard, QuickLinkCard } from "@/components/home";
 import { AnimeCarouselSection } from "@/components/anime/AnimeCarouselSection";
 import { Section, Grid } from "@/components/ds";
-import { getTrendingAnime } from "@/lib/metrics";
+import { getTrendingAnime } from "@/lib/redis/metrics";
 import { getManyAnimeFromCache, upsertManyAnimeCache } from "@/lib/firestore/cache";
 import { getBatchAnimeInfo, getAllSeasonAnime, getGlobalPopularAnime } from "@/lib/anilist/client";
 import { getCurrentSeason } from "@/lib/utils/date";

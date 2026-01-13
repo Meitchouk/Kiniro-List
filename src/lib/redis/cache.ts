@@ -1,12 +1,13 @@
 import { Redis } from "@upstash/redis";
+import { upstash } from "@/lib/config";
 
 /**
  * Lightweight JSON cache over Upstash Redis for ephemeral data.
  * Used for short-lived caching of API responses to reduce external API calls.
  */
 const redis = new Redis({
-  url: process.env.UPSTASH_REDIS_REST_URL!,
-  token: process.env.UPSTASH_REDIS_REST_TOKEN!,
+  url: upstash.url,
+  token: upstash.token,
 });
 
 /**

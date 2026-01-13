@@ -1,12 +1,13 @@
 import { Redis } from "@upstash/redis";
+import { upstash } from "@/lib/config";
 
 /**
  * Analytics and metrics tracking via Redis sorted sets.
  * Tracks anime views and search queries for trending/popular features.
  */
 const redis = new Redis({
-  url: process.env.UPSTASH_REDIS_REST_URL!,
-  token: process.env.UPSTASH_REDIS_REST_TOKEN!,
+  url: upstash.url,
+  token: upstash.token,
 });
 
 /** Generate a daily-scoped Redis key */

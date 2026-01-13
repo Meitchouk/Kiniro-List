@@ -5,7 +5,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTheme } from "next-themes";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { settingsSchema } from "@/lib/schemas";
+import { settingsSchema } from "@/lib/validation/schemas";
 import { updateSettings } from "@/lib/api";
 import { getBrowserTimezone } from "@/lib/utils/timezone";
 import { deepEqual } from "@/lib/utils/common";

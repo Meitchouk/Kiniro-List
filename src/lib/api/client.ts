@@ -1,7 +1,7 @@
 "use client";
 
 import { toast } from "sonner";
-import { fetchWithLoading } from "@/lib/fetchInterceptor";
+import { fetchWithLoading } from "./fetchInterceptor";
 import type {
   AnimeListResponse,
   AnimeDetailResponse,

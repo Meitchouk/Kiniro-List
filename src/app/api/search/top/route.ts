@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { checkRateLimit, rateLimitResponse } from "@/lib/ratelimit";
-import { getTopSearchQueries } from "@/lib/metrics";
-import { topSearchQuerySchema } from "@/lib/schemas";
+import { checkRateLimit, rateLimitResponse } from "@/lib/redis/ratelimit";
+import { getTopSearchQueries } from "@/lib/redis/metrics";
+import { topSearchQuerySchema } from "@/lib/validation/schemas";
 
 export async function GET(request: NextRequest) {
   try {

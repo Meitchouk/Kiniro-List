@@ -6,9 +6,9 @@ import {
   getSeasonFromCache,
   upsertSeasonCache,
 } from "@/lib/firestore/cache";
-import { checkRateLimit, rateLimitResponse } from "@/lib/ratelimit";
-import { seasonQuerySchema } from "@/lib/schemas";
-import { getOrSetJSON } from "@/lib/redisCache";
+import { checkRateLimit, rateLimitResponse } from "@/lib/redis/ratelimit";
+import { seasonQuerySchema } from "@/lib/validation/schemas";
+import { getOrSetJSON } from "@/lib/redis/cache";
 import type { AnimeCache, PaginationInfo, MediaSeason } from "@/lib/types";
 
 const PER_PAGE = 20;

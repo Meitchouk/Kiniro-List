@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAuth, AuthError } from "@/lib/auth/serverAuth";
-import { checkRateLimit, rateLimitResponse } from "@/lib/ratelimit";
+import { checkRateLimit, rateLimitResponse } from "@/lib/redis/ratelimit";
 import { getAdminFirestore } from "@/lib/firebase/admin";
 import { FieldValue } from "firebase-admin/firestore";
-import { settingsUpdateSchema } from "@/lib/schemas";
+import { settingsUpdateSchema } from "@/lib/validation/schemas";
 
 export async function PATCH(request: NextRequest) {
   try {

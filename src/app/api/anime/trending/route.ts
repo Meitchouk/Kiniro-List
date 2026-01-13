@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { checkRateLimit, rateLimitResponse } from "@/lib/ratelimit";
-import { getTrendingAnime } from "@/lib/metrics";
+import { checkRateLimit, rateLimitResponse } from "@/lib/redis/ratelimit";
+import { getTrendingAnime } from "@/lib/redis/metrics";
 import { getManyAnimeFromCache } from "@/lib/firestore/cache";
-import { trendingQuerySchema } from "@/lib/schemas";
+import { trendingQuerySchema } from "@/lib/validation/schemas";
 import type { AnimeListResponse } from "@/lib/types";
 
 export async function GET(request: NextRequest) {

@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { checkRateLimit, rateLimitResponse } from "@/lib/ratelimit";
+import { checkRateLimit, rateLimitResponse } from "@/lib/redis/ratelimit";
 import { getGlobalPopularAnime } from "@/lib/anilist/client";
 import { upsertManyAnimeCache, getManyAnimeFromCache } from "@/lib/firestore/cache";
-import { getOrSetJSON } from "@/lib/redisCache";
-import { popularQuerySchema } from "@/lib/schemas";
+import { getOrSetJSON } from "@/lib/redis/cache";
+import { popularQuerySchema } from "@/lib/validation/schemas";
 import type { AniListMedia, AnimeListResponse, PaginationInfo } from "@/lib/types";
 
 export async function GET(request: NextRequest) {
