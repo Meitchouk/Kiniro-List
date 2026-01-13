@@ -10,6 +10,7 @@ export interface AnimeCardProps {
   anime: AnimeCache;
   showBadges?: boolean;
   rank?: number; // Optional: podium rank for trending display
+  priority?: boolean; // Optional: Next.js Image priority for LCP optimization
 }
 
 // ============ Countdown Badge Types ============

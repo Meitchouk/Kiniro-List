@@ -49,6 +49,7 @@ export function CalendarItemCard({ item, timezone, isUnknown = false }: Calendar
   const totalEpisodes = item.anime?.episodes;
   const format = item.anime?.format;
   const genres = item.anime?.genres?.slice(0, 2);
+  const airingAt = item.displayAiringAt || item.nextAiringAt;
 
   // Unknown state - simplified card
   if (isUnknown) {
@@ -142,10 +143,10 @@ export function CalendarItemCard({ item, timezone, isUnknown = false }: Calendar
                   {totalEpisodes && <span className="ml-1 opacity-70">/ {totalEpisodes}</span>}
                 </Badge>
               )}
-              {item.nextAiringAt && (
+              {airingAt && (
                 <Badge variant="secondary">
                   <Clock className="mr-1 h-3 w-3" />
-                  {formatAirTime(item.nextAiringAt, timezone)}
+                  {formatAirTime(airingAt, timezone)}
                 </Badge>
               )}
             </Flex>

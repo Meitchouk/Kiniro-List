@@ -13,6 +13,7 @@ export interface PosterCardProps {
   badges?: Array<{ text: string; variant?: "default" | "secondary" | "outline" | "destructive" }>;
   subtitle?: string;
   className?: string;
+  priority?: boolean;
 }
 
 /**
@@ -28,6 +29,7 @@ export function PosterCard({
   badges,
   subtitle,
   className,
+  priority = false,
 }: PosterCardProps) {
   const cover = coverImage || "/placeholder.png";
 
@@ -46,6 +48,7 @@ export function PosterCard({
             src={cover}
             alt={title}
             fill
+            priority={priority}
             className="object-cover transition-transform group-hover:scale-105"
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
           />

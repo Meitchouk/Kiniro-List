@@ -36,30 +36,37 @@ function isCooldownActive() {
   return Number.isFinite(until) && Date.now() < until;
 }
 
-function setCooldown(msFromNow: number) {
-  localStorage.setItem(COOLDOWN_KEY, String(Date.now() + msFromNow));
-}
-
 function clearCooldown() {
   localStorage.removeItem(COOLDOWN_KEY);
 }
 
 export function GoogleOneTap() {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const t = useTranslations("errors");
   const initialized = useRef(false);
   const clientId = googleOAuth.clientId;
 
-  useEffect(() => {
-    if (user) {
-      // Ya logueado: por si acaso
-      try {
-        window.google?.accounts?.id?.cancel();
-      } catch {}
+  // Don't render anything if user is logged in or still loading
+  // This prevents the Google One Tap from even initializing
+  if (user || loading) {
+    // Clear cooldown when user logs in successfully
+    if (user && typeof window !== "undefined") {
       clearCooldown();
-      return;
     }
+    return null;
+  }
 
+  return <GoogleOneTapInner clientId={clientId} initialized={initialized} t={t} />;
+}
+
+interface GoogleOneTapInnerProps {
+  clientId: string | undefined;
+  initialized: React.MutableRefObject<boolean>;
+  t: ReturnType<typeof useTranslations<"errors">>;
+}
+
+function GoogleOneTapInner({ clientId, initialized, t }: GoogleOneTapInnerProps) {
+  useEffect(() => {
     if (initialized.current) return;
     if (!clientId) return;
 
@@ -80,11 +87,11 @@ export function GoogleOneTap() {
           auto_select: false,
           cancel_on_tap_outside: false,
           itp_support: true,
-          use_fedcm_for_prompt: false,
+          use_fedcm_for_prompt: true,
           callback: async (response: { credential: string }) => {
             try {
               await signInWithGoogleIdToken(response.credential);
-              clearCooldown(); // éxito
+              clearCooldown();
             } catch (err: unknown) {
               const error = err as any;
               const code = error?.code || "unknown";
@@ -107,29 +114,9 @@ export function GoogleOneTap() {
           },
         });
 
-        // Detecta cuando el usuario lo cierra / ignora y aplica cooldown
-        window.google.accounts.id.prompt((notification: any) => {
-          if (cancelled) return;
-
-          // Si no se mostró, usualmente conviene enfriar un rato para no insistir.
-          if (notification.isNotDisplayed?.()) {
-            // 24h
-            setCooldown(24 * 60 * 60 * 1000);
-            return;
-          }
-
-          if (notification.isSkippedMoment?.()) {
-            // El usuario lo ignoró/pospuso: 24h
-            setCooldown(24 * 60 * 60 * 1000);
-            return;
-          }
-
-          if (notification.isDismissedMoment?.()) {
-            // Cerró el modal: 7 días (ajústalo a tu gusto)
-            setCooldown(7 * 24 * 60 * 60 * 1000);
-            return;
-          }
-        });
+        if (!cancelled) {
+          window.google.accounts.id.prompt();
+        }
       } catch (e) {
         initialized.current = false;
         console.error("Google One Tap initialization error", e);
@@ -138,11 +125,9 @@ export function GoogleOneTap() {
 
     return () => {
       cancelled = true;
-      try {
-        window.google?.accounts?.id?.cancel();
-      } catch {}
+      initialized.current = false;
     };
-  }, [user, clientId, t]);
+  }, [clientId, initialized, t]);
 
   return null;
 }
