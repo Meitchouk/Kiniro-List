@@ -79,3 +79,4 @@ logs
 
 # Local development
 *.local
+.github/copilot-instructions.md

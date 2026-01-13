@@ -3,6 +3,9 @@ import { searchAnime } from "@/lib/anilist/client";
 import { upsertManyAnimeCache, getManyAnimeFromCache } from "@/lib/firestore/cache";
 import { checkRateLimit, rateLimitResponse } from "@/lib/ratelimit";
 import { searchQuerySchema } from "@/lib/schemas";
+import { getOrSetJSON } from "@/lib/redisCache";
+import { trackSearchQuery } from "@/lib/metrics";
+import type { AniListMedia, PaginationInfo } from "@/lib/types";
 
 export async function GET(request: NextRequest) {
   try {
@@ -28,8 +31,15 @@ export async function GET(request: NextRequest) {
 
     const { q, page } = parseResult.data;
 
-    // Search AniList
-    const { media, pageInfo } = await searchAnime(q, page);
+    // Ephemeral cache for AniList search results to reduce API churn
+    const cacheKey = `cache:search:q=${encodeURIComponent(q)}:page=${page}`;
+    const { media, pageInfo } = await getOrSetJSON<{
+      media: AniListMedia[];
+      pageInfo: PaginationInfo;
+    }>(cacheKey, 300, () => searchAnime(q, page));
+
+    // Track search query popularity (fire-and-forget semantics)
+    trackSearchQuery(q).catch(() => {});
 
     // Cache anime metadata (with slugs)
     if (media.length > 0) {

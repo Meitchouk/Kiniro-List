@@ -576,3 +576,70 @@ export async function getBatchAiringInfo(
 
   return results;
 }
+
+// ============ Global Popular Query ============
+
+const GLOBAL_POPULAR_QUERY = `
+  query ($page: Int!, $perPage: Int!) {
+    Page(page: $page, perPage: $perPage) {
+      pageInfo {
+        currentPage
+        hasNextPage
+        lastPage
+        perPage
+        total
+      }
+      media(type: ANIME, sort: POPULARITY_DESC) {
+        id
+        title {
+          romaji
+          english
+          native
+        }
+        coverImage {
+          large
+          extraLarge
+        }
+        bannerImage
+        description
+        genres
+        season
+        seasonYear
+        status
+        episodes
+        format
+        isAdult
+        siteUrl
+        externalLinks {
+          id
+          url
+          site
+          type
+          icon
+        }
+        nextAiringEpisode {
+          airingAt
+          episode
+          timeUntilAiring
+        }
+        popularity
+      }
+    }
+  }
+  `;
+
+interface GlobalPopularResponse {
+  Page: {
+    pageInfo: PageInfo;
+    media: AniListMedia[];
+  };
+}
+
+export async function getGlobalPopularAnime(perPage: number = 50): Promise<AniListMedia[]> {
+  const data = await fetchAniList<GlobalPopularResponse>(GLOBAL_POPULAR_QUERY, {
+    page: 1,
+    perPage,
+  });
+
+  return data.Page.media;
+}

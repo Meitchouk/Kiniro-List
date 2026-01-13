@@ -21,6 +21,21 @@ export const animeIdSchema = z.object({
   id: z.coerce.number().int().positive(),
 });
 
+// ============ Analytics Query Schemas ============
+
+export const trendingQuerySchema = z.object({
+  limit: z.coerce.number().int().min(1).max(50).default(20),
+  scope: z.enum(["day", "all"]).default("day"),
+});
+
+export const topSearchQuerySchema = z.object({
+  limit: z.coerce.number().int().min(1).max(50).default(10),
+});
+
+export const popularQuerySchema = z.object({
+  limit: z.coerce.number().int().min(1).max(50).default(50),
+});
+
 // ============ Settings Schema ============
 
 export const settingsUpdateSchema = z.object({
@@ -68,3 +83,6 @@ export type SearchQueryParams = z.infer<typeof searchQuerySchema>;
 export type SeasonQueryParams = z.infer<typeof seasonQuerySchema>;
 export type SettingsUpdateParams = z.infer<typeof settingsUpdateSchema>;
 export type LibraryUpsertParams = z.infer<typeof libraryUpsertSchema>;
+export type TrendingQueryParams = z.infer<typeof trendingQuerySchema>;
+export type TopSearchQueryParams = z.infer<typeof topSearchQuerySchema>;
+export type PopularQueryParams = z.infer<typeof popularQuerySchema>;
