@@ -53,7 +53,6 @@ export function AnimeCarouselSection({
         getKey={(anime) => anime.id}
         renderItem={(anime, idx) => <AnimeCard anime={anime} rank={idx + 1} />}
         autoIntervalMs={autoIntervalMs}
-        maxPerSlide={6}
         gap={4}
       />
     </Section>
