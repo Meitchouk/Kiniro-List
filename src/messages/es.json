@@ -25,7 +25,21 @@
     "back": "Volver atrás",
     "topPage": "Arriba",
     "showMore": "Ver {count} más",
-    "showLess": "Mostrar menos"
+    "showLess": "Mostrar menos",
+    "watch": "Ver",
+    "topRank": "Top {rank}",
+    "dateFormatLong": "EEEE, d 'de' MMMM",
+    "close": "Cerrar",
+    "progress": "Progreso",
+    "previous": "Anterior",
+    "next": "Siguiente",
+    "dismiss": "Descartar",
+    "noResultsFound": "No se encontraron resultados",
+    "noResultsFor": "No se encontraron resultados para \"{searchTerm}\". Intenta ajustar tu búsqueda.",
+    "tryAdjustingFilters": "Intenta ajustar tus filtros o términos de búsqueda.",
+    "noDataAvailable": "No hay datos disponibles",
+    "nothingToDisplay": "Aún no hay nada que mostrar aquí.",
+    "minutesShort": "min"
   },
   "nav": {
     "home": "Inicio",
@@ -291,6 +305,9 @@
   "errors": {
     "authConfigNotFound": "Google Sign-In no está habilitado en Firebase Authentication. Actívalo en Authentication > Sign-in method.",
     "authProviderDisabled": "El proveedor de Google está deshabilitado. Habilítalo en Firebase Authentication.",
+    "loadUserDataFailed": "Error al cargar datos del usuario. Por favor intenta de nuevo.",
+    "signInFailed": "Error al iniciar sesión. Por favor intenta de nuevo.",
+    "errorWithMessage": "Error: {message}",
     "generic": "Algo salió mal",
     "network": "Error de red. Por favor intenta de nuevo.",
     "unauthorized": "Por favor inicia sesión para continuar",

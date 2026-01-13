@@ -1,5 +1,6 @@
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 
 const progressVariants = cva("h-2 w-full overflow-hidden rounded-full bg-secondary", {
@@ -81,6 +82,7 @@ const Progress = React.forwardRef<HTMLDivElement, ProgressProps>(
     },
     ref
   ) => {
+    const t = useTranslations("common");
     const percentage = Math.min(Math.max((value / max) * 100, 0), 100);
     const label = formatLabel ? formatLabel(value, max) : `${Math.round(percentage)}%`;
 
@@ -88,7 +90,7 @@ const Progress = React.forwardRef<HTMLDivElement, ProgressProps>(
       <div className="w-full space-y-1">
         {showLabel && (
           <div className="flex justify-between text-sm">
-            <span className="text-muted-foreground">Progress</span>
+            <span className="text-muted-foreground">{t("progress")}</span>
             <span className="font-medium">{label}</span>
           </div>
         )}

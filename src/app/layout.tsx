@@ -8,6 +8,7 @@ import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { QueryProvider } from "@/components/providers/QueryProvider";
 import { AuthProvider } from "@/components/providers/AuthProvider";
 import { LoadingProvider } from "@/components/providers/LoadingProvider";
+import { TranslationProvider } from "@/components/providers/TranslationProvider";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { Toaster } from "@/components/ui/sonner";
@@ -36,18 +37,20 @@ export default async function RootLayout({
         <ThemeProvider>
           <QueryProvider>
             <NextIntlClientProvider messages={messages}>
-              <LoadingProvider>
-                <AuthProvider>
-                  <LoadingBar />
-                  <div className="relative flex min-h-screen flex-col">
-                    <GoogleOneTap />
-                    <Header />
-                    <main className="flex-1">{children}</main>
-                    <Footer />
-                  </div>
-                  <Toaster />
-                </AuthProvider>
-              </LoadingProvider>
+              <TranslationProvider>
+                <LoadingProvider>
+                  <AuthProvider>
+                    <LoadingBar />
+                    <div className="relative flex min-h-screen flex-col">
+                      <GoogleOneTap />
+                      <Header />
+                      <main className="flex-1">{children}</main>
+                      <Footer />
+                    </div>
+                    <Toaster />
+                  </AuthProvider>
+                </LoadingProvider>
+              </TranslationProvider>
             </NextIntlClientProvider>
           </QueryProvider>
         </ThemeProvider>

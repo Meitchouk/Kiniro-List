@@ -75,7 +75,7 @@ export function AnimeTrailerCard({ trailer }: AnimeTrailerCardProps) {
           <div className="relative aspect-video overflow-hidden">
             <Image
               src={trailer.thumbnail || "/placeholder.png"}
-              alt="Trailer"
+              alt={t("trailer")}
               fill
               className="object-cover transition duration-200 group-hover:scale-105"
             />
@@ -94,7 +94,7 @@ export function AnimeTrailerCard({ trailer }: AnimeTrailerCardProps) {
               <div className="aspect-video w-full overflow-hidden rounded-md">
                 <iframe
                   src={embedUrl}
-                  title="Trailer"
+                  title={t("trailer")}
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen
                   className="h-full w-full"

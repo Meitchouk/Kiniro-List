@@ -1,5 +1,8 @@
+"use client";
+
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { AlertCircle, CheckCircle, Info, AlertTriangle, X } from "lucide-react";
 
@@ -73,6 +76,7 @@ const Alert = React.forwardRef<HTMLDivElement, AlertProps>(
     },
     ref
   ) => {
+    const t = useTranslations("common");
     const IconComponent = iconMap[variant || "default"];
 
     return (
@@ -86,7 +90,7 @@ const Alert = React.forwardRef<HTMLDivElement, AlertProps>(
           <button
             onClick={onDismiss}
             className="text-foreground/50 focus:ring-ring absolute top-2 right-2 rounded-md p-1 opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-none"
-            aria-label="Dismiss"
+            aria-label={t("dismiss")}
           >
             <X className="h-4 w-4" />
           </button>

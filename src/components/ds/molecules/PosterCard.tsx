@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import { Card, CardContent, Badge, Typography } from "@/components/ds";
 import { cn } from "@/lib/utils";
 
@@ -31,6 +32,7 @@ export function PosterCard({
   className,
   priority = false,
 }: PosterCardProps) {
+  const t = useTranslations();
   const cover = coverImage || "/placeholder.png";
 
   return (
@@ -68,7 +70,7 @@ export function PosterCard({
                 color: rank === 1 || rank === 2 ? "#111827" : "#fff",
               }}
             >
-              <span>{rank === 1 ? "Top 1" : `Top ${rank}`}</span>
+              <span>{t("common.topRank", { rank })}</span>
             </div>
           )}
 

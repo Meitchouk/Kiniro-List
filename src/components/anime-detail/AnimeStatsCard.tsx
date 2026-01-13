@@ -21,6 +21,7 @@ export function AnimeStatsCard({
   duration,
 }: AnimeStatsCardProps) {
   const t = useTranslations("anime");
+  const tCommon = useTranslations("common");
 
   const hasStats = averageScore || popularity || favourites || duration;
   if (!hasStats) return null;
@@ -66,7 +67,9 @@ export function AnimeStatsCard({
               <Clock className="h-4 w-4" />
               <span>{t("duration")}</span>
             </div>
-            <span className="font-semibold">{duration} min</span>
+            <span className="font-semibold">
+              {duration} {tCommon("minutesShort")}
+            </span>
           </div>
         )}
       </CardContent>

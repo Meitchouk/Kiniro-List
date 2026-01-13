@@ -25,7 +25,21 @@
     "back": "Go back",
     "topPage": "Top",
     "showMore": "Show {count} more",
-    "showLess": "Show less"
+    "showLess": "Show less",
+    "watch": "Watch",
+    "topRank": "Top {rank}",
+    "dateFormatLong": "EEEE, MMMM d",
+    "close": "Close",
+    "progress": "Progress",
+    "previous": "Previous",
+    "next": "Next",
+    "dismiss": "Dismiss",
+    "noResultsFound": "No results found",
+    "noResultsFor": "No results found for \"{searchTerm}\". Try adjusting your search.",
+    "tryAdjustingFilters": "Try adjusting your filters or search terms.",
+    "noDataAvailable": "No data available",
+    "nothingToDisplay": "There's nothing to display here yet.",
+    "minutesShort": "min"
   },
   "nav": {
     "home": "Home",
@@ -293,6 +307,9 @@
   "errors": {
     "authConfigNotFound": "Google Sign-In is not enabled in Firebase Authentication. Enable it in Authentication > Sign-in method.",
     "authProviderDisabled": "The Google provider is disabled. Enable it in Firebase Authentication.",
+    "loadUserDataFailed": "Failed to load user data. Please try again.",
+    "signInFailed": "Sign in failed. Please try again.",
+    "errorWithMessage": "Error: {message}",
     "generic": "Something went wrong",
     "network": "Network error. Please try again.",
     "unauthorized": "Please login to continue",

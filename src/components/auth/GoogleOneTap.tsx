@@ -104,11 +104,11 @@ function GoogleOneTapInner({ clientId, initialized, t }: GoogleOneTapInnerProps)
               } else if (code === "auth/operation-not-allowed") {
                 toast.error(t("authProviderDisabled"));
               } else if (message.includes("Failed to fetch user data")) {
-                toast.error("Error al cargar datos del usuario. Por favor intenta de nuevo.");
+                toast.error(t("loadUserDataFailed"));
               } else if (message) {
-                toast.error(`Error: ${message}`);
+                toast.error(t("errorWithMessage", { message }));
               } else {
-                toast.error("Error al iniciar sesión. Por favor intenta de nuevo.");
+                toast.error(t("signInFailed"));
               }
             }
           },

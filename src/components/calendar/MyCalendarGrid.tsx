@@ -129,7 +129,9 @@ function CalendarEpisodeCard({ item, timezone, priority = false }: CalendarEpiso
             onClick={(e) => e.stopPropagation()}
           >
             <CrunchyrollIcon className="h-3.5 w-3.5" />
-            <span className="hidden sm:inline">{crunchyroll.isDirect ? "Ver" : "Buscar"}</span>
+            <span className="hidden sm:inline">
+              {crunchyroll.isDirect ? t("common.watch") : t("common.search")}
+            </span>
           </a>
         </Flex>
       </CardContent>

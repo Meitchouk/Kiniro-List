@@ -31,7 +31,7 @@ function formatDateHeader(
     return t("calendar.tomorrow");
   }
 
-  return dt.toFormat("EEEE, d 'de' MMMM");
+  return dt.toFormat(t("common.dateFormatLong"));
 }
 
 /**

@@ -1,6 +1,6 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { Badge, Flex } from "@/components/ds";
 import { Calendar } from "lucide-react";
 import type { MediaFormat, MediaStatus, MediaSeason } from "@/lib/types";
@@ -28,6 +28,7 @@ export function AnimeInfoBadges({
   isAdult,
 }: AnimeInfoBadgesProps) {
   const t = useTranslations();
+  const locale = useLocale();
 
   // Format start date
   const formattedStartDate =
@@ -48,7 +49,7 @@ export function AnimeInfoBadges({
       {formattedStartDate && (
         <Badge variant="outline">
           <Calendar className="mr-1 h-3 w-3" />
-          {formattedStartDate.toLocaleDateString()}
+          {formattedStartDate.toLocaleDateString(locale)}
         </Badge>
       )}
       {isAdult && <Badge variant="destructive">{t("anime.adult")}</Badge>}

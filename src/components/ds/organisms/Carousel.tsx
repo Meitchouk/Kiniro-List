@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -74,6 +75,7 @@ export function Carousel<T>({
   gap = 4,
   visibilityThreshold = 0.3,
 }: CarouselProps<T>) {
+  const t = useTranslations("common");
   const containerRef = useRef<HTMLDivElement | null>(null);
   const trackRef = useRef<HTMLDivElement | null>(null);
   const itemRefs = useRef<Map<number, HTMLDivElement>>(new Map());
@@ -348,7 +350,7 @@ export function Carousel<T>({
             size="icon"
             className="bg-background/80 hover:bg-background pointer-events-auto h-10 w-10 rounded-full backdrop-blur-sm"
             onClick={goPrev}
-            aria-label="Previous"
+            aria-label={t("previous")}
           >
             <ChevronLeft className="h-5 w-5" />
           </Button>
@@ -357,7 +359,7 @@ export function Carousel<T>({
             size="icon"
             className="bg-background/80 hover:bg-background pointer-events-auto h-10 w-10 rounded-full backdrop-blur-sm"
             onClick={goNext}
-            aria-label="Next"
+            aria-label={t("next")}
           >
             <ChevronRight className="h-5 w-5" />
           </Button>
