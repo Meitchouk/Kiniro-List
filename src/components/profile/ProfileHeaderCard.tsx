@@ -61,7 +61,7 @@ export function ProfileHeaderCard({ user, userData }: ProfileHeaderCardProps) {
               {t("settings.language")}
             </Typography>
             <Typography variant="body2" weight="medium">
-              {userData?.locale === "es" ? "Español" : "English"}
+              {t(`language.${userData?.locale || "en"}`)}
             </Typography>
           </Stack>
           <Stack>

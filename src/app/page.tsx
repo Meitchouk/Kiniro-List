@@ -1,13 +1,24 @@
+import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { Calendar, Clock, Search, Library, Star, Globe, Flame } from "lucide-react";
 import { HeroSection, FeatureCard, QuickLinkCard } from "@/components/home";
 import { AnimeCarouselSection } from "@/components/anime/AnimeCarouselSection";
 import { Section, Grid } from "@/components/ds";
+import { MultiJsonLd } from "@/components/seo";
 import { getTrendingAnime } from "@/lib/redis/metrics";
 import { getManyAnimeFromCache, upsertManyAnimeCache } from "@/lib/firestore/cache";
 import { getBatchAnimeInfo, getAllSeasonAnime, getGlobalPopularAnime } from "@/lib/anilist/client";
 import { getCurrentSeason } from "@/lib/utils/date";
+import {
+  createPageMetadataFromKey,
+  generateAnimeListJsonLd,
+  generateBreadcrumbJsonLd,
+} from "@/lib/seo";
 import type { AnimeCache } from "@/lib/types";
+
+export async function generateMetadata(): Promise<Metadata> {
+  return createPageMetadataFromKey("home", { path: "/" });
+}
 
 async function getTrending() {
   try {
@@ -59,8 +70,41 @@ export default async function HomePage() {
   const t = await getTranslations();
   const [trending, popular] = await Promise.all([getTrending(), getPopular(50)]);
 
+  // Prepare JSON-LD structured data
+  const trendingJsonLd = trending.length
+    ? generateAnimeListJsonLd(
+        trending
+          .filter((a) => a.slug) // Filter out items without slug
+          .map((a) => ({
+            title: a.title.english || a.title.romaji,
+            slug: a.slug!,
+            coverImage: a.coverImage.large || undefined,
+          })),
+        "Trending Anime"
+      )
+    : null;
+
+  const popularJsonLd = popular.length
+    ? generateAnimeListJsonLd(
+        popular
+          .filter((a) => a.slug) // Filter out items without slug
+          .map((a) => ({
+            title: a.title.english || a.title.romaji,
+            slug: a.slug!,
+            coverImage: a.coverImage.large || undefined,
+          })),
+        "Popular Anime"
+      )
+    : null;
+
+  const breadcrumbJsonLd = generateBreadcrumbJsonLd([{ name: "Home", url: "/" }]);
+
+  const jsonLdData = [breadcrumbJsonLd, trendingJsonLd, popularJsonLd].filter(Boolean) as string[];
+
   return (
     <div className="container mx-auto px-4 py-8">
+      <MultiJsonLd data={jsonLdData} />
+
       {/* Hero Section */}
       <HeroSection
         appName={t("common.appName")}

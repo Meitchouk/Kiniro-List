@@ -1,5 +1,8 @@
+"use client";
+
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
 import { Typography } from "../atoms/Typography";
@@ -87,31 +90,25 @@ export interface NoResultsProps extends Omit<EmptyStateProps, "title"> {
   searchTerm?: string;
 }
 
-function NoResults({
-  title = "No results found",
-  searchTerm,
-  description,
-  ...props
-}: NoResultsProps) {
+function NoResults({ title, searchTerm, description, ...props }: NoResultsProps) {
+  const t = useTranslations("common");
+  const defaultTitle = title || t("noResultsFound");
   const desc =
-    description ||
-    (searchTerm
-      ? `No results found for "${searchTerm}". Try adjusting your search.`
-      : "Try adjusting your filters or search terms.");
+    description || (searchTerm ? t("noResultsFor", { searchTerm }) : t("tryAdjustingFilters"));
 
-  return <EmptyState title={title} description={desc} {...props} />;
+  return <EmptyState title={defaultTitle} description={desc} {...props} />;
 }
 
 export interface NoDataProps extends Omit<EmptyStateProps, "title"> {
   title?: string;
 }
 
-function NoData({
-  title = "No data available",
-  description = "There's nothing to display here yet.",
-  ...props
-}: NoDataProps) {
-  return <EmptyState title={title} description={description} {...props} />;
+function NoData({ title, description, ...props }: NoDataProps) {
+  const t = useTranslations("common");
+  const defaultTitle = title || t("noDataAvailable");
+  const defaultDesc = description || t("nothingToDisplay");
+
+  return <EmptyState title={defaultTitle} description={defaultDesc} {...props} />;
 }
 
 export { EmptyState, NoResults, NoData, emptyStateVariants };

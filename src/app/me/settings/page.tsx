@@ -39,7 +39,7 @@ export default function SettingsPage() {
     enabled: !!user,
   });
 
-  const { form, onSubmit, isPending } = useSettingsForm({ userData });
+  const { form, onSubmit, isPending } = useSettingsForm({ userData, t });
   const {
     handleSubmit,
     setValue,

@@ -25,7 +25,21 @@
     "back": "Volver atrás",
     "topPage": "Arriba",
     "showMore": "Ver {count} más",
-    "showLess": "Mostrar menos"
+    "showLess": "Mostrar menos",
+    "watch": "Ver",
+    "topRank": "Top {rank}",
+    "dateFormatLong": "EEEE, d 'de' MMMM",
+    "close": "Cerrar",
+    "progress": "Progreso",
+    "previous": "Anterior",
+    "next": "Siguiente",
+    "dismiss": "Descartar",
+    "noResultsFound": "No se encontraron resultados",
+    "noResultsFor": "No se encontraron resultados para \"{searchTerm}\". Intenta ajustar tu búsqueda.",
+    "tryAdjustingFilters": "Intenta ajustar tus filtros o términos de búsqueda.",
+    "noDataAvailable": "No hay datos disponibles",
+    "nothingToDisplay": "Aún no hay nada que mostrar aquí.",
+    "minutesShort": "min"
   },
   "nav": {
     "home": "Inicio",
@@ -291,6 +305,9 @@
   "errors": {
     "authConfigNotFound": "Google Sign-In no está habilitado en Firebase Authentication. Actívalo en Authentication > Sign-in method.",
     "authProviderDisabled": "El proveedor de Google está deshabilitado. Habilítalo en Firebase Authentication.",
+    "loadUserDataFailed": "Error al cargar datos del usuario. Por favor intenta de nuevo.",
+    "signInFailed": "Error al iniciar sesión. Por favor intenta de nuevo.",
+    "errorWithMessage": "Error: {message}",
     "generic": "Algo salió mal",
     "network": "Error de red. Por favor intenta de nuevo.",
     "unauthorized": "Por favor inicia sesión para continuar",
@@ -308,5 +325,61 @@
     "page": "Página {current} de {total}",
     "pageSimple": "Página {current}",
     "items": "elementos"
+  },
+  "seo": {
+    "siteName": "Kiniro List",
+    "siteDescription": "Sigue tus animes favoritos, nunca te pierdas un episodio. Kiniro List es tu calendario y compañero de seguimiento de anime personal.",
+    "home": {
+      "title": "Kiniro List - Calendario y Seguimiento de Anime",
+      "description": "Sigue tus animes favoritos, nunca te pierdas un episodio. Descubre anime de temporada, gestiona tu lista y mantente al día con los horarios de emisión."
+    },
+    "search": {
+      "title": "Buscar Anime",
+      "description": "Busca entre miles de títulos de anime. Encuentra tu próxima serie favorita con búsqueda avanzada y filtros."
+    },
+    "calendarNow": {
+      "title": "Anime de Temporada Actual",
+      "description": "Descubre todo el anime en emisión esta temporada. Explora la lista completa de anime de temporada con fechas de estreno y detalles."
+    },
+    "calendarUpcoming": {
+      "title": "Próximos Estrenos de Anime",
+      "description": "Conoce los próximos estrenos de anime. Mantente al día con los últimos anuncios y el anime de próximas temporadas."
+    },
+    "calendarSeason": {
+      "title": "Anime de {season} {year}",
+      "description": "Lista completa de anime de {season} {year}. Explora todas las series con detalles, calificaciones y más."
+    },
+    "scheduleWeekly": {
+      "title": "Horario Semanal de Anime",
+      "description": "Nunca te pierdas un episodio con nuestro horario semanal de anime. Ve qué se emite cada día de la semana."
+    },
+    "library": {
+      "title": "Mi Biblioteca",
+      "description": "Gestiona tu lista de anime. Sigue los que estás viendo, completados y planeados en un solo lugar."
+    },
+    "myCalendar": {
+      "title": "Mi Calendario",
+      "description": "Tu calendario de anime personalizado. Ve los próximos episodios del anime en tu biblioteca."
+    },
+    "profile": {
+      "title": "Mi Perfil",
+      "description": "Ve y gestiona tu perfil y estadísticas de Kiniro List."
+    },
+    "settings": {
+      "title": "Configuración",
+      "description": "Personaliza tu experiencia en Kiniro List. Gestiona preferencias, notificaciones y configuración de cuenta."
+    },
+    "animeDetail": {
+      "title": "{title} - Kiniro List",
+      "description": "Ve {title} en Kiniro List. Sigue episodios, ve detalles y gestiona tu lista.",
+      "notFound": "Anime No Encontrado",
+      "notFoundDescription": "El anime solicitado no pudo ser encontrado."
+    },
+    "seasons": {
+      "winter": "Invierno {year}",
+      "spring": "Primavera {year}",
+      "summer": "Verano {year}",
+      "fall": "Otoño {year}"
+    }
   }
 }

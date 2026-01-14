@@ -61,8 +61,12 @@ export function getAiringStatusLabel(
   return "airs_in";
 }
 
+/**
+ * Format countdown in days/hours/minutes
+ * Returns empty string if already aired (caller should handle aired state separately)
+ */
 export function formatCountdown(seconds: number): string {
-  if (seconds <= 0) return "Aired";
+  if (seconds <= 0) return "";
 
   const days = Math.floor(seconds / 86400);
   const hours = Math.floor((seconds % 86400) / 3600);

@@ -6,6 +6,7 @@
 // Client API functions
 export {
   setAuthHeadersGetter,
+  setTranslationGetter,
   searchAnime,
   getAnimeDetail,
   getAnimeIdBySlug,

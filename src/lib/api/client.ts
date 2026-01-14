@@ -16,11 +16,17 @@ import type {
 } from "@/lib/types";
 
 type AuthHeadersGetter = (options?: { forceRefresh?: boolean }) => Promise<Record<string, string>>;
+type TranslationGetter = (key: string, params?: Record<string, string | number>) => string;
 
 let getAuthHeaders: AuthHeadersGetter = async () => ({});
+let getTranslation: TranslationGetter = (key: string) => key; // Fallback returns the key itself
 
 export function setAuthHeadersGetter(getter: AuthHeadersGetter) {
   getAuthHeaders = getter;
+}
+
+export function setTranslationGetter(getter: TranslationGetter) {
+  getTranslation = getter;
 }
 
 async function fetchWithAuth(
@@ -54,13 +60,13 @@ async function fetchWithAuth(
 
 async function handleResponse<T>(response: Response): Promise<T> {
   if (response.status === 401) {
-    toast.error("Please login to continue");
+    toast.error(getTranslation("errors.unauthorized"));
     throw new Error("Unauthorized");
   }
 
   if (response.status === 429) {
     const data = await response.json();
-    toast.error(`Too many requests. Please wait ${data.retryAfter} seconds.`);
+    toast.error(getTranslation("errors.rateLimit", { seconds: String(data.retryAfter) }));
     throw new Error("Rate limited");
   }
 

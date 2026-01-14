@@ -34,9 +34,9 @@ export function GoogleButton({ className }: { className?: string }) {
       } else if (code === "auth/operation-not-allowed") {
         toast.error(t("errors.authProviderDisabled"));
       } else if (message.includes("Failed to fetch user data")) {
-        toast.error("Error al cargar datos del usuario. Por favor intenta de nuevo.");
+        toast.error(t("errors.loadUserDataFailed"));
       } else if (message) {
-        toast.error(`Error: ${message}`);
+        toast.error(t("errors.errorWithMessage", { message }));
       } else {
         toast.error(t("errors.generic"));
       }
@@ -59,8 +59,14 @@ export function GoogleButton({ className }: { className?: string }) {
         <DropdownMenuLabel>{t("common.loginWith")}</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleGoogleSignIn}>
-          <Image src="/google.svg" alt="Google" width={16} height={16} className="mr-2" />
-          Google
+          <Image
+            src="/google.svg"
+            alt={t("common.loginWithGoogle")}
+            width={16}
+            height={16}
+            className="mr-2"
+          />
+          {t("common.loginWithGoogle")}
         </DropdownMenuItem>
         {/* Future providers can be added here */}
         {/* <DropdownMenuItem onClick={handleEmailSignIn}>

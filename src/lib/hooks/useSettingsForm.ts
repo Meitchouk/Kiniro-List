@@ -14,9 +14,10 @@ import type { SettingsFormData, UserResponse } from "@/lib/types";
 interface UseSettingsFormOptions {
   userData?: UserResponse;
   onLocaleChange?: () => void;
+  t?: (key: string) => string;
 }
 
-export function useSettingsForm({ userData, onLocaleChange }: UseSettingsFormOptions = {}) {
+export function useSettingsForm({ userData, onLocaleChange, t }: UseSettingsFormOptions = {}) {
   const queryClient = useQueryClient();
   const { setTheme } = useTheme();
   const router = useRouter();
@@ -47,7 +48,7 @@ export function useSettingsForm({ userData, onLocaleChange }: UseSettingsFormOpt
       }
 
       // Show success toast
-      toast.success("Settings saved");
+      toast.success(t?.("settings.saved") || "Settings saved");
 
       // Invalidate and wait for refetch
       await queryClient.invalidateQueries({ queryKey: ["me"] });
@@ -63,7 +64,7 @@ export function useSettingsForm({ userData, onLocaleChange }: UseSettingsFormOpt
     },
     onError: (error) => {
       console.error("Settings update error:", error);
-      toast.error("Failed to save settings");
+      toast.error(t?.("settings.saveError") || "Failed to save settings");
     },
   });
 
