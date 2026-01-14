@@ -36,6 +36,12 @@ const limiters = {
     analytics: true,
     prefix: "ratelimit:user",
   }),
+  email: new Ratelimit({
+    redis,
+    limiter: Ratelimit.slidingWindow(10, "1 m"),
+    analytics: true,
+    prefix: "ratelimit:email",
+  }),
 };
 
 export type RateLimitType = keyof typeof limiters;

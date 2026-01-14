@@ -24,6 +24,7 @@ export {
   deleteLibraryEntry,
   getMyCalendar,
   api,
+  sendEmail,
 } from "./client";
 
 // Fetch interceptor for loading states

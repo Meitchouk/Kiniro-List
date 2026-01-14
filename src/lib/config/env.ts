@@ -52,6 +52,37 @@ export const anilist = {
   },
 } as const;
 
+/**
+ * SMTP configuration for transactional emails.
+ * Server-side only.
+ */
+export const smtp = {
+  get host() {
+    return process.env.SMTP_HOST ?? "";
+  },
+  get port() {
+    const raw = process.env.SMTP_PORT ?? "";
+    const num = Number(raw);
+    return Number.isFinite(num) && num > 0 ? num : 0;
+  },
+  get user() {
+    return process.env.SMTP_USER ?? "";
+  },
+  get pass() {
+    return process.env.SMTP_PASS ?? "";
+  },
+  get fromEmail() {
+    return process.env.SMTP_FROM_EMAIL ?? "";
+  },
+  get fromName() {
+    return process.env.SMTP_FROM_NAME ?? "Kiniro List";
+  },
+  get secure() {
+    // If SMTP_SECURE is explicitly set to "true", use TLS; otherwise false
+    return (process.env.SMTP_SECURE ?? "false").toLowerCase() === "true";
+  },
+} as const;
+
 // =============================================================================
 // Client-side environment variables (NEXT_PUBLIC_)
 // =============================================================================
@@ -120,4 +151,11 @@ export function isFirebaseClientConfigured(): boolean {
  */
 export function isGoogleOAuthConfigured(): boolean {
   return Boolean(googleOAuth.clientId);
+}
+
+/**
+ * Check if SMTP is configured.
+ */
+export function isSmtpConfigured(): boolean {
+  return Boolean(smtp.host && smtp.port && smtp.user && smtp.pass && smtp.fromEmail);
 }
