@@ -327,5 +327,61 @@
     "page": "Page {current} of {total}",
     "pageSimple": "Page {current}",
     "items": "items"
+  },
+  "seo": {
+    "siteName": "Kiniro List",
+    "siteDescription": "Track your favorite anime, never miss an episode. Kiniro List is your personal anime calendar and tracking companion.",
+    "home": {
+      "title": "Kiniro List - Anime Calendar & Tracker",
+      "description": "Track your favorite anime, never miss an episode. Discover seasonal anime, manage your watchlist, and stay updated with airing schedules."
+    },
+    "search": {
+      "title": "Search Anime",
+      "description": "Search through thousands of anime titles. Find your next favorite series with advanced search and filters."
+    },
+    "calendarNow": {
+      "title": "Current Season Anime",
+      "description": "Discover all anime airing this season. Browse the complete list of current seasonal anime with release dates and details."
+    },
+    "calendarUpcoming": {
+      "title": "Upcoming Anime",
+      "description": "Preview upcoming anime releases. Stay ahead with the latest announcements and upcoming seasonal anime."
+    },
+    "calendarSeason": {
+      "title": "{season} {year} Anime",
+      "description": "Complete list of anime from {season} {year}. Browse all series with details, ratings, and more."
+    },
+    "scheduleWeekly": {
+      "title": "Weekly Anime Schedule",
+      "description": "Never miss an episode with our weekly anime schedule. See what's airing each day of the week."
+    },
+    "library": {
+      "title": "My Library",
+      "description": "Manage your anime watchlist. Track watching, completed, and planned anime all in one place."
+    },
+    "myCalendar": {
+      "title": "My Calendar",
+      "description": "Your personalized anime calendar. See upcoming episodes for anime in your library."
+    },
+    "profile": {
+      "title": "My Profile",
+      "description": "View and manage your Kiniro List profile and statistics."
+    },
+    "settings": {
+      "title": "Settings",
+      "description": "Customize your Kiniro List experience. Manage preferences, notifications, and account settings."
+    },
+    "animeDetail": {
+      "title": "{title} - Kiniro List",
+      "description": "Watch {title} on Kiniro List. Track episodes, view details, and manage your watchlist.",
+      "notFound": "Anime Not Found",
+      "notFoundDescription": "The requested anime could not be found."
+    },
+    "seasons": {
+      "winter": "Winter {year}",
+      "spring": "Spring {year}",
+      "summer": "Summer {year}",
+      "fall": "Fall {year}"
+    }
   }
 }
