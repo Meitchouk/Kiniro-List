@@ -2,8 +2,8 @@
  * Email module exports.
  */
 
-// Low-level SMTP functions
-export { sendEmail, verifySmtpConnection } from "./smtp";
+// Low-level ZeptoMail API functions
+export { sendEmail, verifyEmailConnection } from "./zeptomail";
 
 // High-level template-based senders
 export { sendWelcomeEmail, sendNotificationEmail } from "./sender";

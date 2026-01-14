@@ -53,33 +53,21 @@ export const anilist = {
 } as const;
 
 /**
- * SMTP configuration for transactional emails.
- * Server-side only.
+ * ZeptoMail configuration for transactional emails.
+ * Server-side only. Uses HTTP API (works on Vercel).
  */
-export const smtp = {
-  get host() {
-    return process.env.SMTP_HOST ?? "";
+export const zeptomail = {
+  get url() {
+    return process.env.ZEPTOMAIL_URL ?? "https://api.zeptomail.com/v1.1/email";
   },
-  get port() {
-    const raw = process.env.SMTP_PORT ?? "";
-    const num = Number(raw);
-    return Number.isFinite(num) && num > 0 ? num : 0;
-  },
-  get user() {
-    return process.env.SMTP_USER ?? "";
-  },
-  get pass() {
-    return process.env.SMTP_PASS ?? "";
+  get token() {
+    return process.env.ZEPTOMAIL_TOKEN ?? "";
   },
   get fromEmail() {
-    return process.env.SMTP_FROM_EMAIL ?? "";
+    return process.env.ZEPTOMAIL_FROM_EMAIL ?? "";
   },
   get fromName() {
-    return process.env.SMTP_FROM_NAME ?? "Kiniro List";
-  },
-  get secure() {
-    // If SMTP_SECURE is explicitly set to "true", use TLS; otherwise false
-    return (process.env.SMTP_SECURE ?? "false").toLowerCase() === "true";
+    return process.env.ZEPTOMAIL_FROM_NAME ?? "Kiniro List";
   },
 } as const;
 
@@ -154,8 +142,8 @@ export function isGoogleOAuthConfigured(): boolean {
 }
 
 /**
- * Check if SMTP is configured.
+ * Check if ZeptoMail is configured.
  */
-export function isSmtpConfigured(): boolean {
-  return Boolean(smtp.host && smtp.port && smtp.user && smtp.pass && smtp.fromEmail);
+export function isZeptomailConfigured(): boolean {
+  return Boolean(zeptomail.token && zeptomail.fromEmail);
 }
