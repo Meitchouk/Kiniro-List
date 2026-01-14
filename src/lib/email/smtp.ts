@@ -41,7 +41,12 @@ function getTransporter(): Transporter {
 export async function sendEmail(options: SendEmailOptions): Promise<{ messageId: string }> {
   const tx = getTransporter();
 
-  const from = `${smtp.fromName} <${smtp.fromEmail}>`;
+  // Format sender with proper quoting for email clients
+  const fromName = smtp.fromName || "Kiniro List";
+  const from = {
+    name: fromName,
+    address: smtp.fromEmail,
+  };
 
   const info = await tx.sendMail({
     from,

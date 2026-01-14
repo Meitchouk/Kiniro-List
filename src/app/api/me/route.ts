@@ -3,7 +3,8 @@ import { requireAuth, AuthError } from "@/lib/auth/serverAuth";
 import { checkRateLimit, rateLimitResponse } from "@/lib/redis/ratelimit";
 import { getAdminFirestore } from "@/lib/firebase/admin";
 import { FieldValue, Timestamp } from "firebase-admin/firestore";
-import type { UserDocument, UserResponse } from "@/lib/types";
+import { sendWelcomeEmail } from "@/lib/email";
+import type { UserDocument, UserResponse, Locale } from "@/lib/types";
 
 export async function GET(request: NextRequest) {
   try {
@@ -57,6 +58,15 @@ export async function GET(request: NextRequest) {
       };
 
       await userRef.set(newUser);
+
+      // Send welcome email asynchronously (don't block response)
+      if (token.email) {
+        sendWelcomeEmail({
+          email: token.email,
+          displayName: newUser.displayName ?? null,
+          locale: newUser.locale as Locale,
+        }).catch((err) => console.error("[api/me] Welcome email failed:", err));
+      }
 
       const response: UserResponse = {
         uid,
