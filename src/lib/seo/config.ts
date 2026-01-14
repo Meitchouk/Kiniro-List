@@ -77,8 +77,15 @@ export const organizationSchema = {
   "@context": "https://schema.org",
   "@type": "Organization",
   name: siteConfig.name,
+  alternateName: "Kiniro",
   url: siteConfig.url,
-  logo: `${siteConfig.url}/logo.png`,
+  logo: {
+    "@type": "ImageObject",
+    url: `${siteConfig.url}/logo.png`,
+    width: 512,
+    height: 512,
+  },
+  image: `${siteConfig.url}/og-image.png`,
   sameAs: [siteConfig.links.github],
 };
 
@@ -86,7 +93,11 @@ export const websiteSchema = {
   "@context": "https://schema.org",
   "@type": "WebSite",
   name: siteConfig.name,
+  alternateName: "Kiniro",
   url: siteConfig.url,
+  description:
+    "Track your favorite anime, never miss an episode. Personal anime calendar and tracking companion.",
+  inLanguage: ["en", "es"],
   potentialAction: {
     "@type": "SearchAction",
     target: {
