@@ -356,6 +356,16 @@ export interface SettingsUpdateRequest {
   theme?: ThemePreference;
 }
 
+export interface EmailSendRequest {
+  to: string | string[];
+  subject: string;
+  text?: string;
+  html?: string;
+  cc?: string | string[];
+  bcc?: string | string[];
+  replyTo?: string;
+}
+
 // ============ Settings Form Types ============
 
 export interface SettingsFormData {

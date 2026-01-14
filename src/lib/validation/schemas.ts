@@ -110,6 +110,23 @@ export const clientLogBatchSchema = z.object({
   logs: z.array(clientLogSchema).min(1).max(100),
 });
 
+// ============ Email Schema ============
+
+export const emailSendSchema = z
+  .object({
+    to: z.union([z.string().email(), z.array(z.string().email()).min(1).max(50)]),
+    subject: z.string().min(1).max(200),
+    text: z.string().max(5000).optional(),
+    html: z.string().max(20000).optional(),
+    cc: z.union([z.string().email(), z.array(z.string().email()).min(1).max(20)]).optional(),
+    bcc: z.union([z.string().email(), z.array(z.string().email()).min(1).max(20)]).optional(),
+    replyTo: z.string().email().optional(),
+  })
+  .refine((data) => Boolean(data.text || data.html), {
+    message: "Either text or html content must be provided",
+    path: ["text"],
+  });
+
 // ============ Type exports ============
 
 export type PaginationParams = z.infer<typeof paginationSchema>;
@@ -122,3 +139,4 @@ export type TopSearchQueryParams = z.infer<typeof topSearchQuerySchema>;
 export type PopularQueryParams = z.infer<typeof popularQuerySchema>;
 export type SystemLogsQueryParams = z.infer<typeof systemLogsQuerySchema>;
 export type ClientErrorParams = z.infer<typeof clientErrorSchema>;
+export type EmailSendParams = z.infer<typeof emailSendSchema>;

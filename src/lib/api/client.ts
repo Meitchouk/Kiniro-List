@@ -13,6 +13,7 @@ import type {
   SettingsUpdateRequest,
   MediaSeason,
   AnimeCache,
+  EmailSendRequest,
 } from "@/lib/types";
 
 type AuthHeadersGetter = (options?: { forceRefresh?: boolean }) => Promise<Record<string, string>>;
@@ -251,3 +252,16 @@ export const api = {
     return handleResponse<T>(response);
   },
 };
+
+export async function sendEmail(
+  payload: EmailSendRequest
+): Promise<{ success: boolean; messageId: string }> {
+  const response = await fetchWithAuth("/api/email/send", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
+  return handleResponse(response);
+}
