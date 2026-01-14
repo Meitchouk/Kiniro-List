@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { emailSendSchema } from "@/lib/validation/schemas";
-import { sendEmail } from "@/lib/email/smtp";
+import { sendEmail } from "@/lib/email/zeptomail";
 import { checkRateLimit, rateLimitResponse } from "@/lib/redis/ratelimit";
 
 export const runtime = "nodejs";

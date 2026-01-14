@@ -1,9 +1,9 @@
 /**
  * High-level email sending functions using templates.
- * These wrap the low-level SMTP sender with pre-built templates.
+ * These wrap the low-level ZeptoMail sender with pre-built templates.
  */
 
-import { sendEmail } from "./smtp";
+import { sendEmail } from "./zeptomail";
 import {
   welcomeEmailHtml,
   welcomeEmailText,
