@@ -1,11 +1,12 @@
 "use client";
 
 import { useMemo } from "react";
-import { useTranslations, useLocale } from "next-intl";
+import { useTranslations } from "next-intl";
 import { Calendar } from "lucide-react";
 import { DateTime } from "luxon";
 import { Typography, Flex, Grid, Stack } from "@/components/ds";
 import { CalendarItemCard } from "./CalendarItemCard";
+import { useLocalizedDateFormat } from "@/lib/i18n";
 import type { CalendarAnimeItem } from "@/lib/types";
 
 interface CalendarDateGroupProps {
@@ -14,38 +15,33 @@ interface CalendarDateGroupProps {
   timezone: string;
 }
 
-function formatDateHeader(
-  dateKey: string,
-  timezone: string,
-  locale: string,
-  t: ReturnType<typeof useTranslations>
-) {
-  const dt = DateTime.fromISO(dateKey).setZone(timezone).setLocale(locale);
-  const today = DateTime.now().setZone(timezone).startOf("day");
-  const tomorrow = today.plus({ days: 1 });
-  const itemDate = dt.startOf("day");
-
-  if (itemDate.equals(today)) {
-    return t("calendar.today");
-  } else if (itemDate.equals(tomorrow)) {
-    return t("calendar.tomorrow");
-  }
-
-  return dt.toFormat(t("common.dateFormatLong"));
-}
-
 /**
  * A date group with header and list of calendar items
  */
 export function CalendarDateGroup({ dateKey, items, timezone }: CalendarDateGroupProps) {
   const t = useTranslations();
-  const locale = useLocale();
+  const { formatFullDate } = useLocalizedDateFormat();
+
+  const headerText = useMemo(() => {
+    const dt = DateTime.fromISO(dateKey).setZone(timezone);
+    const today = DateTime.now().setZone(timezone).startOf("day");
+    const tomorrow = today.plus({ days: 1 });
+    const itemDate = dt.startOf("day");
+
+    if (itemDate.equals(today)) {
+      return t("calendar.today");
+    } else if (itemDate.equals(tomorrow)) {
+      return t("calendar.tomorrow");
+    }
+
+    return formatFullDate(dateKey, { timezone });
+  }, [dateKey, timezone, t, formatFullDate]);
 
   return (
     <Stack gap={4}>
       <Flex align="center" gap={2}>
         <Calendar className="h-5 w-5" />
-        <Typography variant="h6">{formatDateHeader(dateKey, timezone, locale, t)}</Typography>
+        <Typography variant="h6">{headerText}</Typography>
       </Flex>
       <Grid cols={1} mdCols={2} lgCols={2} xlCols={3} gap={4}>
         {items.map((item) => (

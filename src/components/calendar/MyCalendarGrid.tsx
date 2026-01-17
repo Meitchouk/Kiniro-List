@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, Clock, PlayCircle } from "lucide-react";
 import { CrunchyrollIcon } from "@/components/icons/CrunchyrollIcon";
 import { getLocalizedTitle } from "@/lib/utils/text";
+import { useLocalizedDateFormat } from "@/lib/i18n";
 import type { MyCalendarScheduleItem, StreamingLink } from "@/lib/types";
 
 // Fixed card dimensions
@@ -153,6 +154,7 @@ function DayColumn({ date, items, timezone, isToday }: DayColumnProps) {
   const t = useTranslations();
   const isMobile = useIsMobile();
   const [expanded, setExpanded] = useState(false);
+  const { formatMonthDay } = useLocalizedDateFormat();
 
   // Luxon weekday: 1=Monday...7=Sunday -> convert to 0=Sunday, 1=Monday...6=Saturday
   const weekdayKey = date.weekday === 7 ? 0 : date.weekday;
@@ -161,6 +163,9 @@ function DayColumn({ date, items, timezone, isToday }: DayColumnProps) {
   const ITEMS_PER_DAY = isMobile ? 2 : 4;
   const displayedItems = expanded ? items : items.slice(0, ITEMS_PER_DAY);
   const hasMore = items.length > ITEMS_PER_DAY;
+
+  // Format month using the localized formatter
+  const monthLabel = formatMonthDay(date.toJSDate(), { timezone }).split(" ")[0];
 
   return (
     <div className="flex min-w-0 flex-col items-center">
@@ -177,7 +182,7 @@ function DayColumn({ date, items, timezone, isToday }: DayColumnProps) {
           {date.day}
         </Typography>
         <Typography variant="caption" className={isToday ? "opacity-80" : "text-muted-foreground"}>
-          {date.toFormat("MMM")}
+          {monthLabel}
         </Typography>
       </div>
 
@@ -226,6 +231,7 @@ interface MyCalendarGridProps {
  */
 export function MyCalendarGrid({ schedule, timezone }: MyCalendarGridProps) {
   const t = useTranslations();
+  const { formatDateRange } = useLocalizedDateFormat();
   const [weekOffset, setWeekOffset] = useState(0);
 
   const now = DateTime.now().setZone(timezone);
@@ -324,7 +330,7 @@ export function MyCalendarGrid({ schedule, timezone }: MyCalendarGridProps) {
 
           <div className="text-center">
             <Typography variant="h6" weight="semibold">
-              {weekStart.toFormat("d MMM")} — {weekEnd.toFormat("d MMM yyyy")}
+              {formatDateRange(weekStart.toJSDate(), weekEnd.toJSDate(), { timezone })}
             </Typography>
             <Typography variant="caption" colorScheme="secondary">
               {episodeCount} {t("myCalendar.episodesThisWeek", { count: episodeCount })}
