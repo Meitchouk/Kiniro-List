@@ -28,7 +28,6 @@
     "showLess": "Mostrar menos",
     "watch": "Ver",
     "topRank": "Top {rank}",
-    "dateFormatLong": "EEEE, d 'de' MMMM",
     "close": "Cerrar",
     "progress": "Progreso",
     "previous": "Anterior",
@@ -380,6 +379,78 @@
       "spring": "Primavera {year}",
       "summer": "Verano {year}",
       "fall": "Otoño {year}"
+    },
+    "privacy": {
+      "title": "Política de Privacidad",
+      "description": "Conoce cómo Kiniro List recopila, usa y protege tu información personal."
+    },
+    "terms": {
+      "title": "Términos del Servicio",
+      "description": "Lee los términos y condiciones para usar Kiniro List."
+    }
+  },
+  "footer": {
+    "tagline": "Tu compañero personal de seguimiento de anime",
+    "navigation": "Navegación",
+    "legal": "Legal",
+    "connect": "Conectar",
+    "privacy": "Política de Privacidad",
+    "terms": "Términos del Servicio",
+    "contact": "Contáctanos",
+    "allRightsReserved": "Todos los derechos reservados",
+    "madeWith": "Hecho con",
+    "forAnimeFans": "para fans del anime"
+  },
+  "legal": {
+    "privacy": {
+      "title": "Política de Privacidad",
+      "lastUpdated": "Última actualización: {date}",
+      "introduction": "En Kiniro List, estamos comprometidos con la protección de tu privacidad. Esta Política de Privacidad explica cómo recopilamos, usamos, divulgamos y protegemos tu información cuando usas nuestro servicio de seguimiento de anime.",
+      "informationWeCollect": "Información que Recopilamos",
+      "informationWeCollectContent": "Recopilamos información que nos proporcionas directamente, como:\n\n• Información de cuenta (correo electrónico, nombre, foto de perfil) cuando inicias sesión con Google\n• Datos de tu biblioteca de anime (estado de visualización, progreso, calificaciones)\n• Preferencias y configuraciones que configuras en la app\n• Datos de uso e interacción con nuestros servicios",
+      "howWeUseInformation": "Cómo Usamos Tu Información",
+      "howWeUseInformationContent": "Usamos la información que recopilamos para:\n\n• Proporcionar, mantener y mejorar nuestros servicios\n• Personalizar tu experiencia y recomendaciones de anime\n• Sincronizar tu biblioteca de anime entre dispositivos\n• Enviarte notificaciones sobre tu anime seguido (si está habilitado)\n• Analizar patrones de uso para mejorar nuestra plataforma\n• Comunicarnos contigo sobre actualizaciones y funciones",
+      "dataStorage": "Almacenamiento y Seguridad de Datos",
+      "dataStorageContent": "Tus datos se almacenan de forma segura usando servicios de Firebase proporcionados por Google. Implementamos medidas técnicas y organizativas apropiadas para proteger tu información personal contra acceso no autorizado, alteración, divulgación o destrucción.",
+      "thirdPartyServices": "Servicios de Terceros",
+      "thirdPartyServicesContent": "Usamos los siguientes servicios de terceros:\n\n• Google Firebase para autenticación y almacenamiento de datos\n• API de AniList para información y metadatos de anime\n• Vercel para hosting y analíticas\n\nEstos servicios tienen sus propias políticas de privacidad que rigen el uso de tu información.",
+      "cookies": "Cookies y Almacenamiento Local",
+      "cookiesContent": "Usamos cookies y almacenamiento local para:\n\n• Mantenerte conectado a tu cuenta\n• Recordar tus preferencias (tema, idioma)\n• Analizar el tráfico y uso del sitio\n\nPuedes controlar la configuración de cookies a través de las preferencias de tu navegador.",
+      "yourRights": "Tus Derechos",
+      "yourRightsContent": "Tienes derecho a:\n\n• Acceder a tus datos personales\n• Corregir datos inexactos\n• Eliminar tu cuenta y datos asociados\n• Exportar los datos de tu biblioteca\n• Optar por no recibir comunicaciones no esenciales\n\nPara ejercer estos derechos, contáctanos en admin@kinirolist.app",
+      "childrenPrivacy": "Privacidad de Menores",
+      "childrenPrivacyContent": "Kiniro List no está destinado a niños menores de 13 años. No recopilamos intencionalmente información personal de niños menores de 13 años. Si crees que hemos recopilado información de un menor de 13 años, contáctanos inmediatamente.",
+      "changes": "Cambios a Esta Política",
+      "changesContent": "Podemos actualizar esta Política de Privacidad de vez en cuando. Te notificaremos de cualquier cambio publicando la nueva Política de Privacidad en esta página y actualizando la fecha de \"Última actualización\".",
+      "contact": "Contáctanos",
+      "contactContent": "Si tienes alguna pregunta sobre esta Política de Privacidad, contáctanos en:\n\nCorreo: admin@kinirolist.app"
+    },
+    "terms": {
+      "title": "Términos del Servicio",
+      "lastUpdated": "Última actualización: {date}",
+      "introduction": "Bienvenido a Kiniro List. Al acceder o usar nuestro servicio, aceptas estar sujeto a estos Términos del Servicio. Por favor léelos cuidadosamente.",
+      "acceptanceOfTerms": "Aceptación de Términos",
+      "acceptanceOfTermsContent": "Al crear una cuenta o usar Kiniro List, reconoces que has leído, entendido y aceptas estar sujeto a estos Términos del Servicio y nuestra Política de Privacidad. Si no estás de acuerdo con estos términos, por favor no uses nuestro servicio.",
+      "descriptionOfService": "Descripción del Servicio",
+      "descriptionOfServiceContent": "Kiniro List es una plataforma gratuita de seguimiento de anime que permite a los usuarios:\n\n• Seguir anime que están viendo, han completado o planean ver\n• Ver horarios de emisión y calendarios de anime por temporada\n• Descubrir nuevo anime a través de recomendaciones\n• Sincronizar su biblioteca entre dispositivos",
+      "userAccounts": "Cuentas de Usuario",
+      "userAccountsContent": "Para usar ciertas funciones de Kiniro List, debes crear una cuenta usando el inicio de sesión de Google. Eres responsable de:\n\n• Mantener la seguridad de tu cuenta\n• Todas las actividades que ocurran bajo tu cuenta\n• Asegurar que la información de tu cuenta sea precisa y esté actualizada",
+      "acceptableUse": "Uso Aceptable",
+      "acceptableUseContent": "Aceptas no:\n\n• Usar el servicio para cualquier propósito ilegal\n• Intentar obtener acceso no autorizado a nuestros sistemas\n• Interferir o interrumpir el servicio\n• Subir código o contenido malicioso\n• Extraer datos sin permiso\n• Hacerte pasar por otros o tergiversar tu afiliación\n• Violar los derechos de otros",
+      "intellectualProperty": "Propiedad Intelectual",
+      "intellectualPropertyContent": "El nombre, logo y contenido original de Kiniro List son de nuestra propiedad. La información, imágenes y metadatos de anime son proporcionados por AniList y pertenecen a sus respectivos dueños. Tú conservas la propiedad de los datos de tu biblioteca personal.",
+      "thirdPartyContent": "Contenido de Terceros",
+      "thirdPartyContentContent": "Kiniro List muestra información de anime de AniList y puede enlazar a servicios de streaming de terceros. No somos responsables del contenido, precisión o disponibilidad de estos servicios externos.",
+      "disclaimers": "Descargos de Responsabilidad",
+      "disclaimersContent": "Kiniro List se proporciona \"tal cual\" sin garantías de ningún tipo. No garantizamos que:\n\n• El servicio será ininterrumpido o libre de errores\n• Toda la información de anime será precisa o completa\n• El servicio cumplirá con tus requisitos específicos",
+      "limitationOfLiability": "Limitación de Responsabilidad",
+      "limitationOfLiabilityContent": "En la máxima medida permitida por la ley, Kiniro List no será responsable de ningún daño indirecto, incidental, especial, consecuente o punitivo que resulte de tu uso o incapacidad para usar el servicio.",
+      "termination": "Terminación",
+      "terminationContent": "Nos reservamos el derecho de suspender o terminar tu cuenta en cualquier momento por violaciones a estos términos o por cualquier otra razón a nuestra discreción. Puedes eliminar tu cuenta en cualquier momento a través de la página de configuración.",
+      "changes": "Cambios a los Términos",
+      "changesContent": "Podemos modificar estos Términos del Servicio en cualquier momento. Notificaremos a los usuarios de cambios significativos. El uso continuado del servicio después de los cambios constituye la aceptación de los nuevos términos.",
+      "contact": "Contacto",
+      "contactContent": "Para preguntas sobre estos Términos del Servicio, contáctanos en:\n\nCorreo: admin@kinirolist.app"
     }
   }
 }
