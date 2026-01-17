@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { Mail, Heart, Calendar, Search, BookOpen, Github } from "lucide-react";
+import { Mail, Heart, Calendar, Search, Github } from "lucide-react";
 import { Typography, Container, Flex, Grid, Divider } from "@/components/ds";
 
 export function Footer() {
