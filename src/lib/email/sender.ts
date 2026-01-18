@@ -10,8 +10,12 @@ import {
   welcomeEmailSubject,
   notificationEmailHtml,
   notificationEmailText,
+  generateDailyDigestHtml,
+  generateDailyDigestText,
+  generateDailyDigestSubject,
   type WelcomeEmailData,
   type NotificationEmailData,
+  type DailyDigestEmailData,
 } from "./templates";
 
 /**
@@ -56,6 +60,31 @@ export async function sendNotificationEmail(
     return result;
   } catch (error) {
     console.error(`[email] Failed to send notification email to ${to}:`, error);
+    return null;
+  }
+}
+
+/**
+ * Send daily digest email with today's airing episodes.
+ */
+export async function sendDailyDigestEmail(
+  to: string,
+  data: DailyDigestEmailData
+): Promise<{ messageId: string } | null> {
+  try {
+    const result = await sendEmail({
+      to,
+      subject: generateDailyDigestSubject(data),
+      html: generateDailyDigestHtml(data),
+      text: generateDailyDigestText(data),
+    });
+
+    console.log(
+      `[email] Daily digest sent to ${to} with ${data.episodes.length} episodes, messageId: ${result.messageId}`
+    );
+    return result;
+  } catch (error) {
+    console.error(`[email] Failed to send daily digest to ${to}:`, error);
     return null;
   }
 }

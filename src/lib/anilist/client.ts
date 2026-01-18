@@ -725,6 +725,10 @@ export async function getBatchAiringSchedule(
     let hasNextPage = true;
 
     while (hasNextPage) {
+      console.log(
+        `[getBatchAiringSchedule] Querying page ${page} for ${batch.length} anime, range: ${fromTimestamp}-${toTimestamp}`
+      );
+
       const data = await fetchAniList<AiringScheduleResponse>(BATCH_AIRING_SCHEDULE_QUERY, {
         mediaId_in: batch,
         airingAt_greater: fromTimestamp,
@@ -732,6 +736,8 @@ export async function getBatchAiringSchedule(
         page,
         perPage: 50,
       });
+
+      console.log(`[getBatchAiringSchedule] Got ${data.Page.airingSchedules.length} results`);
 
       for (const schedule of data.Page.airingSchedules) {
         const existing = results.get(schedule.mediaId) || [];

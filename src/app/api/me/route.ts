@@ -51,6 +51,10 @@ export async function GET(request: NextRequest) {
           hideAdult: true,
           onlyWatching: true,
         },
+        notifications: {
+          dailyDigest: true,
+          digestHour: 10, // 10 AM in user's timezone
+        },
         locale: locale === "es" ? "es" : "en",
         theme: theme === "light" || theme === "dark" ? theme : "system",
         createdAt: FieldValue.serverTimestamp(),
@@ -76,6 +80,7 @@ export async function GET(request: NextRequest) {
         timezone: newUser.timezone,
         calendarView: newUser.calendarView,
         filters: newUser.filters,
+        notifications: newUser.notifications,
         locale: newUser.locale,
         theme: newUser.theme,
         createdAt: new Date().toISOString(),
@@ -99,6 +104,7 @@ export async function GET(request: NextRequest) {
       timezone: userData.timezone,
       calendarView: userData.calendarView,
       filters: userData.filters,
+      notifications: userData.notifications || { dailyDigest: true, digestHour: 10 },
       locale: userData.locale,
       theme: userData.theme,
       createdAt: userData.createdAt.toDate().toISOString(),

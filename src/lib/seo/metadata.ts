@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { getLocale, getTranslations } from "next-intl/server";
 import { siteConfig, defaultOpenGraph, defaultTwitter, type SupportedLocale } from "./config";
+import { app } from "@/lib/config";
 
 /**
  * Gets the current locale as a SupportedLocale type
@@ -90,7 +91,7 @@ export async function createBaseMetadata(): Promise<Metadata> {
     },
     category: "entertainment",
     other: {
-      "google-site-verification": process.env.GOOGLE_SITE_VERIFICATION || "",
+      "google-site-verification": app.googleSiteVerification,
     },
   };
 }

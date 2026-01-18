@@ -169,6 +169,7 @@ export interface AnimeCache {
   isAdult?: boolean;
   siteUrl?: string | null;
   streamingLinks?: StreamingLink[];
+  externalLinks?: ExternalLink[] | null;
   updatedAt: Date;
   source: "anilist";
 }
@@ -225,6 +226,11 @@ export interface UserFilters {
   onlyWatching: boolean;
 }
 
+export interface NotificationSettings {
+  dailyDigest: boolean;
+  digestHour: number; // 0-23, hour in user's timezone
+}
+
 export interface UserDocument {
   uid: string;
   displayName?: string | null;
@@ -236,6 +242,7 @@ export interface UserDocument {
   filters: UserFilters;
   locale: Locale;
   theme: ThemePreference;
+  notifications: NotificationSettings;
   updatedAt: Date;
 }
 
@@ -246,6 +253,18 @@ export interface LibraryEntry {
   updatedAt: Date;
   pinned?: boolean;
   notes?: string;
+}
+
+// ============ Email Types ============
+
+export interface DigestAnimeItem {
+  title: string;
+  episode: number;
+  airingTime: string;
+  coverUrl: string;
+  slug: string;
+  format?: MediaFormat | string | null;
+  crunchyrollUrl?: string | null;
 }
 
 // ============ API Response Types ============
