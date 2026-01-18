@@ -7,7 +7,7 @@ import { useTranslations } from "next-intl";
 import { DateTime } from "luxon";
 import { Card, CardContent, Badge, Typography, Flex, Stack } from "@/components/ds";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, Clock, PlayCircle } from "lucide-react";
+import { ChevronLeft, ChevronRight, Clock, PlayCircle, CheckCircle } from "lucide-react";
 import { CrunchyrollIcon } from "@/components/icons/CrunchyrollIcon";
 import { getLocalizedTitle } from "@/lib/utils/text";
 import { useLocalizedDateFormat } from "@/lib/i18n";
@@ -70,7 +70,9 @@ function CalendarEpisodeCard({ item, timezone, priority = false }: CalendarEpiso
 
   return (
     <Card
-      className="group overflow-hidden transition-all hover:-translate-y-1 hover:shadow-lg"
+      className={`group overflow-hidden transition-all hover:-translate-y-1 hover:shadow-lg ${
+        item.isAired ? "opacity-70" : ""
+      }`}
       style={{ width: CARD_WIDTH }}
     >
       <Link href={`/anime/${slug}`} className="block">
@@ -80,12 +82,26 @@ function CalendarEpisodeCard({ item, timezone, priority = false }: CalendarEpiso
             alt={title}
             fill
             priority={priority}
-            className="object-cover transition-transform group-hover:scale-105"
+            className={`object-cover transition-transform group-hover:scale-105 ${
+              item.isAired ? "grayscale-30" : ""
+            }`}
             sizes={`${CARD_WIDTH}px`}
           />
+          {/* Aired overlay */}
+          {item.isAired && (
+            <div className="bg-background/60 absolute inset-0 flex items-center justify-center">
+              <CheckCircle className="text-primary h-10 w-10" />
+            </div>
+          )}
           {/* Episode badge overlay */}
           <div className="absolute top-2 left-2">
-            <Badge className="bg-primary text-primary-foreground gap-1 text-sm font-semibold shadow-md">
+            <Badge
+              className={`gap-1 text-sm font-semibold shadow-md ${
+                item.isAired
+                  ? "bg-muted text-muted-foreground"
+                  : "bg-primary text-primary-foreground"
+              }`}
+            >
               <PlayCircle className="h-3.5 w-3.5" />
               {t("anime.episode", { number: item.episode })}
             </Badge>
@@ -224,15 +240,21 @@ function DayColumn({ date, items, timezone, isToday }: DayColumnProps) {
 interface MyCalendarGridProps {
   schedule: Record<number, MyCalendarScheduleItem[]>;
   timezone: string;
+  weekOffset: number;
+  onWeekChange: (offset: number) => void;
 }
 
 /**
  * Calendar grid with week navigation
  */
-export function MyCalendarGrid({ schedule, timezone }: MyCalendarGridProps) {
+export function MyCalendarGrid({
+  schedule,
+  timezone,
+  weekOffset,
+  onWeekChange,
+}: MyCalendarGridProps) {
   const t = useTranslations();
   const { formatDateRange } = useLocalizedDateFormat();
-  const [weekOffset, setWeekOffset] = useState(0);
 
   const now = DateTime.now().setZone(timezone);
 
@@ -292,28 +314,6 @@ export function MyCalendarGrid({ schedule, timezone }: MyCalendarGridProps) {
     return Array.from(itemsByDate.values()).reduce((sum, items) => sum + items.length, 0);
   }, [itemsByDate]);
 
-  // Check if we can navigate backwards (have data in past weeks)
-  const canGoBack = useMemo(() => {
-    const prevWeekEnd = weekStart.minus({ days: 1 }).endOf("day");
-    return Object.values(schedule)
-      .flat()
-      .some((item) => {
-        const itemDate = DateTime.fromSeconds(item.airingAt).setZone(timezone);
-        return itemDate <= prevWeekEnd;
-      });
-  }, [schedule, weekStart, timezone]);
-
-  // Cannot go forward beyond current week
-  const canGoForward = useMemo(() => {
-    // Calculate current week's start (Sunday)
-    const todayWeekday = now.weekday;
-    const daysToCurrentSunday = todayWeekday === 7 ? 0 : todayWeekday;
-    const currentWeekStart = now.minus({ days: daysToCurrentSunday }).startOf("day");
-
-    // Can only go forward if we're viewing a past week AND haven't reached current week
-    return weekStart < currentWeekStart;
-  }, [now, weekStart]);
-
   return (
     <div className="space-y-6">
       {/* Header with navigation */}
@@ -322,8 +322,8 @@ export function MyCalendarGrid({ schedule, timezone }: MyCalendarGridProps) {
           <Button
             variant="outline"
             size="icon"
-            onClick={() => setWeekOffset((prev) => prev - 1)}
-            disabled={!canGoBack}
+            onClick={() => onWeekChange(weekOffset - 1)}
+            disabled={weekOffset <= -4}
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
@@ -340,8 +340,8 @@ export function MyCalendarGrid({ schedule, timezone }: MyCalendarGridProps) {
           <Button
             variant="outline"
             size="icon"
-            onClick={() => setWeekOffset((prev) => prev + 1)}
-            disabled={!canGoForward}
+            onClick={() => onWeekChange(weekOffset + 1)}
+            disabled={weekOffset >= 0}
           >
             <ChevronRight className="h-4 w-4" />
           </Button>
@@ -349,7 +349,7 @@ export function MyCalendarGrid({ schedule, timezone }: MyCalendarGridProps) {
 
         <Flex align="center" gap={2}>
           {weekOffset !== 0 && (
-            <Button variant="ghost" size="sm" onClick={() => setWeekOffset(0)}>
+            <Button variant="ghost" size="sm" onClick={() => onWeekChange(0)}>
               {t("myCalendar.goToToday")}
             </Button>
           )}

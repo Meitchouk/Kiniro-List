@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useAuth } from "@/components/providers/AuthProvider";
@@ -35,6 +36,7 @@ function CalendarSkeleton() {
 export default function MyCalendarPage() {
   const t = useTranslations();
   const { user, getAuthHeaders } = useAuth();
+  const [weekOffset, setWeekOffset] = useState(0);
 
   // Set up auth headers for API
   if (user) {
@@ -42,8 +44,8 @@ export default function MyCalendarPage() {
   }
 
   const { data, isLoading, error, refetch } = useQuery({
-    queryKey: ["my-calendar"],
-    queryFn: () => getMyCalendar(),
+    queryKey: ["my-calendar", weekOffset],
+    queryFn: () => getMyCalendar(weekOffset),
     enabled: !!user,
     refetchInterval: 60000,
   });
@@ -96,7 +98,12 @@ export default function MyCalendarPage() {
             </CardContent>
           </Card>
         ) : (
-          <MyCalendarGrid schedule={data.schedule} timezone={timezone} />
+          <MyCalendarGrid
+            schedule={data.schedule}
+            timezone={timezone}
+            weekOffset={weekOffset}
+            onWeekChange={setWeekOffset}
+          />
         )}
       </div>
     </div>

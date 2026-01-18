@@ -3,7 +3,11 @@ import { requireAuth, AuthError } from "@/lib/auth/serverAuth";
 import { checkRateLimit, rateLimitResponse } from "@/lib/redis/ratelimit";
 import { getAdminFirestore } from "@/lib/firebase/admin";
 import { Timestamp } from "firebase-admin/firestore";
-import { getBatchAiringInfo, getBatchAnimeInfo } from "@/lib/anilist/client";
+import {
+  getBatchAiringInfo,
+  getBatchAnimeInfo,
+  getBatchAiringSchedule,
+} from "@/lib/anilist/client";
 import {
   getManyAnimeFromCache,
   getManyAiringFromCache,
@@ -24,6 +28,14 @@ import type {
 
 export async function GET(request: NextRequest) {
   try {
+    // Parse query parameters
+    const { searchParams } = new URL(request.url);
+    const weekOffsetParam = searchParams.get("weekOffset");
+    const weekOffset = weekOffsetParam ? parseInt(weekOffsetParam, 10) : 0;
+
+    // Validate weekOffset (limit to reasonable range, e.g., -4 to 0 for past month)
+    const clampedWeekOffset = Math.max(-4, Math.min(0, isNaN(weekOffset) ? 0 : weekOffset));
+
     // Authenticate
     let authResult;
     try {
@@ -186,13 +198,35 @@ export async function GET(request: NextRequest) {
       await addManyAiringHistoryEntries(uid, airedEpisodesToRecord);
     }
 
-    // Get airing history for all releasing anime (past episodes within last month)
-    const airingHistory = await getAiringHistoryForAnime(uid, releasingAnimeIds);
-
-    // Build weekly schedule
+    // Build weekly schedule with offset support
     const now = DateTime.now().setZone(timezone);
-    const startOfWeek = now.startOf("week").minus({ days: 1 }); // Include Sunday
+    // Calculate week start (Sunday-based) with offset
+    // Luxon's startOf("week") starts on Monday, so we adjust to Sunday
+    const currentWeekStart = now.startOf("week").minus({ days: 1 }); // Sunday
+    const startOfWeek = currentWeekStart.plus({ weeks: clampedWeekOffset });
     const endOfWeek = startOfWeek.plus({ days: 7 });
+
+    // Fetch past aired episodes from AniList for the selected week
+    // This ensures we show episodes even if they weren't detected through the change detection
+    const weekStartTimestamp = Math.floor(startOfWeek.toSeconds());
+    const weekEndTimestamp = Math.floor(endOfWeek.toSeconds());
+    const nowTimestamp = Math.floor(now.toSeconds());
+
+    // Only fetch from AniList if we're looking at past episodes
+    let anilistAiringSchedule = new Map<
+      number,
+      Array<{ mediaId: number; episode: number; airingAt: number }>
+    >();
+    if (weekStartTimestamp < nowTimestamp) {
+      anilistAiringSchedule = await getBatchAiringSchedule(
+        releasingAnimeIds,
+        weekStartTimestamp,
+        Math.min(weekEndTimestamp, nowTimestamp) // Don't fetch future episodes from this query
+      );
+    }
+
+    // Also get stored airing history as a fallback
+    const airingHistory = await getAiringHistoryForAnime(uid, releasingAnimeIds);
 
     const schedule: Record<number, MyCalendarScheduleItem[]> = {
       0: [], // Sunday
@@ -217,6 +251,10 @@ export async function GET(request: NextRequest) {
 
       const airing = airingCache.get(animeId);
       const history = airingHistory.get(animeId) || [];
+      const anilistSchedule = anilistAiringSchedule.get(animeId) || [];
+
+      // Track added episodes to avoid duplicates
+      const addedEpisodes = new Set<string>();
 
       // Add future episode (from nextAiringAt)
       if (airing?.nextAiringAt) {
@@ -227,32 +265,59 @@ export async function GET(request: NextRequest) {
         if (airingDt >= startOfWeek && airingDt < endOfWeek) {
           const weekday = airingDt.weekday % 7; // Convert to 0-6 (Sunday-Saturday)
 
-          schedule[weekday].push({
-            anime,
-            airingAt: airingTimestamp,
-            episode: airing.nextEpisodeNumber || 1,
-            weekday,
-            libraryStatus: library.status,
-            isAired: false,
-            pinned: library.pinned,
-          });
+          // Check if the airing time has already passed
+          const hasAired = airingDt < now;
+          const episodeKey = `${animeId}-${airing.nextEpisodeNumber || 1}`;
+
+          if (!addedEpisodes.has(episodeKey)) {
+            addedEpisodes.add(episodeKey);
+            schedule[weekday].push({
+              anime,
+              airingAt: airingTimestamp,
+              episode: airing.nextEpisodeNumber || 1,
+              weekday,
+              libraryStatus: library.status,
+              isAired: hasAired,
+              pinned: library.pinned,
+            });
+          }
         }
       }
 
-      // Add past episodes from history (within this week)
+      // Add past episodes from AniList airing schedule (primary source for past episodes)
+      for (const entry of anilistSchedule) {
+        const airingDt = DateTime.fromSeconds(entry.airingAt).setZone(timezone);
+
+        if (airingDt >= startOfWeek && airingDt < endOfWeek) {
+          const weekday = airingDt.weekday % 7;
+          const episodeKey = `${animeId}-${entry.episode}`;
+
+          if (!addedEpisodes.has(episodeKey)) {
+            addedEpisodes.add(episodeKey);
+            schedule[weekday].push({
+              anime,
+              airingAt: entry.airingAt,
+              episode: entry.episode,
+              weekday,
+              libraryStatus: library.status,
+              isAired: true,
+              pinned: library.pinned,
+            });
+          }
+        }
+      }
+
+      // Add past episodes from stored history (fallback for any missing data)
       for (const entry of history) {
         const airingTimestamp = Math.floor(entry.airingAt.getTime() / 1000);
         const airingDt = DateTime.fromSeconds(airingTimestamp).setZone(timezone);
 
         if (airingDt >= startOfWeek && airingDt < endOfWeek) {
           const weekday = airingDt.weekday % 7;
+          const episodeKey = `${animeId}-${entry.episode}`;
 
-          // Avoid duplicates (same anime + episode)
-          const existing = schedule[weekday].find(
-            (item) => item.anime.id === animeId && item.episode === entry.episode
-          );
-
-          if (!existing) {
+          if (!addedEpisodes.has(episodeKey)) {
+            addedEpisodes.add(episodeKey);
             schedule[weekday].push({
               anime,
               airingAt: airingTimestamp,

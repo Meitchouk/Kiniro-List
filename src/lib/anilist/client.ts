@@ -644,3 +644,112 @@ export async function getGlobalPopularAnime(perPage: number = 50): Promise<AniLi
 
   return data.Page.media;
 }
+
+// ============ Batch Airing Schedule Query ============
+
+/**
+ * Query to get airing schedule for multiple anime within a time range.
+ * This fetches past aired episodes from AniList.
+ */
+const BATCH_AIRING_SCHEDULE_QUERY = `
+query ($mediaId_in: [Int], $airingAt_greater: Int, $airingAt_lesser: Int, $page: Int, $perPage: Int) {
+  Page(page: $page, perPage: $perPage) {
+    pageInfo {
+      currentPage
+      hasNextPage
+      lastPage
+    }
+    airingSchedules(mediaId_in: $mediaId_in, airingAt_greater: $airingAt_greater, airingAt_lesser: $airingAt_lesser, sort: TIME_DESC) {
+      id
+      mediaId
+      airingAt
+      episode
+    }
+  }
+}
+`;
+
+interface AiringScheduleResponse {
+  Page: {
+    pageInfo: {
+      currentPage: number;
+      hasNextPage: boolean;
+      lastPage: number;
+    };
+    airingSchedules: Array<{
+      id: number;
+      mediaId: number;
+      airingAt: number;
+      episode: number;
+    }>;
+  };
+}
+
+export interface AiredEpisodeInfo {
+  mediaId: number;
+  episode: number;
+  airingAt: number;
+}
+
+/**
+ * Fetches past aired episodes for multiple anime IDs within a time range.
+ * @param animeIds - List of anime IDs to fetch airing history for
+ * @param fromTimestamp - Start of time range (Unix timestamp in seconds)
+ * @param toTimestamp - End of time range (Unix timestamp in seconds)
+ * @returns Map of anime ID to array of aired episodes
+ */
+export async function getBatchAiringSchedule(
+  animeIds: number[],
+  fromTimestamp: number,
+  toTimestamp: number
+): Promise<Map<number, AiredEpisodeInfo[]>> {
+  if (animeIds.length === 0) {
+    return new Map();
+  }
+
+  const results = new Map<number, AiredEpisodeInfo[]>();
+
+  // Initialize empty arrays for all requested IDs
+  for (const id of animeIds) {
+    results.set(id, []);
+  }
+
+  // AniList has a limit on query complexity, batch by 50 anime IDs
+  const batches: number[][] = [];
+  for (let i = 0; i < animeIds.length; i += 50) {
+    batches.push(animeIds.slice(i, i + 50));
+  }
+
+  for (const batch of batches) {
+    let page = 1;
+    let hasNextPage = true;
+
+    while (hasNextPage) {
+      const data = await fetchAniList<AiringScheduleResponse>(BATCH_AIRING_SCHEDULE_QUERY, {
+        mediaId_in: batch,
+        airingAt_greater: fromTimestamp,
+        airingAt_lesser: toTimestamp,
+        page,
+        perPage: 50,
+      });
+
+      for (const schedule of data.Page.airingSchedules) {
+        const existing = results.get(schedule.mediaId) || [];
+        existing.push({
+          mediaId: schedule.mediaId,
+          episode: schedule.episode,
+          airingAt: schedule.airingAt,
+        });
+        results.set(schedule.mediaId, existing);
+      }
+
+      hasNextPage = data.Page.pageInfo.hasNextPage;
+      page++;
+
+      // Safety limit
+      if (page > 10) break;
+    }
+  }
+
+  return results;
+}
