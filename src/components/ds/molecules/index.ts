@@ -24,6 +24,10 @@ export type { EmptyStateProps, NoResultsProps, NoDataProps } from "./EmptyState"
 export { FormField, FormSection, ValidationMessage } from "./FormField";
 export type { FormFieldProps, FormSectionProps, ValidationMessageProps } from "./FormField";
 
+// Info & Help
+export { InfoLabel } from "./InfoLabel";
+export type { InfoLabelProps } from "./InfoLabel";
+
 // Cards
 export { PosterCard } from "./PosterCard";
 export type { PosterCardProps } from "./PosterCard";

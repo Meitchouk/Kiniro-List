@@ -151,6 +151,7 @@ export async function upsertAnimeCache(media: AniListMedia): Promise<AnimeCache>
     isAdult: media.isAdult || false,
     siteUrl: media.siteUrl,
     streamingLinks,
+    externalLinks: media.externalLinks || null,
     source: "anilist",
     updatedAt: FieldValue.serverTimestamp(),
   };
@@ -203,6 +204,7 @@ export async function upsertManyAnimeCache(mediaList: AniListMedia[]): Promise<v
         isAdult: media.isAdult || false,
         siteUrl: media.siteUrl,
         streamingLinks,
+        externalLinks: media.externalLinks || null,
         source: "anilist",
         updatedAt: FieldValue.serverTimestamp(),
       },
@@ -484,4 +486,153 @@ export async function upsertSeasonCache(
     animeIds,
     updatedAt: FieldValue.serverTimestamp(),
   });
+}
+
+// ============ Daily Airing Schedule Cache ============
+
+const DAILY_AIRING_CACHE_TTL_MINUTES = 30; // Cache for 30 minutes
+
+export interface DailyAiringCacheEntry {
+  animeId: number;
+  episode: number;
+  airingAt: number;
+}
+
+interface DailyAiringCacheData {
+  date: string; // YYYY-MM-DD
+  animeId: number;
+  episodes: DailyAiringCacheEntry[];
+  updatedAt: Timestamp;
+}
+
+/**
+ * Get cached airing schedule for a specific anime on a specific date.
+ * Returns null if not cached or stale.
+ */
+export async function getDailyAiringFromCache(
+  animeId: number,
+  date: string // YYYY-MM-DD format
+): Promise<DailyAiringCacheEntry[] | null> {
+  const db = getAdminFirestore();
+  const docId = `${animeId}-${date}`;
+  const doc = await db.collection("dailyAiringCache").doc(docId).get();
+
+  if (!doc.exists) {
+    return null;
+  }
+
+  const data = doc.data() as DailyAiringCacheData;
+  const updatedAt = data.updatedAt.toDate();
+  const now = new Date();
+  const diffMinutes = (now.getTime() - updatedAt.getTime()) / (1000 * 60);
+
+  if (diffMinutes > DAILY_AIRING_CACHE_TTL_MINUTES) {
+    return null; // Stale
+  }
+
+  return data.episodes;
+}
+
+/**
+ * Get cached airing schedules for multiple anime on a specific date.
+ * Returns a map of animeId -> episodes (or null if not cached/stale).
+ */
+export async function getManyDailyAiringFromCache(
+  animeIds: number[],
+  date: string // YYYY-MM-DD format
+): Promise<Map<number, DailyAiringCacheEntry[] | null>> {
+  if (animeIds.length === 0) {
+    return new Map();
+  }
+
+  const db = getAdminFirestore();
+  const results = new Map<number, DailyAiringCacheEntry[] | null>();
+
+  // Initialize all as null
+  for (const id of animeIds) {
+    results.set(id, null);
+  }
+
+  // Firestore 'in' queries are limited to 30 items
+  const batches: number[][] = [];
+  for (let i = 0; i < animeIds.length; i += 30) {
+    batches.push(animeIds.slice(i, i + 30));
+  }
+
+  const now = new Date();
+
+  for (const batch of batches) {
+    const docIds = batch.map((id) => `${id}-${date}`);
+
+    // Get all docs in this batch
+    const docs = await Promise.all(
+      docIds.map((docId) => db.collection("dailyAiringCache").doc(docId).get())
+    );
+
+    for (let i = 0; i < docs.length; i++) {
+      const doc = docs[i];
+      const animeId = batch[i];
+
+      if (!doc.exists) {
+        continue;
+      }
+
+      const data = doc.data() as DailyAiringCacheData;
+      const updatedAt = data.updatedAt.toDate();
+      const diffMinutes = (now.getTime() - updatedAt.getTime()) / (1000 * 60);
+
+      if (diffMinutes <= DAILY_AIRING_CACHE_TTL_MINUTES) {
+        results.set(animeId, data.episodes);
+      }
+    }
+  }
+
+  return results;
+}
+
+/**
+ * Cache airing schedule for an anime on a specific date.
+ */
+export async function upsertDailyAiringCache(
+  animeId: number,
+  date: string, // YYYY-MM-DD format
+  episodes: DailyAiringCacheEntry[]
+): Promise<void> {
+  const db = getAdminFirestore();
+  const docId = `${animeId}-${date}`;
+
+  await db.collection("dailyAiringCache").doc(docId).set({
+    date,
+    animeId,
+    episodes,
+    updatedAt: FieldValue.serverTimestamp(),
+  });
+}
+
+/**
+ * Batch cache airing schedules for multiple anime on a specific date.
+ */
+export async function upsertManyDailyAiringCache(
+  entries: Map<number, DailyAiringCacheEntry[]>,
+  date: string // YYYY-MM-DD format
+): Promise<void> {
+  if (entries.size === 0) {
+    return;
+  }
+
+  const db = getAdminFirestore();
+  const batch = db.batch();
+
+  for (const [animeId, episodes] of entries) {
+    const docId = `${animeId}-${date}`;
+    const ref = db.collection("dailyAiringCache").doc(docId);
+    batch.set(ref, {
+      date,
+      animeId,
+      episodes,
+      updatedAt: FieldValue.serverTimestamp(),
+    });
+  }
+
+  await batch.commit();
 }

@@ -1,10 +1,11 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useAuth } from "@/components/providers/AuthProvider";
-import { useQuery } from "@tanstack/react-query";
-import { getMyCalendar, setAuthHeadersGetter } from "@/lib/api";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { getMyCalendar, setAuthHeadersGetter, updateSettings } from "@/lib/api";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -35,6 +36,8 @@ function CalendarSkeleton() {
 export default function MyCalendarPage() {
   const t = useTranslations();
   const { user, getAuthHeaders } = useAuth();
+  const [weekOffset, setWeekOffset] = useState(0);
+  const queryClient = useQueryClient();
 
   // Set up auth headers for API
   if (user) {
@@ -42,11 +45,27 @@ export default function MyCalendarPage() {
   }
 
   const { data, isLoading, error, refetch } = useQuery({
-    queryKey: ["my-calendar"],
-    queryFn: () => getMyCalendar(),
+    queryKey: ["my-calendar", weekOffset],
+    queryFn: () => getMyCalendar(weekOffset),
     enabled: !!user,
     refetchInterval: 60000,
   });
+
+  const filters = data?.filters || { hideAdult: true, onlyWatching: true };
+
+  // Mutation to update filter
+  const filterMutation = useMutation({
+    mutationFn: (onlyWatching: boolean) =>
+      updateSettings({ filters: { ...filters, onlyWatching } }),
+    onSuccess: () => {
+      // Invalidate calendar query to refetch with new filter
+      queryClient.invalidateQueries({ queryKey: ["my-calendar"] });
+    },
+  });
+
+  const handleFilterChange = (checked: boolean) => {
+    filterMutation.mutate(checked);
+  };
 
   if (isLoading) {
     return (
@@ -96,7 +115,15 @@ export default function MyCalendarPage() {
             </CardContent>
           </Card>
         ) : (
-          <MyCalendarGrid schedule={data.schedule} timezone={timezone} />
+          <MyCalendarGrid
+            schedule={data.schedule}
+            timezone={timezone}
+            weekOffset={weekOffset}
+            onWeekChange={setWeekOffset}
+            onlyWatching={filters.onlyWatching}
+            onFilterChange={handleFilterChange}
+            filterLoading={filterMutation.isPending}
+          />
         )}
       </div>
     </div>

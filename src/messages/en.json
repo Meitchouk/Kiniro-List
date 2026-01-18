@@ -261,7 +261,8 @@
     "airedCount": "{count} aired",
     "noEpisodes": "No episodes on this day",
     "episodesThisWeek": "{count} episodes",
-    "goToToday": "Today"
+    "goToToday": "Today",
+    "onlyWatchingShort": "Watching only"
   },
   "settings": {
     "title": "Settings",

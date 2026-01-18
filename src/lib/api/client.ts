@@ -214,8 +214,14 @@ export async function deleteLibraryEntry(animeId: number): Promise<{ success: bo
   return handleResponse(response);
 }
 
-export async function getMyCalendar(): Promise<MyCalendarResponse> {
-  const response = await fetchWithAuth("/api/me/calendar");
+export async function getMyCalendar(weekOffset?: number): Promise<MyCalendarResponse> {
+  const params = new URLSearchParams();
+  if (weekOffset !== undefined && weekOffset !== 0) {
+    params.set("weekOffset", String(weekOffset));
+  }
+  const query = params.toString();
+  const url = query ? `/api/me/calendar?${query}` : "/api/me/calendar";
+  const response = await fetchWithAuth(url);
   return handleResponse(response);
 }
 

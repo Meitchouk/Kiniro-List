@@ -109,6 +109,28 @@ export const googleOAuth = {
   },
 } as const;
 
+/**
+ * Application URLs and public configuration.
+ */
+export const app = {
+  get baseUrl() {
+    return process.env.NEXT_PUBLIC_BASE_URL ?? "https://www.kinirolist.app";
+  },
+  get googleSiteVerification() {
+    return process.env.GOOGLE_SITE_VERIFICATION ?? "";
+  },
+} as const;
+
+/**
+ * Cron job configuration.
+ * Server-side only.
+ */
+export const cron = {
+  get secret() {
+    return process.env.CRON_SECRET ?? "";
+  },
+} as const;
+
 // =============================================================================
 // Validation helpers
 // =============================================================================
