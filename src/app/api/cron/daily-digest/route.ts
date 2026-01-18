@@ -13,6 +13,9 @@ import { Timestamp } from "firebase-admin/firestore";
  * Runs every hour and sends emails to users whose digest hour matches current hour in their timezone.
  *
  * Security: Protected by CRON_SECRET environment variable.
+ *
+ * Query params:
+ * - sendNow=true: Skip hour check and send to all eligible users immediately (for testing)
  */
 export async function GET(request: NextRequest) {
   try {
@@ -25,7 +28,12 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    console.log("[cron/daily-digest] Starting daily digest job...");
+    // Check for sendNow flag (for testing)
+    const sendNow = request.nextUrl.searchParams.get("sendNow") === "true";
+
+    console.log(
+      `[cron/daily-digest] Starting daily digest job...${sendNow ? " (sendNow mode)" : ""}`
+    );
 
     const db = getAdminFirestore();
     const now = DateTime.now();
@@ -118,13 +126,14 @@ export async function GET(request: NextRequest) {
           continue;
         }
 
-        if (userHour !== digestHour) {
+        // Skip hour check if sendNow flag is set
+        if (!sendNow && userHour !== digestHour) {
           // Not time for this user's digest yet
           continue;
         }
 
         console.log(
-          `[cron/daily-digest] Processing user ${userData.uid} (${userData.email}) at ${userHour}:00 ${userTimezone}`
+          `[cron/daily-digest] Processing user ${userData.uid} (${userData.email}) at ${userHour}:00 ${userTimezone}${sendNow ? " (forced)" : ""}`
         );
 
         // ============ Library Validation ============

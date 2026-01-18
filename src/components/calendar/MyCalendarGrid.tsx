@@ -5,7 +5,16 @@ import Link from "next/link";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { DateTime } from "luxon";
-import { Card, CardContent, Badge, Typography, Flex, Stack } from "@/components/ds";
+import {
+  Card,
+  CardContent,
+  Badge,
+  Typography,
+  Flex,
+  Stack,
+  Switch,
+  InfoLabel,
+} from "@/components/ds";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, Clock, PlayCircle, CheckCircle } from "lucide-react";
 import { CrunchyrollIcon } from "@/components/icons/CrunchyrollIcon";
@@ -242,6 +251,9 @@ interface MyCalendarGridProps {
   timezone: string;
   weekOffset: number;
   onWeekChange: (offset: number) => void;
+  onlyWatching?: boolean;
+  onFilterChange?: (checked: boolean) => void;
+  filterLoading?: boolean;
 }
 
 /**
@@ -252,6 +264,9 @@ export function MyCalendarGrid({
   timezone,
   weekOffset,
   onWeekChange,
+  onlyWatching = true,
+  onFilterChange,
+  filterLoading = false,
 }: MyCalendarGridProps) {
   const t = useTranslations();
   const { formatDateRange } = useLocalizedDateFormat();
@@ -347,7 +362,25 @@ export function MyCalendarGrid({
           </Button>
         </Flex>
 
-        <Flex align="center" gap={2}>
+        <Flex align="center" gap={3}>
+          {onFilterChange && (
+            <Flex align="center" gap={2}>
+              <InfoLabel
+                info={t("settings.onlyWatchingDescription")}
+                htmlFor="calendarFilter"
+                asLabel
+                className="text-sm whitespace-nowrap"
+              >
+                {t("myCalendar.onlyWatchingShort")}
+              </InfoLabel>
+              <Switch
+                id="calendarFilter"
+                checked={onlyWatching}
+                onCheckedChange={onFilterChange}
+                disabled={filterLoading}
+              />
+            </Flex>
+          )}
           {weekOffset !== 0 && (
             <Button variant="ghost" size="sm" onClick={() => onWeekChange(0)}>
               {t("myCalendar.goToToday")}

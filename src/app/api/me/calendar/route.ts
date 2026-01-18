@@ -69,6 +69,7 @@ export async function GET(request: NextRequest) {
     };
 
     const timezone = userData.timezone || "UTC";
+    const filters = userData.filters || { hideAdult: true, onlyWatching: true };
 
     // Get library entries
     let libraryQuery = db.collection("users").doc(uid).collection("library");
@@ -81,7 +82,7 @@ export async function GET(request: NextRequest) {
     const librarySnapshot = await libraryQuery.get();
 
     if (librarySnapshot.empty) {
-      return NextResponse.json({ schedule: {}, timezone } as MyCalendarResponse);
+      return NextResponse.json({ schedule: {}, timezone, filters } as MyCalendarResponse);
     }
 
     // Get library entries
@@ -139,7 +140,7 @@ export async function GET(request: NextRequest) {
 
     // If no releasing anime, return empty calendar
     if (releasingAnimeIds.length === 0) {
-      return NextResponse.json({ schedule: {}, timezone } as MyCalendarResponse);
+      return NextResponse.json({ schedule: {}, timezone, filters } as MyCalendarResponse);
     }
 
     // Get current airing info from cache
@@ -341,7 +342,7 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    return NextResponse.json({ schedule, timezone } as MyCalendarResponse);
+    return NextResponse.json({ schedule, timezone, filters } as MyCalendarResponse);
   } catch (error) {
     console.error("Get calendar error:", error);
     return NextResponse.json({ error: "Failed to get calendar" }, { status: 500 });

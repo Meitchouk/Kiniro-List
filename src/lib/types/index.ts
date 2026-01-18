@@ -214,6 +214,7 @@ export interface MyCalendarScheduleItem {
 export interface MyCalendarResponse {
   schedule: Record<number, MyCalendarScheduleItem[]>;
   timezone: string;
+  filters: UserFilters;
 }
 
 export type LibraryStatus = "watching" | "planned" | "completed" | "paused" | "dropped";

@@ -259,7 +259,8 @@
     "airedCount": "{count} emitidos",
     "noEpisodes": "No hay episodios este día",
     "episodesThisWeek": "{count} episodios",
-    "goToToday": "Hoy"
+    "goToToday": "Hoy",
+    "onlyWatchingShort": "Solo viendo"
   },
   "settings": {
     "title": "Configuración",
