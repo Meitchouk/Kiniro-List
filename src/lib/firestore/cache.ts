@@ -636,3 +636,59 @@ export async function upsertManyDailyAiringCache(
 
   await batch.commit();
 }
+
+// ============ AniList Trending Cache ============
+
+const TRENDING_CACHE_TTL_HOURS = 25; // Cache for ~25 hours (cron runs daily)
+
+interface TrendingCacheDocument {
+  animeIds: number[];
+  updatedAt: Timestamp;
+}
+
+/**
+ * Save the globally trending anime IDs from AniList to Firestore.
+ * This is updated by the daily cron job.
+ */
+export async function saveTrendingCache(animeIds: number[]): Promise<void> {
+  const db = getAdminFirestore();
+  await db.collection("settings").doc("trendingCache").set({
+    animeIds,
+    updatedAt: FieldValue.serverTimestamp(),
+  });
+}
+
+/**
+ * Get the cached trending anime IDs from AniList.
+ * Returns null if cache is expired or doesn't exist.
+ */
+export async function getTrendingCache(): Promise<number[] | null> {
+  try {
+    const db = getAdminFirestore();
+    const doc = await db.collection("settings").doc("trendingCache").get();
+
+    if (!doc.exists) {
+      return null;
+    }
+
+    const data = doc.data() as TrendingCacheDocument;
+    const updatedAt = data.updatedAt?.toDate();
+
+    if (!updatedAt) {
+      return null;
+    }
+
+    // Check if cache is expired
+    const now = new Date();
+    const hoursSinceUpdate = (now.getTime() - updatedAt.getTime()) / (1000 * 60 * 60);
+
+    if (hoursSinceUpdate > TRENDING_CACHE_TTL_HOURS) {
+      return null; // Cache expired
+    }
+
+    return data.animeIds || null;
+  } catch (error) {
+    console.error("Failed to get trending cache:", error);
+    return null;
+  }
+}

@@ -645,6 +645,79 @@ export async function getGlobalPopularAnime(perPage: number = 50): Promise<AniLi
   return data.Page.media;
 }
 
+// ============ Global Trending Query ============
+
+const GLOBAL_TRENDING_QUERY = `
+  query ($page: Int!, $perPage: Int!) {
+    Page(page: $page, perPage: $perPage) {
+      pageInfo {
+        currentPage
+        hasNextPage
+        lastPage
+        perPage
+        total
+      }
+      media(type: ANIME, sort: TRENDING_DESC) {
+        id
+        title {
+          romaji
+          english
+          native
+        }
+        coverImage {
+          large
+          extraLarge
+        }
+        bannerImage
+        description
+        genres
+        season
+        seasonYear
+        status
+        episodes
+        format
+        isAdult
+        siteUrl
+        externalLinks {
+          id
+          url
+          site
+          type
+          icon
+        }
+        nextAiringEpisode {
+          airingAt
+          episode
+          timeUntilAiring
+        }
+        popularity
+        trending
+      }
+    }
+  }
+`;
+
+interface GlobalTrendingResponse {
+  Page: {
+    pageInfo: PageInfo;
+    media: AniListMedia[];
+  };
+}
+
+/**
+ * Fetches globally trending anime from AniList based on their trending score.
+ * This reflects what's currently popular/viral across all of AniList.
+ * @param perPage - Number of anime to return (max 50)
+ */
+export async function getGlobalTrendingAnime(perPage: number = 50): Promise<AniListMedia[]> {
+  const data = await fetchAniList<GlobalTrendingResponse>(GLOBAL_TRENDING_QUERY, {
+    page: 1,
+    perPage,
+  });
+
+  return data.Page.media;
+}
+
 // ============ Batch Airing Schedule Query ============
 
 /**

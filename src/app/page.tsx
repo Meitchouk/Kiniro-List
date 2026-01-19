@@ -6,8 +6,18 @@ import { AnimeCarouselSection } from "@/components/anime/AnimeCarouselSection";
 import { Section, Grid } from "@/components/ds";
 import { MultiJsonLd } from "@/components/seo";
 import { getTrendingAnime } from "@/lib/redis/metrics";
-import { getManyAnimeFromCache, upsertManyAnimeCache } from "@/lib/firestore/cache";
-import { getBatchAnimeInfo, getAllSeasonAnime, getGlobalPopularAnime } from "@/lib/anilist/client";
+import {
+  getManyAnimeFromCache,
+  upsertManyAnimeCache,
+  getTrendingCache,
+  saveTrendingCache,
+} from "@/lib/firestore/cache";
+import {
+  getBatchAnimeInfo,
+  getAllSeasonAnime,
+  getGlobalPopularAnime,
+  getGlobalTrendingAnime,
+} from "@/lib/anilist/client";
 import { getCurrentSeason } from "@/lib/utils/date";
 import {
   createPageMetadataFromKey,
@@ -22,29 +32,69 @@ export async function generateMetadata(): Promise<Metadata> {
 
 async function getTrending() {
   try {
-    const ids = await getTrendingAnime(50, "day");
-    if (!ids.length) {
-      // Fallback: show current season popular items
-      const { season, year } = getCurrentSeason();
-      const allMedia = await getAllSeasonAnime(season, year);
-      const top = allMedia.slice(0, 50);
-      if (top.length) {
-        await upsertManyAnimeCache(top);
-        const cachedTop = await getManyAnimeFromCache(top.map((m) => m.id));
-        return top.map((m) => cachedTop.get(m.id)).filter((a): a is AnimeCache => Boolean(a));
+    // First, try to get internal trending from Redis (user views)
+    const internalIds = await getTrendingAnime(50, "day");
+
+    // Check if we have enough internal trending data (at least 10 items)
+    if (internalIds.length >= 10) {
+      let cached = await getManyAnimeFromCache(internalIds);
+      const missing = internalIds.filter((id) => !cached.get(id));
+      if (missing.length) {
+        const media = await getBatchAnimeInfo(missing);
+        if (media.length) {
+          await upsertManyAnimeCache(media);
+          cached = await getManyAnimeFromCache(internalIds);
+        }
       }
-      return [];
-    }
-    let cached = await getManyAnimeFromCache(ids);
-    const missing = ids.filter((id) => !cached.get(id));
-    if (missing.length) {
-      const media = await getBatchAnimeInfo(missing);
-      if (media.length) {
-        await upsertManyAnimeCache(media);
-        cached = await getManyAnimeFromCache(ids);
+      const result = internalIds
+        .map((id) => cached.get(id))
+        .filter((a): a is AnimeCache => Boolean(a));
+      if (result.length >= 10) {
+        return result;
       }
     }
-    return ids.map((id) => cached.get(id)).filter((a): a is AnimeCache => Boolean(a));
+
+    // Fallback to AniList trending cache (updated by cron job)
+    let anilistTrendingIds = await getTrendingCache();
+
+    // If cache is empty or expired, fetch fresh data from AniList
+    if (!anilistTrendingIds || anilistTrendingIds.length === 0) {
+      console.log("[getTrending] AniList trending cache miss, fetching fresh data...");
+      const trendingMedia = await getGlobalTrendingAnime(50);
+      if (trendingMedia.length) {
+        await upsertManyAnimeCache(trendingMedia);
+        anilistTrendingIds = trendingMedia.map((m) => m.id);
+        // Save to cache for future requests
+        await saveTrendingCache(anilistTrendingIds);
+      }
+    }
+
+    if (anilistTrendingIds && anilistTrendingIds.length > 0) {
+      let cached = await getManyAnimeFromCache(anilistTrendingIds);
+      const missing = anilistTrendingIds.filter((id) => !cached.get(id));
+      if (missing.length) {
+        const media = await getBatchAnimeInfo(missing);
+        if (media.length) {
+          await upsertManyAnimeCache(media);
+          cached = await getManyAnimeFromCache(anilistTrendingIds);
+        }
+      }
+      return anilistTrendingIds
+        .map((id) => cached.get(id))
+        .filter((a): a is AnimeCache => Boolean(a));
+    }
+
+    // Last resort fallback: show current season popular items
+    const { season, year } = getCurrentSeason();
+    const allMedia = await getAllSeasonAnime(season, year);
+    const top = allMedia.slice(0, 50);
+    if (top.length) {
+      await upsertManyAnimeCache(top);
+      const cachedTop = await getManyAnimeFromCache(top.map((m) => m.id));
+      return top.map((m) => cachedTop.get(m.id)).filter((a): a is AnimeCache => Boolean(a));
+    }
+
+    return [];
   } catch (error) {
     console.error("Trending fetch error", error);
     return [];
