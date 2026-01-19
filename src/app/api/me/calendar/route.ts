@@ -202,8 +202,11 @@ export async function GET(request: NextRequest) {
     // Build weekly schedule with offset support
     const now = DateTime.now().setZone(timezone);
     // Calculate week start (Sunday-based) with offset
-    // Luxon's startOf("week") starts on Monday, so we adjust to Sunday
-    const currentWeekStart = now.startOf("week").minus({ days: 1 }); // Sunday
+    // If today is Sunday, week starts today; otherwise, go back to previous Sunday
+    const currentWeekStart =
+      now.weekday === 7
+        ? now.startOf("day") // Today is Sunday, start here
+        : now.startOf("week").minus({ days: 1 }); // Go to previous Sunday
     const startOfWeek = currentWeekStart.plus({ weeks: clampedWeekOffset });
     const endOfWeek = startOfWeek.plus({ days: 7 });
 

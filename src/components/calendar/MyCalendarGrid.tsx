@@ -274,13 +274,18 @@ export function MyCalendarGrid({
   const now = DateTime.now().setZone(timezone);
 
   // Calculate week start (Sunday) based on offset
+  // Must match the server-side calculation in api/me/calendar/route.ts
+  // If today is Sunday, week starts today; otherwise, go back to previous Sunday
   const weekStart = useMemo(() => {
-    const todayWeekday = now.weekday; // 1 = Monday, 7 = Sunday
-    const daysToSunday = todayWeekday === 7 ? 0 : todayWeekday;
-    return now.minus({ days: daysToSunday }).startOf("day").plus({ weeks: weekOffset });
+    const currentWeekStart =
+      now.weekday === 7
+        ? now.startOf("day") // Today is Sunday, start here
+        : now.startOf("week").minus({ days: 1 }).startOf("day"); // Go to previous Sunday
+    return currentWeekStart.plus({ weeks: weekOffset });
   }, [now, weekOffset]);
 
-  const weekEnd = weekStart.plus({ days: 6 });
+  const weekEnd = weekStart.plus({ days: 6 }).endOf("day");
+  const weekEndDisplay = weekStart.plus({ days: 6 }); // For display purposes (date range header)
 
   // Generate days for the week
   const days = useMemo(() => {
@@ -308,7 +313,7 @@ export function MyCalendarGrid({
         const dateKey = itemDate.toFormat("yyyy-MM-dd");
 
         // Only include items within current week view
-        if (itemDate >= weekStart && itemDate <= weekEnd.endOf("day")) {
+        if (itemDate >= weekStart && itemDate <= weekEnd) {
           const existing = grouped.get(dateKey) || [];
           existing.push(item);
           grouped.set(dateKey, existing);
@@ -345,7 +350,7 @@ export function MyCalendarGrid({
 
           <div className="text-center">
             <Typography variant="h6" weight="semibold">
-              {formatDateRange(weekStart.toJSDate(), weekEnd.toJSDate(), { timezone })}
+              {formatDateRange(weekStart.toJSDate(), weekEndDisplay.toJSDate(), { timezone })}
             </Typography>
             <Typography variant="caption" colorScheme="secondary">
               {episodeCount} {t("myCalendar.episodesThisWeek", { count: episodeCount })}
