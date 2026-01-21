@@ -10,6 +10,12 @@
 
 <h1>Kiniro List</h1>
 
+<div style="margin: 20px 0;">
+    <a href="https://ko-fi.com/U7U81SP19V" target="_blank">
+        <img src="https://ko-fi.com/img/githubbutton_sm.svg" alt="Support me on Ko-fi">
+    </a>
+</div>
+
 <p style="font-size: 18px; color: #555; margin: 20px 0;">
     Hello, I'm Kiniro List. I'll help you discover, track, and organize your favorite anime effortlessly.
 </p>
