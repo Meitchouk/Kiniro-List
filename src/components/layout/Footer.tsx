@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { Mail, Heart, Calendar, Search, Github } from "lucide-react";
 import { Typography, Container, Flex, Grid, Divider } from "@/components/ds";
+import { KofiWidget } from "@/components/common";
 
 export function Footer() {
   const t = useTranslations();
@@ -127,6 +128,23 @@ export function Footer() {
                   ))}
                 </Flex>
               </Flex>
+            </div>
+
+            {/* Support Section */}
+            <div>
+              <Typography variant="subtitle2" className="mb-4 font-semibold">
+                {t("footer.support")}
+              </Typography>
+              <Typography variant="body2" colorScheme="secondary" className="mb-4">
+                {t("footer.supportDescription")}
+              </Typography>
+              <KofiWidget
+                variant="button"
+                size="md"
+                colorScheme="kofi"
+                buttonText={t("footer.supportButton")}
+                icon="coffee"
+              />
             </div>
           </Grid>
         </div>

@@ -90,7 +90,10 @@
     "searching": "Searching...",
     "resultsFor": "Results for \"{query}\"",
     "noQuery": "Enter a search term to find anime",
-    "topQueries": "Popular searches today"
+    "topQueries": "Popular searches today",
+    "trending": "Trending",
+    "popular": "Popular",
+    "results": "Results"
   },
   "anime": {
     "episodes": "{count} episodes",
@@ -138,6 +141,53 @@
     "tags": "Tags",
     "relations": "Related Anime",
     "recommendations": "Recommendations"
+  },
+  "filters": {
+    "searchPlaceholder": "Search anime...",
+    "format": "Format",
+    "allFormats": "All Formats",
+    "season": "Season",
+    "allSeasons": "All Seasons",
+    "year": "Year",
+    "allYears": "All Years",
+    "status": "Status",
+    "allStatuses": "All Statuses",
+    "genres": "Genres",
+    "sortBy": "Sort by",
+    "clear": "Clear",
+    "sortPopularity": "Popularity",
+    "sortTrending": "Trending",
+    "sortScore": "Score",
+    "sortRelease": "Release Date",
+    "sortTitle": "Title",
+    "sort": {
+      "title_asc": "Title A-Z",
+      "title_desc": "Title Z-A",
+      "release_asc": "Oldest first",
+      "release_desc": "Newest first",
+      "score_asc": "Lowest score",
+      "score_desc": "Highest score",
+      "popularity_asc": "Least popular",
+      "popularity_desc": "Most popular",
+      "added_asc": "Oldest added",
+      "added_desc": "Recently added"
+    },
+    "formats": {
+      "TV": "TV",
+      "TV_SHORT": "TV Short",
+      "MOVIE": "Movie",
+      "SPECIAL": "Special",
+      "OVA": "OVA",
+      "ONA": "ONA",
+      "MUSIC": "Music"
+    },
+    "statuses": {
+      "FINISHED": "Finished",
+      "RELEASING": "Airing",
+      "NOT_YET_RELEASED": "Not Yet Released",
+      "CANCELLED": "Cancelled",
+      "HIATUS": "On Hiatus"
+    }
   },
   "status": {
     "FINISHED": "Finished",
@@ -397,6 +447,9 @@
     "navigation": "Navigation",
     "legal": "Legal",
     "connect": "Connect",
+    "support": "Support Us",
+    "supportDescription": "If you enjoy Kiniro List, consider supporting us!",
+    "supportButton": "Buy me a coffee ☕",
     "privacy": "Privacy Policy",
     "terms": "Terms of Service",
     "contact": "Contact Us",

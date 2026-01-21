@@ -832,3 +832,174 @@ export async function getBatchAiringSchedule(
 
   return results;
 }
+
+// ============ Browse Anime Query (General Search) ============
+
+/**
+ * Query to browse all anime with optional filters and sorting.
+ * This is used for the general search/browse functionality.
+ */
+const BROWSE_ANIME_QUERY = `
+query (
+  $page: Int!,
+  $perPage: Int!,
+  $sort: [MediaSort],
+  $search: String,
+  $season: MediaSeason,
+  $seasonYear: Int,
+  $format: MediaFormat,
+  $status: MediaStatus,
+  $genre_in: [String],
+  $isAdult: Boolean
+) {
+  Page(page: $page, perPage: $perPage) {
+    pageInfo {
+      currentPage
+      hasNextPage
+      lastPage
+      perPage
+      total
+    }
+    media(
+      type: ANIME,
+      sort: $sort,
+      search: $search,
+      season: $season,
+      seasonYear: $seasonYear,
+      format: $format,
+      status: $status,
+      genre_in: $genre_in,
+      isAdult: $isAdult
+    ) {
+      id
+      title {
+        romaji
+        english
+        native
+      }
+      coverImage {
+        large
+        extraLarge
+      }
+      bannerImage
+      description
+      genres
+      season
+      seasonYear
+      status
+      episodes
+      format
+      isAdult
+      siteUrl
+      averageScore
+      popularity
+      startDate {
+        year
+        month
+        day
+      }
+      externalLinks {
+        id
+        url
+        site
+        type
+        icon
+      }
+      nextAiringEpisode {
+        airingAt
+        episode
+        timeUntilAiring
+      }
+    }
+  }
+}
+`;
+
+interface BrowseAnimeResponse {
+  Page: {
+    pageInfo: PageInfo;
+    media: AniListMedia[];
+  };
+}
+
+export type MediaSort =
+  | "ID"
+  | "ID_DESC"
+  | "TITLE_ROMAJI"
+  | "TITLE_ROMAJI_DESC"
+  | "TITLE_ENGLISH"
+  | "TITLE_ENGLISH_DESC"
+  | "TITLE_NATIVE"
+  | "TITLE_NATIVE_DESC"
+  | "TYPE"
+  | "TYPE_DESC"
+  | "FORMAT"
+  | "FORMAT_DESC"
+  | "START_DATE"
+  | "START_DATE_DESC"
+  | "END_DATE"
+  | "END_DATE_DESC"
+  | "SCORE"
+  | "SCORE_DESC"
+  | "POPULARITY"
+  | "POPULARITY_DESC"
+  | "TRENDING"
+  | "TRENDING_DESC"
+  | "EPISODES"
+  | "EPISODES_DESC"
+  | "DURATION"
+  | "DURATION_DESC"
+  | "STATUS"
+  | "STATUS_DESC"
+  | "UPDATED_AT"
+  | "UPDATED_AT_DESC"
+  | "SEARCH_MATCH"
+  | "FAVOURITES"
+  | "FAVOURITES_DESC";
+
+export interface BrowseAnimeFilters {
+  search?: string;
+  season?: "WINTER" | "SPRING" | "SUMMER" | "FALL";
+  seasonYear?: number;
+  format?: "TV" | "TV_SHORT" | "MOVIE" | "SPECIAL" | "OVA" | "ONA" | "MUSIC";
+  status?: "FINISHED" | "RELEASING" | "NOT_YET_RELEASED" | "CANCELLED" | "HIATUS";
+  genres?: string[];
+  isAdult?: boolean;
+}
+
+/**
+ * Browse anime with optional filters and sorting.
+ * This is the main function for searching/browsing all anime in AniList.
+ * @param page - Page number (1-indexed)
+ * @param perPage - Results per page (max 50)
+ * @param sort - Array of sort options (e.g., ["POPULARITY_DESC"])
+ * @param filters - Optional filters for search, season, format, etc.
+ */
+export async function browseAnime(
+  page: number = 1,
+  perPage: number = 50,
+  sort: MediaSort[] = ["POPULARITY_DESC"],
+  filters: BrowseAnimeFilters = {}
+): Promise<{ media: AniListMedia[]; pageInfo: PaginationInfo }> {
+  const variables: Record<string, unknown> = {
+    page,
+    perPage: Math.min(perPage, 50),
+    sort,
+    isAdult: filters.isAdult ?? false,
+  };
+
+  // Only add filters that are defined
+  if (filters.search) variables.search = filters.search;
+  if (filters.season) variables.season = filters.season;
+  if (filters.seasonYear) variables.seasonYear = filters.seasonYear;
+  if (filters.format) variables.format = filters.format;
+  if (filters.status) variables.status = filters.status;
+  if (filters.genres && filters.genres.length > 0) variables.genre_in = filters.genres;
+
+  const data = await fetchAniList<BrowseAnimeResponse>(BROWSE_ANIME_QUERY, variables);
+
+  return {
+    media: data.Page.media,
+    pageInfo: data.Page.pageInfo,
+  };
+}

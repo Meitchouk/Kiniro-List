@@ -15,6 +15,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { LoadingBar } from "@/components/ui/loading-bar";
 import { GoogleOneTap } from "@/components/auth/GoogleOneTap";
 import { MultiJsonLd } from "@/components/seo";
+import { KofiWidget } from "@/components/common";
 import {
   createBaseMetadata,
   viewport as seoViewport,
@@ -59,6 +60,13 @@ export default async function RootLayout({
                       <Footer />
                     </div>
                     <Toaster />
+                    {/* Ko-fi Support Widget - Floating button */}
+                    <KofiWidget
+                      variant="floating"
+                      colorScheme="gold"
+                      buttonText="Support ☕"
+                      icon="heart"
+                    />
                   </AuthProvider>
                 </LoadingProvider>
               </TranslationProvider>

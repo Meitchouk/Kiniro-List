@@ -90,7 +90,10 @@
     "searching": "Buscando...",
     "resultsFor": "Resultados para \"{query}\"",
     "noQuery": "Ingresa un término de búsqueda para encontrar anime",
-    "topQueries": "Búsquedas populares de hoy"
+    "topQueries": "Búsquedas populares de hoy",
+    "trending": "Tendencias",
+    "popular": "Popular",
+    "results": "Resultados"
   },
   "anime": {
     "episodes": "{count} episodios",
@@ -138,6 +141,53 @@
     "tags": "Etiquetas",
     "relations": "Anime Relacionado",
     "recommendations": "Recomendaciones"
+  },
+  "filters": {
+    "searchPlaceholder": "Buscar anime...",
+    "format": "Formato",
+    "allFormats": "Todos los formatos",
+    "season": "Temporada",
+    "allSeasons": "Todas las temporadas",
+    "year": "Año",
+    "allYears": "Todos los años",
+    "status": "Estado",
+    "allStatuses": "Todos los estados",
+    "genres": "Géneros",
+    "sortBy": "Ordenar por",
+    "clear": "Limpiar",
+    "sortPopularity": "Popularidad",
+    "sortTrending": "Tendencia",
+    "sortScore": "Puntuación",
+    "sortRelease": "Fecha de estreno",
+    "sortTitle": "Título",
+    "sort": {
+      "title_asc": "Título A-Z",
+      "title_desc": "Título Z-A",
+      "release_asc": "Más antiguos primero",
+      "release_desc": "Más recientes primero",
+      "score_asc": "Menor puntuación",
+      "score_desc": "Mayor puntuación",
+      "popularity_asc": "Menos popular",
+      "popularity_desc": "Más popular",
+      "added_asc": "Agregados primero",
+      "added_desc": "Recién agregados"
+    },
+    "formats": {
+      "TV": "TV",
+      "TV_SHORT": "TV Corto",
+      "MOVIE": "Película",
+      "SPECIAL": "Especial",
+      "OVA": "OVA",
+      "ONA": "ONA",
+      "MUSIC": "Música"
+    },
+    "statuses": {
+      "FINISHED": "Finalizado",
+      "RELEASING": "En emisión",
+      "NOT_YET_RELEASED": "No estrenado",
+      "CANCELLED": "Cancelado",
+      "HIATUS": "En pausa"
+    }
   },
   "status": {
     "FINISHED": "Finalizado",
@@ -395,6 +445,9 @@
     "navigation": "Navegación",
     "legal": "Legal",
     "connect": "Conectar",
+    "support": "Apóyanos",
+    "supportDescription": "Si disfrutas Kiniro List, considera apoyarnos!",
+    "supportButton": "Invítame un café ☕",
     "privacy": "Política de Privacidad",
     "terms": "Términos del Servicio",
     "contact": "Contáctanos",

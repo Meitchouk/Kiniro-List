@@ -24,7 +24,7 @@ export const animeIdSchema = z.object({
 // ============ Analytics Query Schemas ============
 
 export const trendingQuerySchema = z.object({
-  limit: z.coerce.number().int().min(1).max(50).default(20),
+  limit: z.coerce.number().int().min(1).max(100).default(20),
   scope: z.enum(["day", "all"]).default("day"),
 });
 
@@ -33,7 +33,7 @@ export const topSearchQuerySchema = z.object({
 });
 
 export const popularQuerySchema = z.object({
-  limit: z.coerce.number().int().min(1).max(50).default(50),
+  limit: z.coerce.number().int().min(1).max(100).default(50),
 });
 
 // ============ Settings Schema ============

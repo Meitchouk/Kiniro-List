@@ -166,6 +166,40 @@ export async function getPopularAnimeList(limit: number = 50): Promise<AnimeList
   return handleResponse(response);
 }
 
+export interface BrowseAnimeParams {
+  page?: number;
+  perPage?: number;
+  sort?: string;
+  search?: string;
+  season?: "WINTER" | "SPRING" | "SUMMER" | "FALL";
+  seasonYear?: number;
+  format?: "TV" | "TV_SHORT" | "MOVIE" | "SPECIAL" | "OVA" | "ONA" | "MUSIC";
+  status?: "FINISHED" | "RELEASING" | "NOT_YET_RELEASED" | "CANCELLED" | "HIATUS";
+  genres?: string[];
+}
+
+/**
+ * Browse all anime from AniList with optional filters and pagination.
+ * This is the main function for general anime search/browsing.
+ */
+export async function browseAnimeList(params: BrowseAnimeParams = {}): Promise<AnimeListResponse> {
+  const searchParams = new URLSearchParams();
+
+  if (params.page) searchParams.set("page", String(params.page));
+  if (params.perPage) searchParams.set("perPage", String(params.perPage));
+  if (params.sort) searchParams.set("sort", params.sort);
+  if (params.search) searchParams.set("search", params.search);
+  if (params.season) searchParams.set("season", params.season);
+  if (params.seasonYear) searchParams.set("seasonYear", String(params.seasonYear));
+  if (params.format) searchParams.set("format", params.format);
+  if (params.status) searchParams.set("status", params.status);
+  if (params.genres && params.genres.length > 0)
+    searchParams.set("genres", params.genres.join(","));
+
+  const response = await fetchWithLoading(`/api/anime/browse?${searchParams}`);
+  return handleResponse(response);
+}
+
 // ============ Protected API ============
 
 export async function getCurrentUser(): Promise<UserResponse> {
