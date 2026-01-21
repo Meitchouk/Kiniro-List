@@ -17,6 +17,7 @@ export {
   getTrendingAnimeList,
   getTopSearchQueries,
   getPopularAnimeList,
+  browseAnimeList,
   getCurrentUser,
   updateSettings,
   getLibrary,
@@ -26,6 +27,8 @@ export {
   api,
   sendEmail,
 } from "./client";
+
+export type { BrowseAnimeParams } from "./client";
 
 // Fetch interceptor for loading states
 export { setLoadingCallbacks, clearLoadingCallbacks, fetchWithLoading } from "./fetchInterceptor";

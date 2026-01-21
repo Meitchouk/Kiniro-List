@@ -38,12 +38,12 @@ export function CalendarDateGroup({ dateKey, items, timezone }: CalendarDateGrou
   }, [dateKey, timezone, t, formatFullDate]);
 
   return (
-    <Stack gap={4}>
+    <Stack gap={4} className="md:gap-4">
       <Flex align="center" gap={2}>
         <Calendar className="h-5 w-5" />
         <Typography variant="h6">{headerText}</Typography>
       </Flex>
-      <Grid cols={1} mdCols={2} lgCols={2} xlCols={3} gap={4}>
+      <Grid cols={1} mdCols={2} lgCols={2} xlCols={3} gap={3} className="md:gap-4">
         {items.map((item) => (
           <CalendarItemCard key={item.anime.id} item={item} timezone={timezone} />
         ))}
@@ -138,7 +138,7 @@ export function CalendarList({ items, timezone }: CalendarListProps) {
   }, [groupedItems, timezone]);
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 md:space-y-8">
       {sortedDates.map((dateKey) => (
         <CalendarDateGroup
           key={dateKey}

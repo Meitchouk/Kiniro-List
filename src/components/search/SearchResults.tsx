@@ -15,6 +15,7 @@ interface SearchResultsProps {
   error: Error | null;
   onRetry: () => void;
   onPageChange: (page: number) => void;
+  showNoQueryMessage?: boolean;
 }
 
 /**
@@ -27,10 +28,11 @@ export function SearchResults({
   error,
   onRetry,
   onPageChange,
+  showNoQueryMessage = true,
 }: SearchResultsProps) {
   const t = useTranslations();
 
-  if (!searchQuery) {
+  if (!searchQuery && showNoQueryMessage) {
     return (
       <Typography variant="body2" colorScheme="secondary" align="center">
         {t("search.noQuery")}
@@ -50,11 +52,13 @@ export function SearchResults({
 
   return (
     <Stack gap={4}>
-      <Flex align="center" justify="between">
-        <Typography variant="body2" colorScheme="secondary">
-          {t("search.resultsFor", { query: searchQuery })}
-        </Typography>
-      </Flex>
+      {searchQuery && (
+        <Flex align="center" justify="between">
+          <Typography variant="body2" colorScheme="secondary">
+            {t("search.resultsFor", { query: searchQuery })}
+          </Typography>
+        </Flex>
+      )}
 
       {data.anime.length === 0 ? (
         <Typography variant="body2" colorScheme="secondary" align="center">
