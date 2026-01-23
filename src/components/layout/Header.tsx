@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Menu, Search, Calendar, Clock, BookOpen } from "lucide-react";
+import { Menu, Search, Calendar, Clock, BookOpen, MessageSquarePlus } from "lucide-react";
 import { useState } from "react";
 import {
   Button,
@@ -14,6 +14,7 @@ import {
   DialogTrigger,
   Separator,
   Typography,
+  SimpleTooltip,
 } from "@/components/ds";
 import { ThemeToggle } from "./ThemeToggle";
 import { LanguageSwitcher } from "./LanguageSwitcher";
@@ -86,12 +87,27 @@ export function Header() {
         <div className="flex flex-1 items-center justify-end gap-2">
           {/* Desktop actions */}
           <div className="hidden items-center gap-2 md:flex">
-            <Button variant="ghost" size="icon" asChild>
-              <Link href="/search">
-                <Search className="h-5 w-5" />
-                <span className="sr-only">{t("common.search")}</span>
-              </Link>
-            </Button>
+            <SimpleTooltip content={t("common.search")} side="bottom">
+              <Button variant="ghost" size="icon" asChild>
+                <Link href="/search">
+                  <Search className="h-5 w-5" />
+                  <span className="sr-only">{t("common.search")}</span>
+                </Link>
+              </Button>
+            </SimpleTooltip>
+            <SimpleTooltip content={t("footer.feedback")} side="bottom">
+              <Button
+                variant="ghost"
+                size="icon"
+                asChild
+                className="text-muted-foreground hover:text-primary"
+              >
+                <Link href="/feedback">
+                  <MessageSquarePlus className="h-5 w-5" />
+                  <span className="sr-only">{t("footer.feedback")}</span>
+                </Link>
+              </Button>
+            </SimpleTooltip>
             <LanguageSwitcher />
             <ThemeToggle />
             {!loading && <UserMenu />}
@@ -168,6 +184,20 @@ export function Header() {
                         <div className="flex items-center gap-2">
                           <Search className="h-4 w-4" />
                           <span>{t("common.search")}</span>
+                        </div>
+                      </Link>
+                    </Button>
+
+                    <Button
+                      variant="outline"
+                      className="border-primary/30 text-primary hover:bg-primary/10 h-11 w-full justify-start text-sm"
+                      asChild
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <Link href="/feedback">
+                        <div className="flex items-center gap-2">
+                          <MessageSquarePlus className="h-4 w-4" />
+                          <span>{t("footer.feedback")}</span>
                         </div>
                       </Link>
                     </Button>

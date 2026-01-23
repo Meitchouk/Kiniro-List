@@ -498,6 +498,7 @@
     "supportButton": "Invítame un café ☕",
     "privacy": "Política de Privacidad",
     "terms": "Términos del Servicio",
+    "feedback": "Comentarios",
     "contact": "Contáctanos",
     "allRightsReserved": "Todos los derechos reservados",
     "madeWith": "Hecho con",
@@ -553,6 +554,35 @@
       "changesContent": "Podemos modificar estos Términos del Servicio en cualquier momento. Notificaremos a los usuarios de cambios significativos. El uso continuado del servicio después de los cambios constituye la aceptación de los nuevos términos.",
       "contact": "Contacto",
       "contactContent": "Para preguntas sobre estos Términos del Servicio, contáctanos en:\n\nCorreo: admin@kinirolist.app"
+    }
+  },
+  "feedback": {
+    "title": "Comentarios y Sugerencias",
+    "description": "Ayúdanos a mejorar Kiniro List compartiendo tus ideas, reportando errores o sugiriendo nuevas funciones.",
+    "ctaTitle": "¡Ayúdanos a Mejorar!",
+    "ctaDescription": "Comparte tus ideas, reporta problemas o cuéntanos qué te gustaría ver.",
+    "loginRequired": "Por favor inicia sesión para enviar comentarios. Esto nos ayuda a dar seguimiento y previene spam.",
+    "formTitle": "Enviar Comentarios",
+    "formDescription": "¡Leemos cada mensaje y apreciamos tu opinión!",
+    "typeLabel": "¿Qué tipo de comentario es?",
+    "messageLabel": "Tu mensaje",
+    "messagePlaceholder": "Cuéntanos qué piensas... ¿Qué podríamos mejorar? ¿Encontraste un error? ¿Tienes una idea para una función?",
+    "submit": "Enviar Comentarios",
+    "submitSuccess": "¡Gracias por tus comentarios!",
+    "submitError": "Error al enviar comentarios. Por favor intenta de nuevo.",
+    "thankYou": "¡Gracias!",
+    "thankYouDescription": "Hemos recibido tus comentarios. Agradecemos que te tomes el tiempo de ayudarnos a mejorar.",
+    "sendAnother": "Enviar otro",
+    "myFeedback": "Tus Comentarios Anteriores",
+    "types": {
+      "suggestion": "Sugerencia",
+      "bug": "Reporte de Error",
+      "comment": "Comentario"
+    },
+    "status": {
+      "new": "Nuevo",
+      "reviewed": "En Revisión",
+      "resolved": "Resuelto"
     }
   }
 }

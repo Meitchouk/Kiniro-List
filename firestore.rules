@@ -22,5 +22,18 @@ service cloud.firestore {
       allow read: if true;
       allow write: if false; // Only server (admin SDK) can write
     }
+    
+    // Feedback collection: users can read their own feedback, create new feedback
+    // Only server (admin SDK) can update status or delete
+    match /feedback/{feedbackId} {
+      allow read: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow create: if request.auth != null 
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.type in ['suggestion', 'bug', 'comment']
+        && request.resource.data.message is string
+        && request.resource.data.message.size() >= 10
+        && request.resource.data.message.size() <= 2000;
+      allow update, delete: if false; // Only server (admin SDK) can update/delete
+    }
   }
 }

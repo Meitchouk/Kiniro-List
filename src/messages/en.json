@@ -500,6 +500,7 @@
     "supportButton": "Buy me a coffee ☕",
     "privacy": "Privacy Policy",
     "terms": "Terms of Service",
+    "feedback": "Feedback",
     "contact": "Contact Us",
     "allRightsReserved": "All rights reserved",
     "madeWith": "Made with",
@@ -555,6 +556,35 @@
       "changesContent": "We may modify these Terms of Service at any time. We will notify users of significant changes. Continued use of the service after changes constitutes acceptance of the new terms.",
       "contact": "Contact",
       "contactContent": "For questions about these Terms of Service, please contact us at:\n\nEmail: admin@kinirolist.app"
+    }
+  },
+  "feedback": {
+    "title": "Feedback & Suggestions",
+    "description": "Help us improve Kiniro List by sharing your thoughts, reporting bugs, or suggesting new features.",
+    "ctaTitle": "Help Us Improve!",
+    "ctaDescription": "Share your ideas, report issues, or tell us what you'd like to see next.",
+    "loginRequired": "Please login to submit feedback. This helps us follow up and prevents spam.",
+    "formTitle": "Send Feedback",
+    "formDescription": "We read every message and appreciate your input!",
+    "typeLabel": "What type of feedback is this?",
+    "messageLabel": "Your message",
+    "messagePlaceholder": "Tell us what's on your mind... What could we improve? Did you find a bug? Have a feature idea?",
+    "submit": "Send Feedback",
+    "submitSuccess": "Thank you for your feedback!",
+    "submitError": "Failed to submit feedback. Please try again.",
+    "thankYou": "Thank you!",
+    "thankYouDescription": "Your feedback has been received. We appreciate you taking the time to help us improve.",
+    "sendAnother": "Send another",
+    "myFeedback": "Your Previous Feedback",
+    "types": {
+      "suggestion": "Suggestion",
+      "bug": "Bug Report",
+      "comment": "Comment"
+    },
+    "status": {
+      "new": "New",
+      "reviewed": "Under Review",
+      "resolved": "Resolved"
     }
   }
 }
