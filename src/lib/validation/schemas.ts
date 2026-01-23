@@ -127,6 +127,61 @@ export const emailSendSchema = z
     path: ["text"],
   });
 
+// ============ Auth Schemas ============
+
+export const emailSchema = z.string().email("Invalid email address").min(1, "Email is required");
+
+export const passwordSchema = z
+  .string()
+  .min(8, "Password must be at least 8 characters")
+  .max(100, "Password must be less than 100 characters")
+  .regex(/[a-z]/, "Password must contain at least one lowercase letter")
+  .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
+  .regex(/[0-9]/, "Password must contain at least one number");
+
+export const displayNameSchema = z
+  .string()
+  .min(2, "Name must be at least 2 characters")
+  .max(50, "Name must be less than 50 characters")
+  .regex(
+    /^[a-zA-Z0-9\s_-]+$/,
+    "Name can only contain letters, numbers, spaces, underscores and hyphens"
+  );
+
+export const signUpSchema = z
+  .object({
+    email: emailSchema,
+    password: passwordSchema,
+    confirmPassword: z.string(),
+    displayName: displayNameSchema.optional(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ["confirmPassword"],
+  });
+
+export const signInSchema = z.object({
+  email: emailSchema,
+  password: z.string().min(1, "Password is required"),
+});
+
+export const forgotPasswordSchema = z.object({
+  email: emailSchema,
+});
+
+// ============ Feedback Schema ============
+
+export const feedbackTypeSchema = z.enum(["suggestion", "bug", "comment", "other"]);
+
+export const feedbackCreateSchema = z.object({
+  type: feedbackTypeSchema,
+  message: z
+    .string()
+    .min(10, "Message must be at least 10 characters")
+    .max(2000, "Message must be less than 2000 characters"),
+  page: z.string().max(200).optional(),
+});
+
 // ============ Type exports ============
 
 export type PaginationParams = z.infer<typeof paginationSchema>;
@@ -140,3 +195,8 @@ export type PopularQueryParams = z.infer<typeof popularQuerySchema>;
 export type SystemLogsQueryParams = z.infer<typeof systemLogsQuerySchema>;
 export type ClientErrorParams = z.infer<typeof clientErrorSchema>;
 export type EmailSendParams = z.infer<typeof emailSendSchema>;
+export type SignUpParams = z.infer<typeof signUpSchema>;
+export type SignInParams = z.infer<typeof signInSchema>;
+export type ForgotPasswordParams = z.infer<typeof forgotPasswordSchema>;
+export type FeedbackType = z.infer<typeof feedbackTypeSchema>;
+export type FeedbackCreateParams = z.infer<typeof feedbackCreateSchema>;

@@ -2,7 +2,16 @@
 
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { User } from "firebase/auth";
-import { onAuthChange, signInWithGoogle, signOut, getIdToken } from "@/lib/auth/clientAuth";
+import {
+  onAuthChange,
+  signInWithGoogle,
+  signInWithEmail,
+  signUpWithEmail,
+  sendPasswordResetEmail,
+  resendVerificationEmail,
+  signOut,
+  getIdToken,
+} from "@/lib/auth/clientAuth";
 import { getTimezone } from "@/lib/utils/date";
 import { useLoading } from "@/components/providers/LoadingProvider";
 import type { UserResponse } from "@/lib/types";
@@ -12,6 +21,10 @@ interface AuthContextType {
   userData: UserResponse | null;
   loading: boolean;
   signIn: () => Promise<void>;
+  signInEmail: (email: string, password: string) => Promise<void>;
+  signUpEmail: (email: string, password: string, displayName?: string) => Promise<void>;
+  resetPassword: (email: string) => Promise<void>;
+  resendVerification: () => Promise<void>;
   logOut: () => Promise<void>;
   getAuthHeaders: (options?: { forceRefresh?: boolean }) => Promise<Record<string, string>>;
   refetchUser: () => Promise<void>;
@@ -96,6 +109,58 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const signInEmail = async (email: string, password: string) => {
+    try {
+      startLoading("signInEmail");
+      const firebaseUser = await signInWithEmail(email, password);
+      const err = await fetchUserData(firebaseUser);
+      if (err) throw err;
+    } catch (error) {
+      console.error("Sign in with email error:", error);
+      throw error;
+    } finally {
+      stopLoading("signInEmail");
+    }
+  };
+
+  const signUpEmail = async (email: string, password: string, displayName?: string) => {
+    try {
+      startLoading("signUpEmail");
+      const firebaseUser = await signUpWithEmail(email, password, displayName);
+      const err = await fetchUserData(firebaseUser);
+      if (err) throw err;
+    } catch (error) {
+      console.error("Sign up with email error:", error);
+      throw error;
+    } finally {
+      stopLoading("signUpEmail");
+    }
+  };
+
+  const resetPassword = async (email: string) => {
+    try {
+      startLoading("resetPassword");
+      await sendPasswordResetEmail(email);
+    } catch (error) {
+      console.error("Reset password error:", error);
+      throw error;
+    } finally {
+      stopLoading("resetPassword");
+    }
+  };
+
+  const resendVerification = async () => {
+    try {
+      startLoading("resendVerification");
+      await resendVerificationEmail();
+    } catch (error) {
+      console.error("Resend verification error:", error);
+      throw error;
+    } finally {
+      stopLoading("resendVerification");
+    }
+  };
+
   const logOut = async () => {
     try {
       startLoading("logOut");
@@ -143,6 +208,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         userData,
         loading,
         signIn,
+        signInEmail,
+        signUpEmail,
+        resetPassword,
+        resendVerification,
         logOut,
         getAuthHeaders,
         refetchUser,

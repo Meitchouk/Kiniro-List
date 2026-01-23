@@ -115,11 +115,31 @@ function GoogleOneTapInner({ clientId, initialized, t }: GoogleOneTapInnerProps)
         });
 
         if (!cancelled) {
-          window.google.accounts.id.prompt();
+          // Use prompt with notification callback to handle FedCM errors gracefully
+          window.google.accounts.id.prompt((notification: any) => {
+            // Handle prompt status - these are informational, not errors
+            if (notification.isNotDisplayed()) {
+              const reason = notification.getNotDisplayedReason();
+              // These are expected scenarios, log but don't show error to user
+              console.log("[GoogleOneTap] Not displayed:", reason);
+            } else if (notification.isSkippedMoment()) {
+              const reason = notification.getSkippedReason();
+              console.log("[GoogleOneTap] Skipped:", reason);
+            } else if (notification.isDismissedMoment()) {
+              const reason = notification.getDismissedReason();
+              console.log("[GoogleOneTap] Dismissed:", reason);
+            }
+          });
         }
-      } catch (e) {
+      } catch (e: any) {
+        // FedCM NetworkError is expected when user cancels or browser blocks
+        // Don't show error to user for these cases
+        if (e?.message?.includes("NetworkError") || e?.name === "NetworkError") {
+          console.log("[GoogleOneTap] FedCM request cancelled or blocked by browser");
+        } else {
+          console.error("Google One Tap initialization error", e);
+        }
         initialized.current = false;
-        console.error("Google One Tap initialization error", e);
       }
     })();
 
