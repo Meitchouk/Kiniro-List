@@ -9,28 +9,42 @@
 6. [API Endpoints](#api-endpoints)
 7. [Caching Strategy](#caching-strategy)
 8. [Architecture](#architecture)
+9. [Logging and Observability](#logging-and-observability)
+10. [Email and Cron Jobs](#email-and-cron-jobs)
+11. [Deployment to Vercel](#deployment-to-vercel)
+12. [Development Commands](#development-commands)
+13. [Troubleshooting](#troubleshooting)
+14. [Performance Optimization](#performance-optimization)
+15. [Security](#security)
+16. [Contributing](#contributing)
+17. [License](#license)
 
 ---
 
 ## Tech Stack
 
 ### Frontend
-- **Framework**: Next.js 15 (App Router) + TypeScript
-- **Styling**: TailwindCSS + shadcn/ui + lucide-react
+- **Framework**: Next.js 15 (App Router) + React 19 + TypeScript
+- **Styling**: TailwindCSS v4 + shadcn/ui + Radix UI + lucide-react
 - **Data Fetching**: @tanstack/react-query
 - **Forms**: react-hook-form + zod + @hookform/resolvers
 - **Date/Time**: luxon
 - **Theming**: next-themes
 - **i18n**: next-intl
+- **UI Feedback**: sonner
+- **Analytics**: Vercel Analytics + Speed Insights
 
 ### Backend
-- **Framework**: Next.js API Routes
-- **Authentication**: Firebase Authentication (Google)
+- **Framework**: Next.js Route Handlers (App Router API)
+- **Authentication**: Firebase Authentication (Google, email/password)
 - **Database**: Firebase Firestore
-- **Rate Limiting**: Upstash Redis + @upstash/ratelimit
+- **Rate Limiting & Metrics**: Upstash Redis + @upstash/ratelimit
+- **Email**: ZeptoMail API (transactional and digest emails)
+- **Logging**: Pino-based logging to Firestore (server) + client error reporting
 
 ### External APIs
 - **AniList GraphQL API**: Anime data source (server-side only)
+- **Google Identity Services**: One Tap sign-in (client-side)
 
 ---
 
@@ -40,101 +54,91 @@
 kiniro-list/
 ├── src/
 │   ├── app/                          # Next.js App Router pages
-│   │   ├── api/                      # API Route handlers
+│   │   ├── api/                      # API route handlers
+│   │   │   ├── admin/                # Admin-only endpoints
+│   │   │   │   ├── feedback/route.ts
+│   │   │   │   └── users/route.ts
+│   │   │   ├── alive/route.ts        # Liveness probe
 │   │   │   ├── anime/                # Anime endpoints
-│   │   │   │   ├── [id]/route.ts     # Anime detail
-│   │   │   │   └── search/route.ts   # Search anime
-│   │   │   ├── calendar/             # Calendar endpoints
-│   │   │   │   ├── now/route.ts      # Current season
-│   │   │   │   ├── upcoming/route.ts # Next season
-│   │   │   │   └── season/route.ts   # Any season
-│   │   │   ├── me/                   # Protected user endpoints
-│   │   │   │   ├── route.ts          # User profile
-│   │   │   │   ├── calendar/route.ts # Personal calendar
-│   │   │   │   ├── library/route.ts  # User library
-│   │   │   │   └── settings/route.ts # User settings
-│   │   │   └── schedule/             # Schedule endpoints
-│   │   │       └── weekly/route.ts   # Weekly schedule
-│   │   ├── anime/[id]/page.tsx       # Anime detail page
+│   │   │   │   ├── [id]/route.ts
+│   │   │   │   ├── browse/route.ts
+│   │   │   │   ├── popular/route.ts
+│   │   │   │   ├── search/route.ts
+│   │   │   │   └── trending/route.ts
+│   │   │   ├── auth/                 # Auth email endpoints
+│   │   │   │   ├── reset-password/route.ts
+│   │   │   │   └── send-verification/route.ts
+│   │   │   ├── calendar/             # Season endpoints
+│   │   │   │   ├── now/route.ts
+│   │   │   │   ├── upcoming/route.ts
+│   │   │   │   └── season/route.ts
+│   │   │   ├── cron/                 # Scheduled jobs
+│   │   │   │   ├── daily-digest/route.ts
+│   │   │   │   └── refresh-trending/route.ts
+│   │   │   ├── email/                # Email utilities
+│   │   │   │   ├── send/route.ts
+│   │   │   │   └── preview-digest/route.ts
+│   │   │   ├── feedback/route.ts     # User feedback
+│   │   │   ├── health/route.ts       # Health checks
+│   │   │   ├── me/                   # Authenticated user endpoints
+│   │   │   │   ├── calendar/route.ts
+│   │   │   │   ├── library/route.ts
+│   │   │   │   ├── notifications/route.ts
+│   │   │   │   ├── settings/route.ts
+│   │   │   │   └── route.ts
+│   │   │   ├── schedule/weekly/route.ts
+│   │   │   ├── search/top/route.ts   # Top search queries
+│   │   │   └── system-logs/          # Logging endpoints
+│   │   │       ├── route.ts
+│   │   │       ├── client-errors/route.ts
+│   │   │       ├── report/route.ts
+│   │   │       └── stats/route.ts
+│   │   ├── admin-panel/              # Admin UI
+│   │   ├── anime/[slug]/             # Anime detail page
+│   │   ├── auth/                     # Auth completion routes
 │   │   ├── calendar/                 # Calendar pages
-│   │   │   ├── now/page.tsx          # Current season
-│   │   │   ├── upcoming/page.tsx     # Upcoming season
-│   │   │   └── season/[year]/[season]/page.tsx
-│   │   ├── me/                       # Protected user pages
-│   │   │   ├── layout.tsx
-│   │   │   ├── calendar/page.tsx
-│   │   │   ├── library/page.tsx
-│   │   │   ├── profile/page.tsx
-│   │   │   └── settings/page.tsx
-│   │   ├── schedule/weekly/page.tsx  # Weekly schedule page
-│   │   ├── search/page.tsx           # Search page
+│   │   ├── feedback/                 # Feedback UI
+│   │   ├── me/                       # Authenticated user pages
+│   │   ├── privacy/                  # Privacy policy
+│   │   ├── schedule/                 # Schedule pages
+│   │   ├── search/                   # Search UI
+│   │   ├── terms/                    # Terms of service
+│   │   ├── styles/globals.css        # Global styles
 │   │   ├── layout.tsx                # Root layout
 │   │   └── page.tsx                  # Home page
 │   ├── components/
-│   │   ├── anime/                    # Anime-related components
-│   │   │   ├── AnimeCard.tsx
-│   │   │   ├── Pagination.tsx
-│   │   │   └── ...
-│   │   ├── auth/                     # Auth components
-│   │   │   ├── GoogleButton.tsx
-│   │   │   └── GoogleOneTap.tsx
+│   │   ├── anime/                    # Anime UI components
+│   │   ├── auth/                     # Auth UI components
+│   │   ├── common/                   # Shared UI utilities
+│   │   ├── ds/                       # Design system
 │   │   ├── layout/                   # Layout components
-│   │   │   ├── Header.tsx
-│   │   │   ├── Footer.tsx
-│   │   │   └── ...
 │   │   ├── providers/                # Context providers
-│   │   │   ├── AuthProvider.tsx
-│   │   │   ├── QueryProvider.tsx
-│   │   │   └── ...
+│   │   ├── seo/                      # SEO components
 │   │   └── ui/                       # shadcn/ui components
-│   │       ├── button.tsx
-│   │       ├── card.tsx
-│   │       └── ...
 │   ├── lib/
-│   │   ├── anilist/
-│   │   │   └── client.ts             # AniList GraphQL client
-│   │   ├── auth/
-│   │   │   ├── clientAuth.ts         # Client-side auth
-│   │   │   └── serverAuth.ts         # Server-side auth
-│   │   ├── firebase/
-│   │   │   ├── admin.ts              # Firebase Admin SDK
-│   │   │   └── client.ts             # Firebase Client SDK
-│   │   ├── firestore/
-│   │   │   └── cache.ts              # Firestore cache helpers
-│   │   ├── i18n/
-│   │   │   └── request.ts            # i18n configuration
-│   │   ├── utils/
-│   │   │   ├── date.ts               # Date utilities
-│   │   │   └── text.ts               # Text utilities
-│   │   ├── hooks/
-│   │   │   └── useLoadingFetch.ts    # Custom hooks
-│   │   ├── api.ts                    # Client API wrapper
-│   │   ├── fetchInterceptor.ts       # Fetch interceptor
-│   │   ├── ip.ts                     # IP extraction
-│   │   ├── ratelimit.ts              # Rate limiting logic
-│   │   ├── schemas.ts                # Zod validation schemas
-│   │   └── types.ts                  # TypeScript types
-│   ├── messages/
-│   │   ├── en.json                   # English translations
-│   │   └── es.json                   # Spanish translations
-│   ├── styles/
-│   │   └── globals.css               # Global styles
-│   └── middleware.ts                 # next-intl middleware
-├── firebase/
-│   └── kiniro-list-firebase-adminsdk-*.json
+│   │   ├── anilist/                  # AniList client
+│   │   ├── api/                      # Client API helpers
+│   │   ├── auth/                     # Auth helpers
+│   │   ├── config/                   # Environment config
+│   │   ├── email/                    # Email templates/services
+│   │   ├── firebase/                 # Firebase admin/client
+│   │   ├── firestore/                # Firestore caching
+│   │   ├── i18n/                     # Internationalization utils
+│   │   ├── logging/                  # Logging utilities
+│   │   ├── redis/                    # Redis cache/ratelimit/metrics
+│   │   ├── seo/                      # SEO helpers
+│   │   ├── types/                    # Shared types
+│   │   ├── utils/                    # Utilities
+│   │   └── validation/               # Zod schemas
+│   ├── messages/                     # Translations
+│   └── middleware.ts                 # Locale middleware
+├── scripts/                          # Env helpers
 ├── public/                           # Static assets
-├── scripts/
-│   ├── env-from-firebase.js          # Firebase config script
-│   └── env-init.js                   # Env initialization
 ├── firestore.rules                   # Firestore security rules
-├── eslint.config.mjs
-├── next.config.ts
+├── next.config.ts                    # Next.js config
 ├── tailwind.config.ts
-├── tsconfig.json
 ├── package.json
-├── README.md
 ├── TECHNICAL.md
-├── LICENSE
 └── .env.example
 ```
 
@@ -153,224 +157,46 @@ src/components/ds/
 │   ├── index.ts
 │   └── tokens.ts               # Design tokens (colors, spacing, typography)
 ├── atoms/                      # Basic building blocks
-│   ├── index.ts
-│   ├── Typography.tsx          # Text component with variants
 │   ├── Box.tsx                 # Layout primitives (Box, Flex, Stack, Center, Container)
-│   ├── Grid.tsx                # Responsive grid layouts
-│   ├── TextField.tsx           # Enhanced input with label/error states
-│   ├── TextArea.tsx            # Multi-line text input
-│   ├── IconWrapper.tsx         # Icon sizing and accessibility
 │   ├── Divider.tsx             # Horizontal/vertical dividers
-│   └── Spacer.tsx              # Fixed-size spacing element
+│   ├── Grid.tsx                # Responsive grid layouts
+│   ├── IconWrapper.tsx         # Icon sizing and accessibility
+│   ├── Spacer.tsx              # Fixed-size spacing element
+│   ├── TextArea.tsx            # Multi-line text input
+│   ├── TextField.tsx           # Enhanced input with label/error states
+│   ├── Typography.tsx          # Text component with variants
+│   └── index.ts
 ├── molecules/                  # Composed components
-│   ├── index.ts
-│   ├── Alert.tsx               # Feedback alerts (info, success, warning, error)
-│   ├── Spinner.tsx             # Loading indicators and overlays
-│   ├── Progress.tsx            # Progress bar with variants
-│   ├── Tooltip.tsx             # Tooltip wrapper
+│   ├── Alert.tsx               # Feedback alerts
 │   ├── EmptyState.tsx          # Empty/no-results states
-│   └── FormField.tsx           # Form field wrapper with validation
+│   ├── FormField.tsx           # Form field wrapper
+│   ├── InfoLabel.tsx           # Inline metadata labels
+│   ├── PosterCard.tsx          # Poster card presentation
+│   ├── Progress.tsx            # Progress bar
+│   ├── Spinner.tsx             # Loading indicators
+│   ├── Tooltip.tsx             # Tooltip wrapper
+│   └── index.ts
 └── organisms/                  # Complex components
-    ├── index.ts
-    ├── Section.tsx             # Page section with title/subtitle
+    ├── Carousel.tsx            # Horizontal scroll carousel
     ├── PageHeader.tsx          # Page header with back navigation
-    └── PageLayout.tsx          # Full page layout wrapper
+    ├── PageLayout.tsx          # Layout wrapper
+    ├── Section.tsx             # Page section with title/subtitle
+    └── index.ts
 ```
 
 ### Importing Components
 
 ```tsx
 // Import specific components
-import { Typography, Button, TextField, Card, Box, IconWrapper } from '@/components/ds';
+import { Typography, Button, TextField, Card, Box, IconWrapper } from "@/components/ds";
 
 // Import tokens for programmatic access
-import { colors, spacing, typography } from '@/components/ds/foundations';
-```
-
-### Using Typography
-
-```tsx
-// Semantic headings (h1-h6)
-<Typography variant="h1">Main Title</Typography>
-<Typography variant="h2">Section Title</Typography>
-
-// Body text variants
-<Typography variant="body1">Regular paragraph text</Typography>
-<Typography variant="body2">Smaller text</Typography>
-<Typography variant="caption">Caption or helper text</Typography>
-
-// With modifiers
-<Typography variant="h3" weight="medium" align="center">
-  Centered Medium Title
-</Typography>
-
-// Color variants
-<Typography variant="body1" colorScheme="primary">Primary colored</Typography>
-<Typography variant="body1" colorScheme="destructive">Error text</Typography>
-
-// Truncation
-<Typography variant="body1" truncate>Very long text that will be truncated...</Typography>
-<Typography variant="body1" lineClamp={2}>Multi-line clamping...</Typography>
-```
-
-### Using Button
-
-Uses shadcn/ui Button with CVA variants:
-
-```tsx
-import { Button } from '@/components/ds';
-
-<Button variant="default">Primary Action</Button>
-<Button variant="secondary">Secondary</Button>
-<Button variant="destructive">Delete</Button>
-<Button variant="outline">Outline</Button>
-<Button variant="ghost">Ghost</Button>
-<Button variant="link">Link Style</Button>
-<Button size="sm">Small</Button>
-<Button size="lg">Large</Button>
-```
-
-### Using TextField
-
-```tsx
-import { TextField } from '@/components/ds';
-
-<TextField
-  label="Email"
-  placeholder="Enter your email"
-  helperText="We'll never share your email"
-/>
-
-<TextField
-  label="Password"
-  type="password"
-  errorText="Password is required"
-  error
-/>
-
-// With adornments
-<TextField
-  label="Search"
-  startAdornment={<SearchIcon className="h-4 w-4" />}
-/>
-```
-
-### Using Layout Components
-
-```tsx
-import { Box, Flex, Stack, Container, Grid } from '@/components/ds';
-
-// Basic box
-<Box p={4} rounded="md" bg="card">Content</Box>
-
-// Flexbox layouts
-<Flex justify="between" align="center" gap={4}>
-  <div>Left</div>
-  <div>Right</div>
-</Flex>
-
-// Stack (vertical flex)
-<Stack gap={4}>
-  <div>Item 1</div>
-  <div>Item 2</div>
-</Stack>
-
-// Container with max-width
-<Container maxWidth="xl" px={4}>
-  Page content
-</Container>
-
-// Responsive grid
-<Grid cols={1} mdCols={2} lgCols={3} gap={6}>
-  <Card>Card 1</Card>
-  <Card>Card 2</Card>
-  <Card>Card 3</Card>
-</Grid>
-```
-
-### Using IconWrapper
-
-```tsx
-import { IconWrapper, Icon } from '@/components/ds';
-import { Star, Heart } from 'lucide-react';
-
-// Accessible icon with label
-<IconWrapper icon={Star} size="lg" label="Favorite" />
-
-// Decorative icon (hidden from screen readers)
-<IconWrapper icon={Heart} size="md" decorative />
-
-// Simple icon (no wrapper span)
-<Icon icon={Star} size="sm" colorScheme="primary" />
-```
-
-### Using Feedback Components
-
-```tsx
-import { Alert, Spinner, Progress, EmptyState } from '@/components/ds';
-
-// Alerts
-<Alert variant="info" title="Information">
-  This is an informational message.
-</Alert>
-<Alert variant="destructive" title="Error" dismissible>
-  Something went wrong.
-</Alert>
-
-// Spinners
-<Spinner size="lg" />
-<LoadingOverlay visible text="Loading..." />
-
-// Progress
-<Progress value={75} showLabel />
-<Progress indeterminate variant="primary" />
-
-// Empty states
-<EmptyState
-  icon={InboxIcon}
-  title="No results"
-  description="Try adjusting your search"
-  action={<Button>Clear filters</Button>}
-/>
-```
-
-### Design Tokens
-
-All design values are centralized in `src/components/ds/foundations/tokens.ts`:
-
-```tsx
-import {
-  colors,         // Semantic colors (primary, background, card, etc.)
-  spacing,        // Spacing scale (0, 1, 2, 4, 8, 12, 16, etc.)
-  typography,     // Font families, sizes, weights, line heights
-  borderRadius,   // Radius tokens (none, sm, md, lg, full)
-  shadows,        // Shadow tokens (sm, md, lg, xl)
-  transitions,    // Animation durations and easings
-  zIndex,         // Z-index scale
-  breakpoints,    // Responsive breakpoints
-  iconSizes,      // Icon size tokens
-} from '@/components/ds/foundations';
+import { colors, spacing, typography } from "@/components/ds/foundations";
 ```
 
 ### Theme Integration
 
-The DS uses CSS variables defined in `globals.css`. Theme switching (light/dark) is handled via `next-themes` with the `.dark` class:
-
-```css
-:root {
-  --background: 0 0% 100%;
-  --foreground: 224 71.4% 4.1%;
-  --primary: 220.9 39.3% 11%;
-  /* ... */
-}
-
-.dark {
-  --background: 224 71.4% 4.1%;
-  --foreground: 210 20% 98%;
-  --primary: 210 20% 98%;
-  /* ... */
-}
-```
+The DS uses CSS variables defined in `globals.css`. Theme switching (light/dark) is handled via `next-themes` with the `.dark` class.
 
 ### Adding New Components
 
@@ -378,63 +204,14 @@ The DS uses CSS variables defined in `globals.css`. Theme switching (light/dark)
 2. Create the component file in the appropriate folder
 3. Use CVA for variants when needed
 4. Export from the folder's `index.ts`
-5. Re-export from the main `src/components/ds/index.ts` if needed
+5. Re-export from `src/components/ds/index.ts` if needed
 
 **Conventions:**
-- Use `colorScheme` instead of `color` for color variants (to avoid conflicts with HTML attributes)
-- Always support `className` prop for custom styles
+- Use `colorScheme` instead of `color` for color variants
+- Always support `className` props for custom styles
 - Use `forwardRef` for all components
 - Add JSDoc comments for props
-- Use CSS variables via Tailwind classes (e.g., `text-primary`, `bg-card`)
-
-**Example new atom:**
-
-```tsx
-// src/components/ds/atoms/MyComponent.tsx
-import * as React from "react";
-import { cva, type VariantProps } from "class-variance-authority";
-import { cn } from "@/lib/utils";
-
-const myComponentVariants = cva("base-classes", {
-  variants: {
-    size: {
-      sm: "h-8",
-      md: "h-10",
-      lg: "h-12",
-    },
-  },
-  defaultVariants: {
-    size: "md",
-  },
-});
-
-export interface MyComponentProps
-  extends React.HTMLAttributes<HTMLDivElement>,
-    VariantProps<typeof myComponentVariants> {}
-
-const MyComponent = React.forwardRef<HTMLDivElement, MyComponentProps>(
-  ({ className, size, ...props }, ref) => {
-    return (
-      <div
-        ref={ref}
-        className={cn(myComponentVariants({ size }), className)}
-        {...props}
-      />
-    );
-  }
-);
-MyComponent.displayName = "MyComponent";
-
-export { MyComponent, myComponentVariants };
-```
-
-Then add to exports:
-
-```tsx
-// src/components/ds/atoms/index.ts
-export { MyComponent, myComponentVariants } from './MyComponent';
-export type { MyComponentProps } from './MyComponent';
-```
+- Use CSS variables via Tailwind classes (for example: `text-primary`, `bg-card`)
 
 ---
 
@@ -445,6 +222,7 @@ export type { MyComponentProps } from './MyComponent';
 - npm or yarn
 - Firebase account
 - Upstash account
+- ZeptoMail account (for transactional email)
 
 ### 1. Clone and Install
 
@@ -456,74 +234,36 @@ npm install
 
 ### 2. Firebase Setup
 
-1. Go to [Firebase Console](https://console.firebase.google.com/)
+1. Go to Firebase Console
 2. Create a new project (or use existing)
-3. **Enable Authentication**:
-   - Go to Authentication > Sign-in method
-   - Enable Google provider
-   - Add your domain to authorized domains
-4. **Create Firestore Database**:
-   - Go to Firestore Database
-   - Create database in production mode
-   - Choose a location close to your users
-5. **Get Web App Config**:
-   - Go to Project Settings > General > Your apps
-   - Click "Add app" > Web
-   - Register app and copy the config values
-6. **Generate Admin Service Account**:
-   - Go to Project Settings > Service Accounts
-   - Click "Generate new private key"
-   - Save the JSON file securely
-7. **Deploy Firestore Rules**:
-   ```bash
-   npm install -g firebase-tools
-   firebase login
-   firebase init firestore
-   firebase deploy --only firestore:rules
-   ```
+3. Enable Authentication (Google and Email/Password as needed)
+4. Create Firestore Database
+5. Obtain Web App config (client SDK keys)
+6. Generate Admin service account JSON
+7. Deploy Firestore rules
 
 ### 3. Upstash Redis Setup
 
-1. Go to [Upstash Console](https://console.upstash.com/)
-2. Create a new Redis database
-3. Choose a region close to your deployment region
-4. Copy the REST URL and Token
+1. Create a Redis database in Upstash
+2. Copy REST URL and Token
 
-### 4. Environment Variables
+### 4. ZeptoMail Setup
 
-Create a `.env.local` file in the project root:
+1. Create a ZeptoMail account and senders
+2. Obtain API token
+3. Define the from email and name
 
-```env
-# Firebase Client (public)
-NEXT_PUBLIC_FIREBASE_API_KEY=your-api-key
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
-NEXT_PUBLIC_FIREBASE_PROJECT_ID=your-project-id
-NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your-project.appspot.com
-NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your-sender-id
-NEXT_PUBLIC_FIREBASE_APP_ID=your-app-id
+### 5. Environment Variables
 
-# Firebase Admin (server-only)
-FIREBASE_ADMIN_PROJECT_ID=your-project-id
-FIREBASE_ADMIN_CLIENT_EMAIL=firebase-adminsdk-xxx@your-project.iam.gserviceaccount.com
-FIREBASE_ADMIN_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
+Create a `.env.local` file in the project root (see [Environment Variables](#environment-variables)).
 
-# Upstash Redis
-UPSTASH_REDIS_REST_URL=https://your-redis.upstash.io
-UPSTASH_REDIS_REST_TOKEN=your-token
-
-# AniList API
-ANILIST_API=https://graphql.anilist.co
-```
-
-**Note**: For `FIREBASE_ADMIN_PRIVATE_KEY`, copy the entire value from the service account JSON, including the `\n` characters. Wrap in quotes.
-
-### 5. Run Locally
+### 6. Run Locally
 
 ```bash
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000)
+Open http://localhost:3000
 
 ---
 
@@ -537,29 +277,59 @@ Open [http://localhost:3000](http://localhost:3000)
 | `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET` | Public | Firebase storage bucket |
 | `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID` | Public | Firebase messaging sender ID |
 | `NEXT_PUBLIC_FIREBASE_APP_ID` | Public | Firebase app ID |
+| `NEXT_PUBLIC_GOOGLE_OAUTH_CLIENT_ID` | Public | Google OAuth client ID for One Tap |
+| `NEXT_PUBLIC_STORAGE_ENCRYPTION_KEY` | Public | Client-side storage encryption key |
+| `NEXT_PUBLIC_BASE_URL` | Public | Base URL used for email templates and links |
+| `NEXT_PUBLIC_APP_URL` | Public | App URL used in auth email action links |
+| `GOOGLE_SITE_VERIFICATION` | Private | Google site verification token |
 | `FIREBASE_ADMIN_PROJECT_ID` | Private | Firebase admin project ID |
 | `FIREBASE_ADMIN_CLIENT_EMAIL` | Private | Firebase admin client email |
 | `FIREBASE_ADMIN_PRIVATE_KEY` | Private | Firebase admin private key |
 | `UPSTASH_REDIS_REST_URL` | Private | Upstash Redis URL |
 | `UPSTASH_REDIS_REST_TOKEN` | Private | Upstash Redis token |
 | `ANILIST_API` | Private | AniList GraphQL API endpoint |
+| `ZEPTOMAIL_URL` | Private | ZeptoMail API URL |
+| `ZEPTOMAIL_TOKEN` | Private | ZeptoMail API token |
+| `ZEPTOMAIL_FROM_EMAIL` | Private | ZeptoMail sender email |
+| `ZEPTOMAIL_FROM_NAME` | Private | ZeptoMail sender name |
+| `CRON_SECRET` | Private | Shared secret for cron endpoints |
+
+**Notes:**
+- `NEXT_PUBLIC_BASE_URL` and `NEXT_PUBLIC_APP_URL` have safe defaults but should be set per environment.
+- `NEXT_PUBLIC_STORAGE_ENCRYPTION_KEY` must be a strong, environment-specific key for production.
 
 ---
 
 ## API Endpoints
 
-### Public Endpoints
+### Status and Monitoring
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/alive` | Lightweight liveness probe |
+| GET | `/api/health` | Detailed health report |
+
+### Public Anime Data
 
 | Method | Endpoint | Rate Limit | Description |
 |--------|----------|------------|-------------|
-| GET | `/api/anime/search?q=&page=` | 20/min | Search anime |
-| GET | `/api/anime/[id]` | 60/min | Get anime detail |
-| GET | `/api/calendar/now?page=` | 30/min | Current season anime |
-| GET | `/api/calendar/upcoming?page=` | 30/min | Upcoming season anime |
-| GET | `/api/calendar/season?year=&season=&page=` | 30/min | Season by year and season |
-| GET | `/api/schedule/weekly` | 30/min | Weekly schedule |
+| GET | `/api/anime/search?q=&page=` | Search (20/min) | Search anime |
+| GET | `/api/anime/[id]` | Anime detail (60/min) | Anime detail (includes airing info) |
+| GET | `/api/anime/browse` | Search (20/min) | Browse with filters/sorting |
+| GET | `/api/anime/popular` | Search (20/min) | Popular anime lists |
+| GET | `/api/anime/trending` | Search (20/min) | Trending anime lists |
+| GET | `/api/search/top` | Search (20/min) | Top search queries |
 
-### Protected Endpoints (requires Bearer token)
+### Calendar and Schedule
+
+| Method | Endpoint | Rate Limit | Description |
+|--------|----------|------------|-------------|
+| GET | `/api/calendar/now?page=` | Calendar (30/min) | Current season anime |
+| GET | `/api/calendar/upcoming?page=` | Calendar (30/min) | Upcoming season anime |
+| GET | `/api/calendar/season?year=&season=&page=` | Calendar (30/min) | Season by year and season |
+| GET | `/api/schedule/weekly` | Calendar (30/min) | Weekly airing schedule |
+
+### Authentication and User Data (Bearer token)
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
@@ -569,34 +339,69 @@ Open [http://localhost:3000](http://localhost:3000)
 | POST | `/api/me/library` | Add/update library entry |
 | DELETE | `/api/me/library/[animeId]` | Remove library entry |
 | GET | `/api/me/calendar` | Get personalized calendar |
+| GET | `/api/me/notifications` | List notifications or unread count |
+| PATCH | `/api/me/notifications` | Mark notifications as read |
+| DELETE | `/api/me/notifications` | Cleanup old notifications |
+| POST | `/api/feedback` | Submit feedback |
+| GET | `/api/feedback` | List user feedback |
+| PATCH | `/api/feedback` | Reply or mark feedback as read |
+| POST | `/api/auth/send-verification` | Send email verification (auth required) |
+| POST | `/api/auth/reset-password` | Request password reset (no auth required) |
+
+### Email Utilities
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/email/send` | Send transactional emails (server-to-server) |
+| POST | `/api/email/preview-digest` | Preview or send digest in development |
+
+### Admin and System Logs
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/admin/users` | Admin: list users |
+| PATCH | `/api/admin/users` | Admin: update user flags |
+| GET | `/api/admin/feedback` | Admin: list feedback |
+| PATCH | `/api/admin/feedback` | Admin: update feedback |
+| GET | `/api/system-logs` | Query system logs |
+| DELETE | `/api/system-logs?confirm=true` | Clear logs |
+| GET | `/api/system-logs/stats` | Log statistics |
+| POST | `/api/system-logs/report` | Client log report |
+| POST | `/api/system-logs/client-errors` | Client error report |
+
+### Cron (Protected by shared secret)
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/cron/refresh-trending` | Refresh trending cache |
+| POST | `/api/cron/daily-digest` | Send daily digest emails |
 
 ---
 
 ## Caching Strategy
 
-### Firestore Caching
+### Firestore Caching (Persistent)
 
 | Data Type | TTL | Purpose |
 |-----------|-----|---------|
-| Anime metadata | 7 days | Complete anime information |
-| Airing schedule | 60 minutes | Episode airing information |
-| Season cache | 30 minutes | Season anime IDs for pagination |
+| Anime metadata | 7 days | Canonical anime info and slug cache |
+| Airing schedule | 60 minutes | Next airing episode data |
+| Season cache | 30 minutes | Season anime ID lists |
+| Daily airing cache | 30 minutes | Digest schedule lookups |
+| Trending cache | 25 hours | Daily trending anime IDs |
+
+### Redis Caching (Ephemeral)
+
+- Short-lived response caching for AniList-heavy endpoints
+- Redis sorted sets for trending metrics and search popularity
+- Rate limiting by IP or UID
 
 ### How Caching Works
 
-1. **First Request**: Fetches from AniList → Stores in Firestore → Returns to client
-2. **Subsequent Requests**: Checks Firestore cache first → If valid, returns cached data
-3. **Expired Cache**: Automatically refetches from AniList
-
-### Pagination Strategy
-
-For season/calendar endpoints:
-1. Fetch ALL anime for the season from AniList (50 items per request)
-2. Cache anime IDs in Firestore (30 min TTL)
-3. Paginate locally (20 items per page)
-4. Returns reliable `lastPage` and `total` counts
-
-This ensures accurate pagination without relying on AniList's sometimes-unreliable `lastPage` value.
+1. API routes check Redis for short-lived responses
+2. If missing, AniList requests are made server-side
+3. Responses are cached in Redis (short TTL) and Firestore (longer TTL where applicable)
+4. Season and trending lists are cached for pagination and dashboards
 
 ---
 
@@ -608,35 +413,41 @@ This ensures accurate pagination without relying on AniList's sometimes-unreliab
 Client (Next.js App Router)
     ↓
 API Routes (Next.js)
-    ↓
-    ├─→ Firestore Cache (Check)
-    │       ↓ (if valid)
-    │   Return cached data
-    │
-    └─→ (if cache miss)
-        AniList GraphQL API
-            ↓
-        Firestore Cache (Store)
-            ↓
-        Return data to client
+    ├─→ Redis (rate limit, cache, metrics)
+    ├─→ Firestore (user data + persistent cache)
+    └─→ AniList GraphQL API (external data)
 ```
 
 ### Authentication Flow
 
-1. User clicks "Sign in with Google"
-2. Firebase handles OAuth flow
-3. User authenticated in Firebase Auth
-4. Client stores ID token in localStorage
-5. Token included in API requests (Authorization header)
-6. API routes verify token with Firebase Admin SDK
-7. User data stored in Firestore
+1. User signs in with Google or email/password via Firebase
+2. Client stores the Firebase ID token securely
+3. API routes verify token with Firebase Admin SDK
+4. User data and library entries are stored in Firestore
+5. Admin privileges are derived from user documents
 
-### Rate Limiting
+### Internationalization
 
-- Uses Upstash Redis to track requests per IP
-- Configured per endpoint (20-60 requests per minute)
-- Returns 429 status if limit exceeded
-- IP extracted from `x-forwarded-for` header (Vercel friendly)
+- Locale detection handled in middleware with cookie and Accept-Language fallback
+- Messages stored in `src/messages` and loaded via `next-intl`
+- Date formatting utilities in `src/lib/i18n`
+
+---
+
+## Logging and Observability
+
+- Server logs are stored in Firestore using a Pino-compatible logger
+- Client errors and logs are reported via `/api/system-logs/*`
+- Health endpoints provide liveness and diagnostic checks
+- Rate limit events are logged for monitoring
+
+---
+
+## Email and Cron Jobs
+
+- Transactional emails (verification, password reset, feedback responses) are sent via ZeptoMail
+- Daily digest email is generated from Firestore + AniList schedule data
+- Cron endpoints are protected by a shared secret (`CRON_SECRET`)
 
 ---
 
@@ -652,10 +463,9 @@ git push origin main
 
 ### 2. Deploy on Vercel
 
-1. Go to [Vercel](https://vercel.com)
-2. Import your Git repository
-3. Add environment variables to project settings
-4. Deploy
+1. Import the Git repository in Vercel
+2. Add environment variables to the project settings
+3. Deploy
 
 ### 3. Vercel Settings
 
@@ -666,10 +476,10 @@ git push origin main
 
 ### 4. Important Notes
 
-- Rate limiting uses Upstash Redis which works in serverless
-- Firebase Admin SDK only used in API routes
-- IP extraction uses `x-forwarded-for` header provided by Vercel
-- All env vars must be added to Vercel project settings
+- Upstash Redis is required for rate limiting and metrics
+- Firebase Admin SDK is required for authenticated routes
+- Cron jobs should call the `/api/cron/*` endpoints with the shared secret
+- Configure image domains in `next.config.ts` for AniList and Google images
 
 ---
 
@@ -688,11 +498,20 @@ npm run build
 # Start production server
 npm start
 
-# Run ESLint
-npm run lint
+# Run lint + type check + build
+npm run check
 
-# Type check
-npm run type-check
+# Run formatter
+npm run format
+
+# Check formatting
+npm run format:check
+
+# Initialize env
+npm run env:init
+
+# Pull env from Firebase
+npm run env:from-firebase
 ```
 
 ---
@@ -700,39 +519,41 @@ npm run type-check
 ## Troubleshooting
 
 ### Firebase Auth Issues
-- Check authorized domains in Firebase Console
-- Verify OAuth credentials are correct
-- Clear browser cache and localStorage
+- Ensure Firebase project and credentials are correct
+- Verify authorized domains and OAuth settings
+- Check service account keys for Admin SDK
+
+### Email Issues
+- Verify ZeptoMail token and sender configuration
+- Confirm `NEXT_PUBLIC_APP_URL` and `NEXT_PUBLIC_BASE_URL` are correct
 
 ### Rate Limiting Issues
-- Check Upstash Redis connection
-- Verify REST URL and token
-- Check IP extraction is working (x-forwarded-for)
+- Confirm Upstash Redis credentials
+- Verify `x-forwarded-for` headers are present in production
 
-### Pagination Issues
-- Verify season cache is working in Firestore
-- Check AniList API response data
-- Ensure paginate locally function calculates correctly
+### Localization Issues
+- Confirm locale cookie (`NEXT_LOCALE`) is set
+- Verify translation JSON files in `src/messages`
 
 ---
 
 ## Performance Optimization
 
-1. **Next.js Image Optimization**: Uses `next/image` for anime covers
+1. **Image Optimization**: Uses `next/image` for anime covers
 2. **Client-side Caching**: React Query caches API responses
-3. **Server-side Caching**: Firestore caches anime metadata
+3. **Server-side Caching**: Redis + Firestore caching layers
 4. **Code Splitting**: Automatic with Next.js App Router
-5. **Lazy Loading**: Components loaded on demand
+5. **Lazy Loading**: Non-critical components load on demand
 
 ---
 
 ## Security
 
-- **Firebase Security Rules**: Restricts Firestore access to authenticated users
+- **Firebase Security Rules**: Restrict Firestore access to authenticated users
 - **API Route Protection**: Validates Firebase tokens on protected endpoints
-- **Environment Variables**: Sensitive data never exposed to client
-- **Rate Limiting**: Prevents abuse and DDoS
-- **CORS**: Configured for API routes
+- **Rate Limiting**: Upstash Redis sliding window limits
+- **Secure Storage**: Encrypted localStorage for sensitive client data
+- **Cron Protection**: Shared secret on scheduled routes
 
 ---
 
