@@ -24,7 +24,14 @@ interface HealthResponse {
   version: string;
   uptime: number;
   environment: string;
+  nodeVersion: string;
   checks: HealthCheck[];
+  services: {
+    firebase: boolean;
+    redis: boolean;
+    email: boolean;
+    anilist: boolean;
+  };
 }
 
 // Track server start time for uptime calculation
@@ -199,13 +206,23 @@ export async function GET() {
     }
   }
 
+  // Build services object for admin panel
+  const services = {
+    firebase: checks.find((c) => c.name === "firebase")?.status !== "unhealthy",
+    redis: checks.find((c) => c.name === "redis")?.status !== "unhealthy",
+    email: !!process.env.ZEPTO_API_KEY,
+    anilist: true, // AniList is external and generally available
+  };
+
   const response: HealthResponse = {
     status: overallStatus,
     timestamp: new Date().toISOString(),
     version: process.env.npm_package_version || "0.1.1",
     uptime: Math.floor((Date.now() - startTime) / 1000),
     environment: process.env.NODE_ENV || "development",
+    nodeVersion: process.version,
     checks,
+    services,
   };
 
   // Return 503 if unhealthy, 200 otherwise

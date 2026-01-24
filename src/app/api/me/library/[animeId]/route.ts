@@ -3,6 +3,7 @@ import { requireAuth, AuthError } from "@/lib/auth/serverAuth";
 import { checkRateLimit, rateLimitResponse } from "@/lib/redis/ratelimit";
 import { getAdminFirestore } from "@/lib/firebase/admin";
 import { libraryDeleteSchema } from "@/lib/validation/schemas";
+import { logEvent } from "@/lib/logging";
 
 export async function DELETE(
   request: NextRequest,
@@ -42,6 +43,10 @@ export async function DELETE(
       .collection("library")
       .doc(String(parseResult.data.animeId))
       .delete();
+
+    logEvent.database("delete", "library", String(parseResult.data.animeId), {
+      userId: uid,
+    });
 
     return NextResponse.json({ success: true });
   } catch (error) {

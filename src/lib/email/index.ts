@@ -6,7 +6,12 @@
 export { sendEmail, verifyEmailConnection } from "./zeptomail";
 
 // High-level template-based senders
-export { sendWelcomeEmail, sendNotificationEmail } from "./sender";
+export {
+  sendWelcomeEmail,
+  sendNotificationEmail,
+  sendFeedbackResponseEmail,
+  sendFeedbackStatusChangeEmail,
+} from "./sender";
 
 // Templates (for custom usage)
 export * from "./templates";

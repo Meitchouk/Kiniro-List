@@ -5,6 +5,7 @@ import { getManyAnimeFromCache } from "@/lib/firestore/cache";
 import { sendDailyDigestEmail } from "@/lib/email/sender";
 import { cron } from "@/lib/config";
 import { DateTime } from "luxon";
+import { logEvent } from "@/lib/logging";
 import type { UserDocument, LibraryEntry, DigestAnimeItem } from "@/lib/types";
 import { Timestamp } from "firebase-admin/firestore";
 
@@ -30,6 +31,9 @@ export async function GET(request: NextRequest) {
 
     // Check for sendNow flag (for testing)
     const sendNow = request.nextUrl.searchParams.get("sendNow") === "true";
+
+    const startTime = Date.now();
+    logEvent.cron("daily-digest", "started", undefined, { sendNow });
 
     console.log(
       `[cron/daily-digest] Starting daily digest job...${sendNow ? " (sendNow mode)" : ""}`
@@ -258,6 +262,46 @@ export async function GET(request: NextRequest) {
           ? (userData.locale as "en" | "es")
           : "en";
 
+        // ============ Create In-App Notifications ============
+        // Create a notification for each anime airing today
+        const notificationsRef = db
+          .collection("users")
+          .doc(userData.uid)
+          .collection("notifications");
+
+        const notificationBatch = db.batch();
+        for (const item of digestItems) {
+          const notificationRef = notificationsRef.doc();
+          const notificationTitle =
+            userLocale === "es"
+              ? `${item.title} - Episodio ${item.episode}`
+              : `${item.title} - Episode ${item.episode}`;
+          const notificationMessage =
+            userLocale === "es"
+              ? `Episodio ${item.episode} se emite hoy a las ${item.airingTime}`
+              : `Episode ${item.episode} airs today at ${item.airingTime}`;
+
+          notificationBatch.set(notificationRef, {
+            type: "anime_airing",
+            title: notificationTitle,
+            message: notificationMessage,
+            data: {
+              animeSlug: item.slug,
+              animeCover: item.coverUrl,
+              episode: item.episode,
+              airingTime: item.airingTime,
+              crunchyrollUrl: item.crunchyrollUrl,
+            },
+            read: false,
+            createdAt: new Date(),
+          });
+        }
+        await notificationBatch.commit();
+
+        console.log(
+          `[cron/daily-digest] Created ${digestItems.length} notifications for user ${userData.uid}`
+        );
+
         // Send email with DateTime object (template handles localization)
         const result = await sendDailyDigestEmail(userData.email, {
           displayName: userData.displayName || null,
@@ -286,6 +330,13 @@ export async function GET(request: NextRequest) {
       `[cron/daily-digest] Completed: sent=${sent}, skipped=${skipped}, errors=${errors.length}`
     );
 
+    const duration = Date.now() - startTime;
+    logEvent.cron("daily-digest", "completed", duration, {
+      sent,
+      skipped,
+      errorCount: errors.length,
+    });
+
     return NextResponse.json({
       success: true,
       sent,
@@ -294,6 +345,9 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     console.error("[cron/daily-digest] Fatal error:", error);
+    logEvent.cron("daily-digest", "failed", undefined, {
+      error: error instanceof Error ? error.message : String(error),
+    });
     return NextResponse.json({ error: "Failed to process daily digest" }, { status: 500 });
   }
 }

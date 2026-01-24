@@ -17,7 +17,7 @@ import {
 import { useTranslations } from "next-intl";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { toast } from "sonner";
-import { GoogleButton } from "@/components/auth/GoogleButton";
+import { LoginButton } from "@/components/auth";
 
 export function UserMenu() {
   const t = useTranslations();
@@ -34,7 +34,7 @@ export function UserMenu() {
   };
 
   if (!user) {
-    return <GoogleButton />;
+    return <LoginButton />;
   }
 
   return (

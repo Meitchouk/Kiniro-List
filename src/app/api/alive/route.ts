@@ -11,11 +11,15 @@
  */
 
 import { NextResponse } from "next/server";
+import { logger } from "@/lib/logging";
 
 // Track server start time
 const startTime = Date.now();
 
 export async function GET() {
+  // Log alive check (useful for monitoring activity)
+  logger.debug("Alive check requested", "api:alive");
+
   return NextResponse.json({
     alive: true,
     timestamp: new Date().toISOString(),

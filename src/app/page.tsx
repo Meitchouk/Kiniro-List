@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { Calendar, Clock, Search, Library, Star, Globe, Flame } from "lucide-react";
-import { HeroSection, FeatureCard, QuickLinkCard } from "@/components/home";
+import { HeroSection, FeatureCard, QuickLinkCard, FeedbackCTA } from "@/components/home";
 import { AnimeCarouselSection } from "@/components/anime/AnimeCarouselSection";
 import { Section, Grid } from "@/components/ds";
 import { MultiJsonLd } from "@/components/seo";
@@ -183,6 +183,11 @@ export default async function HomePage() {
             description={t("home.features.discoverDesc")}
           />
         </Grid>
+      </Section>
+
+      {/* Feedback CTA - Positioned after features for visibility */}
+      <Section spacing="md">
+        <FeedbackCTA />
       </Section>
 
       {/* Trending Section */}

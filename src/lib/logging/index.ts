@@ -2,8 +2,17 @@
  * Logging module exports
  */
 
-// Server-side logger (do not import in client components)
-export { logger, queryLogs, getLogStats, clearLogs } from "./logger";
+// Firestore-based logger for production (serverless environments like Vercel)
+export {
+  firestoreLogger as logger,
+  queryLogsFromFirestore as queryLogs,
+  getLogStatsFromFirestore as getLogStats,
+  clearAllLogs as clearLogs,
+  clearOldLogs,
+} from "./firestore-logger";
+
+// API route wrapper and event logging
+export { withLogging, logEvent } from "./api-logger";
 
 // Client-side logger (safe for client components)
 export { clientLogger, reportError, setupGlobalErrorHandler, reportReactError } from "./client";

@@ -9,63 +9,67 @@ import {
 import { checkRateLimit, rateLimitResponse } from "@/lib/redis/ratelimit";
 import { paginationSchema } from "@/lib/validation/schemas";
 import { getOrSetJSON } from "@/lib/redis/cache";
+import { withLogging } from "@/lib/logging";
 import type { AnimeCache, PaginationInfo, MediaSeason } from "@/lib/types";
 import { getCurrentSeason } from "@/lib/utils/date";
 
 const PER_PAGE = 20;
 
-export async function GET(request: NextRequest) {
-  try {
-    // Rate limit check
-    const rateLimitResult = await checkRateLimit(request, "calendar");
-    if (!rateLimitResult.success) {
-      return rateLimitResponse(rateLimitResult);
-    }
-
-    // Parse query params
-    const { searchParams } = new URL(request.url);
-    const parseResult = paginationSchema.safeParse({
-      page: searchParams.get("page") || "1",
-    });
-
-    if (!parseResult.success) {
-      return NextResponse.json({ error: "Invalid query parameters" }, { status: 400 });
-    }
-
-    const { page } = parseResult.data;
-    const { year, season } = getCurrentSeason();
-
-    const cacheKey = `cache:calendar:now:${year}:${season}:page=${page}`;
-    const result = await getOrSetJSON<{
-      anime: AnimeCache[];
-      pagination: PaginationInfo;
-      season: MediaSeason;
-      year: number;
-    }>(cacheKey, 300, async () => {
-      // Try to get from season cache first
-      let allAnimeIds = await getSeasonFromCache(season, year);
-
-      if (!allAnimeIds) {
-        const allMedia = await getAllSeasonAnime(season, year);
-        allAnimeIds = allMedia.map((m) => m.id);
-        if (allMedia.length > 0) {
-          await Promise.all([
-            upsertSeasonCache(season, year, allAnimeIds),
-            upsertManyAnimeCache(allMedia),
-          ]);
-        }
+export const GET = withLogging(
+  async function GET(request: NextRequest) {
+    try {
+      // Rate limit check
+      const rateLimitResult = await checkRateLimit(request, "calendar");
+      if (!rateLimitResult.success) {
+        return rateLimitResponse(rateLimitResult);
       }
 
-      const { items: paginatedIds, pageInfo } = paginateLocally(allAnimeIds, page, PER_PAGE);
-      const cachedAnime = await getManyAnimeFromCache(paginatedIds);
-      const anime = paginatedIds.map((id) => cachedAnime.get(id)).filter((a) => a !== undefined);
+      // Parse query params
+      const { searchParams } = new URL(request.url);
+      const parseResult = paginationSchema.safeParse({
+        page: searchParams.get("page") || "1",
+      });
 
-      return { anime, pagination: pageInfo, season, year };
-    });
+      if (!parseResult.success) {
+        return NextResponse.json({ error: "Invalid query parameters" }, { status: 400 });
+      }
 
-    return NextResponse.json(result);
-  } catch (error) {
-    console.error("Calendar now error:", error);
-    return NextResponse.json({ error: "Failed to fetch current season" }, { status: 500 });
-  }
-}
+      const { page } = parseResult.data;
+      const { year, season } = getCurrentSeason();
+
+      const cacheKey = `cache:calendar:now:${year}:${season}:page=${page}`;
+      const result = await getOrSetJSON<{
+        anime: AnimeCache[];
+        pagination: PaginationInfo;
+        season: MediaSeason;
+        year: number;
+      }>(cacheKey, 300, async () => {
+        // Try to get from season cache first
+        let allAnimeIds = await getSeasonFromCache(season, year);
+
+        if (!allAnimeIds) {
+          const allMedia = await getAllSeasonAnime(season, year);
+          allAnimeIds = allMedia.map((m) => m.id);
+          if (allMedia.length > 0) {
+            await Promise.all([
+              upsertSeasonCache(season, year, allAnimeIds),
+              upsertManyAnimeCache(allMedia),
+            ]);
+          }
+        }
+
+        const { items: paginatedIds, pageInfo } = paginateLocally(allAnimeIds, page, PER_PAGE);
+        const cachedAnime = await getManyAnimeFromCache(paginatedIds);
+        const anime = paginatedIds.map((id) => cachedAnime.get(id)).filter((a) => a !== undefined);
+
+        return { anime, pagination: pageInfo, season, year };
+      });
+
+      return NextResponse.json(result);
+    } catch (error) {
+      console.error("Calendar now error:", error);
+      return NextResponse.json({ error: "Failed to fetch current season" }, { status: 500 });
+    }
+  },
+  { context: "calendar:now" }
+);

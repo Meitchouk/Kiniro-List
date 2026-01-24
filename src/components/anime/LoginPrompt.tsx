@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { GoogleButton } from "@/components/auth/GoogleButton";
+import { LoginButton } from "@/components/auth";
 import { Card, CardContent, CardHeader, CardTitle, Center } from "@/components/ds";
 
 export function LoginPrompt() {
@@ -14,7 +14,7 @@ export function LoginPrompt() {
           <CardTitle>{t("loginRequired")}</CardTitle>
         </CardHeader>
         <CardContent className="flex justify-center">
-          <GoogleButton />
+          <LoginButton />
         </CardContent>
       </Card>
     </Center>
