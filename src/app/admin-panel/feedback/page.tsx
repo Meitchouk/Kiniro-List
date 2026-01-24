@@ -41,6 +41,7 @@ import type { FeedbackEntry, FeedbackStatus, FeedbackType } from "@/lib/types";
 interface FeedbackCounts {
   total: number;
   new: number;
+  "in-review": number;
   reviewed: number;
   resolved: number;
 }
@@ -59,8 +60,17 @@ const typeColors: Record<FeedbackType, string> = {
 
 const statusColors: Record<FeedbackStatus, string> = {
   new: "bg-blue-500",
+  "in-review": "bg-orange-500",
   reviewed: "bg-yellow-500",
   resolved: "bg-green-500",
+};
+
+// Map status to translation key (handles hyphenated status)
+const statusToTranslationKey: Record<FeedbackStatus, string> = {
+  new: "new",
+  "in-review": "inReview",
+  reviewed: "reviewed",
+  resolved: "resolved",
 };
 
 export default function AdminFeedbackPage() {
@@ -317,6 +327,7 @@ export default function AdminFeedbackPage() {
                 <SelectContent>
                   <SelectItem value="all">{t("admin.feedback.allStatus")}</SelectItem>
                   <SelectItem value="new">{t("feedback.status.new")}</SelectItem>
+                  <SelectItem value="in-review">{t("feedback.status.inReview")}</SelectItem>
                   <SelectItem value="reviewed">{t("feedback.status.reviewed")}</SelectItem>
                   <SelectItem value="resolved">{t("feedback.status.resolved")}</SelectItem>
                 </SelectContent>
@@ -416,7 +427,7 @@ export default function AdminFeedbackPage() {
                             </td>
                             <td className="px-4 py-3">
                               <Badge className={`${statusColors[item.status]} text-xs`}>
-                                {t(`feedback.status.${item.status}`)}
+                                {t(`feedback.status.${statusToTranslationKey[item.status]}`)}
                               </Badge>
                             </td>
                             <td className="px-4 py-3 whitespace-nowrap">
@@ -454,35 +465,90 @@ export default function AdminFeedbackPage() {
                                     </div>
                                   </div>
 
-                                  {/* Admin response if exists */}
-                                  {item.adminResponse && (
+                                  {/* Conversation thread */}
+                                  {item.thread && item.thread.length > 0 && (
                                     <div>
                                       <Typography
                                         variant="caption"
                                         weight="medium"
-                                        className="text-muted-foreground mb-1 block"
+                                        className="text-muted-foreground mb-2 block"
                                       >
-                                        {t("admin.feedback.adminResponse")}
+                                        {t("admin.feedback.conversationThread")} (
+                                        {item.thread.length})
                                       </Typography>
-                                      <div className="border-primary/20 bg-primary/5 rounded-lg border-l-4 p-4">
-                                        <Typography variant="body2" className="whitespace-pre-wrap">
-                                          {item.adminResponse.message}
-                                        </Typography>
-                                        <Typography
-                                          variant="caption"
-                                          colorScheme="secondary"
-                                          className="mt-2 block"
-                                        >
-                                          {item.adminResponse.respondedByEmail} -{" "}
-                                          {new Date(
-                                            item.adminResponse.respondedAt
-                                          ).toLocaleString()}
-                                        </Typography>
-                                      </div>
+                                      <Stack gap={2}>
+                                        {item.thread.map((msg) => (
+                                          <div
+                                            key={msg.id}
+                                            className={`rounded-lg border-l-4 p-3 ${
+                                              msg.isAdmin
+                                                ? "border-primary/50 bg-primary/5"
+                                                : "border-muted-foreground/30 bg-muted/50"
+                                            }`}
+                                          >
+                                            <Flex justify="between" align="start" className="mb-1">
+                                              <Typography
+                                                variant="caption"
+                                                weight="medium"
+                                                className={
+                                                  msg.isAdmin
+                                                    ? "text-primary"
+                                                    : "text-muted-foreground"
+                                                }
+                                              >
+                                                {msg.isAdmin
+                                                  ? `Admin (${msg.authorEmail || "Unknown"})`
+                                                  : `${item.userDisplayName || "User"}`}
+                                              </Typography>
+                                              <Typography variant="caption" colorScheme="secondary">
+                                                {new Date(msg.createdAt).toLocaleString()}
+                                              </Typography>
+                                            </Flex>
+                                            <Typography
+                                              variant="body2"
+                                              className="whitespace-pre-wrap"
+                                            >
+                                              {msg.message}
+                                            </Typography>
+                                          </div>
+                                        ))}
+                                      </Stack>
                                     </div>
                                   )}
 
-                                  {/* Response form */}
+                                  {/* Legacy admin response (for old feedback without thread) */}
+                                  {item.adminResponse &&
+                                    (!item.thread || item.thread.length === 0) && (
+                                      <div>
+                                        <Typography
+                                          variant="caption"
+                                          weight="medium"
+                                          className="text-muted-foreground mb-1 block"
+                                        >
+                                          {t("admin.feedback.adminResponse")}
+                                        </Typography>
+                                        <div className="border-primary/20 bg-primary/5 rounded-lg border-l-4 p-4">
+                                          <Typography
+                                            variant="body2"
+                                            className="whitespace-pre-wrap"
+                                          >
+                                            {item.adminResponse.message}
+                                          </Typography>
+                                          <Typography
+                                            variant="caption"
+                                            colorScheme="secondary"
+                                            className="mt-2 block"
+                                          >
+                                            {item.adminResponse.respondedByEmail} -{" "}
+                                            {new Date(
+                                              item.adminResponse.respondedAt
+                                            ).toLocaleString()}
+                                          </Typography>
+                                        </div>
+                                      </div>
+                                    )}
+
+                                  {/* Response form - always show for adding new responses */}
                                   {respondingTo === item.id ? (
                                     <Stack gap={3}>
                                       <TextArea
@@ -523,13 +589,11 @@ export default function AdminFeedbackPage() {
                                         onClick={(e) => {
                                           e.stopPropagation();
                                           setRespondingTo(item.id);
-                                          setResponseText(item.adminResponse?.message || "");
+                                          setResponseText(""); // Always start with empty for new response
                                         }}
                                       >
                                         <MessageCircle className="mr-2 h-4 w-4" />
-                                        {item.adminResponse
-                                          ? t("admin.feedback.editResponse")
-                                          : t("admin.feedback.respond")}
+                                        {t("admin.feedback.respond")}
                                       </Button>
                                       {item.status !== "resolved" && (
                                         <Button
@@ -550,10 +614,23 @@ export default function AdminFeedbackPage() {
                                           size="sm"
                                           onClick={(e) => {
                                             e.stopPropagation();
-                                            handleStatusChange(item.id, "reviewed");
+                                            handleStatusChange(item.id, "in-review");
                                           }}
                                         >
                                           <Eye className="mr-2 h-4 w-4" />
+                                          {t("admin.feedback.markInReview")}
+                                        </Button>
+                                      )}
+                                      {item.status === "in-review" && (
+                                        <Button
+                                          variant="ghost"
+                                          size="sm"
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleStatusChange(item.id, "reviewed");
+                                          }}
+                                        >
+                                          <CheckCircle className="mr-2 h-4 w-4" />
                                           {t("admin.feedback.markReviewed")}
                                         </Button>
                                       )}

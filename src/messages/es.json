@@ -58,12 +58,14 @@
       "date": "Fecha",
       "fullMessage": "Mensaje Completo",
       "adminResponse": "Respuesta del Admin",
+      "conversationThread": "Conversación",
       "respond": "Responder",
       "editResponse": "Editar Respuesta",
       "sendResponse": "Enviar Respuesta",
       "responsePlaceholder": "Escribe tu respuesta al usuario...",
       "markResolved": "Marcar Resuelto",
-      "markReviewed": "Marcar Revisado"
+      "markReviewed": "Marcar Revisado",
+      "markInReview": "Iniciar Revisión"
     }
   },
   "adminPanel": {
@@ -215,7 +217,9 @@
     "myCalendar": "Mi Calendario",
     "settings": "Configuración",
     "menu": "Menú",
-    "admin": "Panel Admin"
+    "admin": "Panel Admin",
+    "adminWithNotifications": "Panel Admin ({count} pendientes)",
+    "notifications": "Notificaciones"
   },
   "theme": {
     "light": "Claro",
@@ -739,6 +743,15 @@
     "sendAnother": "Enviar otro",
     "myFeedback": "Tus Comentarios Anteriores",
     "adminResponseLabel": "Respuesta del equipo",
+    "showConversation": "Ver conversación",
+    "hideConversation": "Ocultar conversación",
+    "newResponse": "Nuevo",
+    "you": "Tú",
+    "reply": "Responder",
+    "sendReply": "Enviar",
+    "replyPlaceholder": "Escribe tu respuesta...",
+    "replySent": "Respuesta enviada correctamente",
+    "replyError": "Error al enviar respuesta. Por favor intenta de nuevo.",
     "types": {
       "suggestion": "Sugerencia",
       "bug": "Reporte de Error",
@@ -746,8 +759,26 @@
     },
     "status": {
       "new": "Nuevo",
-      "reviewed": "En Revisión",
+      "inReview": "En Revisión",
+      "reviewed": "Revisado",
       "resolved": "Resuelto"
     }
+  },
+  "notifications": {
+    "title": "Notificaciones",
+    "unreadCount": "{count} notificaciones sin leer",
+    "allRead": "¡Todo al día!",
+    "markAllRead": "Marcar todo leído",
+    "deleteRead": "Limpiar leídas",
+    "empty": "Sin notificaciones",
+    "emptyDescription": "Te notificaremos cuando tu anime se emita o cuando recibas respuestas a tus comentarios.",
+    "new": "Nuevo",
+    "viewAnime": "Ver anime",
+    "viewFeedback": "Ver comentarios",
+    "viewAll": "Ver todas las notificaciones",
+    "justNow": "Ahora",
+    "minutesAgo": "hace {count}m",
+    "hoursAgo": "hace {count}h",
+    "daysAgo": "hace {count}d"
   }
 }

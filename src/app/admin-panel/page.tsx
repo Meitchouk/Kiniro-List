@@ -52,16 +52,16 @@ export default function AdminDashboardPage() {
 
       setStats({
         users: {
-          total: usersData?.total || 0,
-          newThisWeek: usersData?.newThisWeek || 0,
+          total: usersData?.stats?.totalUsers || 0,
+          newThisWeek: usersData?.stats?.newUsers || 0,
         },
         feedback: {
           total: feedbackData?.counts?.total || 0,
           new: feedbackData?.counts?.new || 0,
-          pending: (feedbackData?.counts?.new || 0) + (feedbackData?.counts?.reviewed || 0),
+          pending: (feedbackData?.counts?.new || 0) + (feedbackData?.counts?.["in-review"] || 0),
         },
         activity: {
-          activeToday: usersData?.activeToday || 0,
+          activeToday: 0, // TODO: Implement activity tracking
           pageViews: 0, // TODO: Implement page views tracking
         },
       });

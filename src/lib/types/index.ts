@@ -391,7 +391,17 @@ export interface EmailSendRequest {
 // ============ Feedback Types ============
 
 export type FeedbackType = "suggestion" | "bug" | "comment";
-export type FeedbackStatus = "new" | "reviewed" | "resolved";
+export type FeedbackStatus = "new" | "in-review" | "reviewed" | "resolved";
+
+export interface FeedbackMessage {
+  id: string;
+  message: string;
+  isAdmin: boolean;
+  authorId: string;
+  authorEmail: string | null;
+  authorName: string | null;
+  createdAt: string;
+}
 
 export interface FeedbackAdminResponse {
   message: string;
@@ -409,8 +419,35 @@ export interface FeedbackEntry {
   message: string;
   status: FeedbackStatus;
   adminResponse?: FeedbackAdminResponse | null;
+  /** Thread of messages for conversation */
+  thread?: FeedbackMessage[];
+  /** Whether user has unread admin responses */
+  hasUnreadResponse?: boolean;
   createdAt: string | null;
   updatedAt?: string | null;
+}
+
+// ============ Notification Types ============
+
+export type NotificationType = "anime_airing" | "feedback_response" | "system";
+
+export interface UserNotification {
+  id: string;
+  userId: string;
+  type: NotificationType;
+  title: string;
+  message: string;
+  /** Additional data based on type (e.g., animeId, feedbackId) */
+  data?: {
+    animeId?: number;
+    animeSlug?: string;
+    animeCover?: string;
+    episode?: number;
+    feedbackId?: string;
+    [key: string]: unknown;
+  };
+  read: boolean;
+  createdAt: string;
 }
 
 // ============ Settings Form Types ============

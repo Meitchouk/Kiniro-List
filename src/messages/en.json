@@ -58,12 +58,14 @@
       "date": "Date",
       "fullMessage": "Full Message",
       "adminResponse": "Admin Response",
+      "conversationThread": "Conversation",
       "respond": "Respond",
       "editResponse": "Edit Response",
       "sendResponse": "Send Response",
       "responsePlaceholder": "Write your response to the user...",
       "markResolved": "Mark Resolved",
-      "markReviewed": "Mark Reviewed"
+      "markReviewed": "Mark Reviewed",
+      "markInReview": "Start Review"
     }
   },
   "adminPanel": {
@@ -215,7 +217,9 @@
     "myCalendar": "My Calendar",
     "settings": "Settings",
     "menu": "Menu",
-    "admin": "Admin Panel"
+    "admin": "Admin Panel",
+    "adminWithNotifications": "Admin Panel ({count} pending)",
+    "notifications": "Notifications"
   },
   "theme": {
     "light": "Light",
@@ -741,6 +745,15 @@
     "sendAnother": "Send another",
     "myFeedback": "Your Previous Feedback",
     "adminResponseLabel": "Response from the team",
+    "showConversation": "Show conversation",
+    "hideConversation": "Hide conversation",
+    "newResponse": "New",
+    "you": "You",
+    "reply": "Reply",
+    "sendReply": "Send",
+    "replyPlaceholder": "Write your reply...",
+    "replySent": "Reply sent successfully",
+    "replyError": "Failed to send reply. Please try again.",
     "types": {
       "suggestion": "Suggestion",
       "bug": "Bug Report",
@@ -748,8 +761,26 @@
     },
     "status": {
       "new": "New",
-      "reviewed": "Under Review",
+      "inReview": "In Review",
+      "reviewed": "Reviewed",
       "resolved": "Resolved"
     }
+  },
+  "notifications": {
+    "title": "Notifications",
+    "unreadCount": "{count} unread notifications",
+    "allRead": "All caught up!",
+    "markAllRead": "Mark all read",
+    "deleteRead": "Clear read",
+    "empty": "No notifications",
+    "emptyDescription": "You'll be notified when your anime airs or when you receive feedback responses.",
+    "new": "New",
+    "viewAnime": "View anime",
+    "viewFeedback": "View feedback",
+    "viewAll": "View all notifications",
+    "justNow": "Just now",
+    "minutesAgo": "{count}m ago",
+    "hoursAgo": "{count}h ago",
+    "daysAgo": "{count}d ago"
   }
 }

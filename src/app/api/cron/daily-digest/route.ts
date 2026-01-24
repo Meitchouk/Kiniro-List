@@ -262,6 +262,46 @@ export async function GET(request: NextRequest) {
           ? (userData.locale as "en" | "es")
           : "en";
 
+        // ============ Create In-App Notifications ============
+        // Create a notification for each anime airing today
+        const notificationsRef = db
+          .collection("users")
+          .doc(userData.uid)
+          .collection("notifications");
+
+        const notificationBatch = db.batch();
+        for (const item of digestItems) {
+          const notificationRef = notificationsRef.doc();
+          const notificationTitle =
+            userLocale === "es"
+              ? `${item.title} - Episodio ${item.episode}`
+              : `${item.title} - Episode ${item.episode}`;
+          const notificationMessage =
+            userLocale === "es"
+              ? `Episodio ${item.episode} se emite hoy a las ${item.airingTime}`
+              : `Episode ${item.episode} airs today at ${item.airingTime}`;
+
+          notificationBatch.set(notificationRef, {
+            type: "anime_airing",
+            title: notificationTitle,
+            message: notificationMessage,
+            data: {
+              animeSlug: item.slug,
+              animeCover: item.coverUrl,
+              episode: item.episode,
+              airingTime: item.airingTime,
+              crunchyrollUrl: item.crunchyrollUrl,
+            },
+            read: false,
+            createdAt: new Date(),
+          });
+        }
+        await notificationBatch.commit();
+
+        console.log(
+          `[cron/daily-digest] Created ${digestItems.length} notifications for user ${userData.uid}`
+        );
+
         // Send email with DateTime object (template handles localization)
         const result = await sendDailyDigestEmail(userData.email, {
           displayName: userData.displayName || null,

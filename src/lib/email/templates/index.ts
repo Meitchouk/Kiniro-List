@@ -7,3 +7,5 @@ export * from "./welcome";
 export * from "./notification";
 export * from "./dailyDigest";
 export * from "./auth";
+export * from "./feedbackResponse";
+export * from "./feedbackStatusChange";

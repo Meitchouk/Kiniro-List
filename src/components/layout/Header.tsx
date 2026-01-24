@@ -3,8 +3,17 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Menu, Search, Calendar, Clock, BookOpen, MessageSquarePlus, Shield } from "lucide-react";
-import { useState } from "react";
+import {
+  Menu,
+  Search,
+  Calendar,
+  Clock,
+  BookOpen,
+  MessageSquarePlus,
+  Shield,
+  Bell,
+} from "lucide-react";
+import { useState, useEffect, useCallback } from "react";
 import {
   Button,
   Dialog,
@@ -15,17 +24,164 @@ import {
   Separator,
   Typography,
   SimpleTooltip,
+  Badge,
 } from "@/components/ds";
 import { ThemeToggle } from "./ThemeToggle";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { UserMenu } from "./UserMenu";
+import { NotificationDropdown } from "./NotificationDropdown";
 import { useAuth } from "@/components/providers/AuthProvider";
 
 export function Header() {
   const t = useTranslations();
   const pathname = usePathname();
-  const { user, userData, loading } = useAuth();
+  const { user, userData, loading, getAuthHeaders } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [unreadFeedbackCount, setUnreadFeedbackCount] = useState(0);
+  const [adminNeedsAttention, setAdminNeedsAttention] = useState(0);
+  const [unreadNotifications, setUnreadNotifications] = useState(0);
+
+  // Check for unread feedback responses (for regular users)
+  const checkUnreadFeedback = useCallback(async () => {
+    if (!user) {
+      setUnreadFeedbackCount(0);
+      return;
+    }
+
+    try {
+      const headers = await getAuthHeaders();
+      const response = await fetch("/api/feedback?countOnly=true", { headers });
+      if (response.ok) {
+        const data = await response.json();
+        setUnreadFeedbackCount(data.unreadCount || 0);
+      }
+    } catch (error) {
+      console.error("Failed to check unread feedback:", error);
+    }
+  }, [user, getAuthHeaders]);
+
+  // Check for unread notifications (anime airing, etc.)
+  const checkUnreadNotifications = useCallback(async () => {
+    if (!user) {
+      setUnreadNotifications(0);
+      return;
+    }
+
+    try {
+      const headers = await getAuthHeaders();
+      const response = await fetch("/api/me/notifications?countOnly=true", { headers });
+      if (response.ok) {
+        const data = await response.json();
+        setUnreadNotifications(data.unreadCount || 0);
+      }
+    } catch (error) {
+      console.error("Failed to check notifications:", error);
+    }
+  }, [user, getAuthHeaders]);
+
+  // Check for feedback needing admin attention
+  const checkAdminNotifications = useCallback(async () => {
+    if (!user || !userData?.isAdmin) {
+      setAdminNeedsAttention(0);
+      return;
+    }
+
+    try {
+      const headers = await getAuthHeaders();
+      const response = await fetch("/api/admin/feedback?countOnly=true", { headers });
+      if (response.ok) {
+        const data = await response.json();
+        setAdminNeedsAttention(data.needsAttention || 0);
+      }
+    } catch (error) {
+      console.error("Failed to check admin notifications:", error);
+    }
+  }, [user, userData?.isAdmin, getAuthHeaders]);
+
+  // Adaptive polling: more frequent when active, less when inactive
+  useEffect(() => {
+    // Initial check
+    checkUnreadFeedback();
+    checkUnreadNotifications();
+    checkAdminNotifications();
+
+    const ACTIVE_INTERVAL = 60000; // 60 seconds when active
+    const INACTIVE_INTERVAL = 300000; // 5 minutes when inactive
+    const INACTIVITY_THRESHOLD = 300000; // 5 minutes of no activity
+
+    let lastActivity = Date.now();
+    let currentInterval = ACTIVE_INTERVAL;
+    let intervalId: NodeJS.Timeout;
+
+    const checkAll = () => {
+      checkUnreadFeedback();
+      checkUnreadNotifications();
+      checkAdminNotifications();
+    };
+
+    // Update last activity on user interaction
+    const updateActivity = () => {
+      const wasInactive = Date.now() - lastActivity > INACTIVITY_THRESHOLD;
+      lastActivity = Date.now();
+
+      // If was inactive and now active, check immediately and reset to active interval
+      if (wasInactive && currentInterval === INACTIVE_INTERVAL) {
+        currentInterval = ACTIVE_INTERVAL;
+        clearInterval(intervalId);
+        checkAll();
+        intervalId = setInterval(checkAll, currentInterval);
+      }
+    };
+
+    // Check if should switch to inactive mode
+    const checkActivityAndPoll = () => {
+      const isInactive = Date.now() - lastActivity > INACTIVITY_THRESHOLD;
+
+      if (isInactive && currentInterval === ACTIVE_INTERVAL) {
+        // Switch to inactive polling
+        currentInterval = INACTIVE_INTERVAL;
+        clearInterval(intervalId);
+        intervalId = setInterval(checkAll, currentInterval);
+      }
+
+      checkAll();
+    };
+
+    // Start with active polling
+    intervalId = setInterval(checkActivityAndPoll, currentInterval);
+
+    // Track user activity
+    const events = ["mousedown", "keydown", "touchstart", "scroll"];
+    events.forEach((event) => document.addEventListener(event, updateActivity, { passive: true }));
+
+    // Check immediately when tab becomes visible
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        lastActivity = Date.now();
+        checkAll();
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      clearInterval(intervalId);
+      events.forEach((event) => document.removeEventListener(event, updateActivity));
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [checkUnreadFeedback, checkUnreadNotifications, checkAdminNotifications]);
+
+  // Refresh count when navigating away from feedback/admin pages
+  useEffect(() => {
+    if (pathname !== "/feedback") {
+      checkUnreadFeedback();
+    }
+    if (pathname !== "/me/notifications") {
+      checkUnreadNotifications();
+    }
+    if (!pathname.startsWith("/admin-panel/feedback")) {
+      checkAdminNotifications();
+    }
+  }, [pathname, checkUnreadFeedback, checkUnreadNotifications, checkAdminNotifications]);
 
   const navLinks = [
     { href: "/calendar/now", label: t("nav.calendarNow"), icon: Calendar },
@@ -95,29 +251,57 @@ export function Header() {
                 </Link>
               </Button>
             </SimpleTooltip>
+            {/* Notifications dropdown for logged in users */}
+            {user && (
+              <NotificationDropdown
+                unreadCount={unreadNotifications}
+                onUnreadCountChange={checkUnreadNotifications}
+              />
+            )}
             <SimpleTooltip content={t("footer.feedback")} side="bottom">
               <Button
                 variant="ghost"
                 size="icon"
                 asChild
-                className="text-muted-foreground hover:text-primary"
+                className="text-muted-foreground hover:text-primary relative"
               >
                 <Link href="/feedback">
-                  <MessageSquarePlus className="h-5 w-5" />
+                  <MessageSquarePlus
+                    className={`h-5 w-5 ${unreadFeedbackCount > 0 ? "text-primary animate-pulse" : ""}`}
+                  />
+                  {unreadFeedbackCount > 0 && (
+                    <span className="absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
+                      {unreadFeedbackCount > 9 ? "9+" : unreadFeedbackCount}
+                    </span>
+                  )}
                   <span className="sr-only">{t("footer.feedback")}</span>
                 </Link>
               </Button>
             </SimpleTooltip>
             {userData?.isAdmin && (
-              <SimpleTooltip content={t("nav.admin")} side="bottom">
+              <SimpleTooltip
+                content={
+                  adminNeedsAttention > 0
+                    ? t("nav.adminWithNotifications", { count: adminNeedsAttention })
+                    : t("nav.admin")
+                }
+                side="bottom"
+              >
                 <Button
                   variant="ghost"
                   size="icon"
                   asChild
-                  className="text-amber-500 hover:text-amber-400"
+                  className="relative text-amber-500 hover:text-amber-400"
                 >
-                  <Link href="/admin-panel">
-                    <Shield className="h-5 w-5" />
+                  <Link href="/admin-panel/feedback">
+                    <Shield
+                      className={`h-5 w-5 ${adminNeedsAttention > 0 ? "animate-pulse" : ""}`}
+                    />
+                    {adminNeedsAttention > 0 && (
+                      <span className="absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
+                        {adminNeedsAttention > 9 ? "9+" : adminNeedsAttention}
+                      </span>
+                    )}
                     <span className="sr-only">{t("nav.admin")}</span>
                   </Link>
                 </Button>
@@ -203,16 +387,50 @@ export function Header() {
                       </Link>
                     </Button>
 
+                    {/* Notifications button for mobile */}
+                    {user && (
+                      <Button
+                        variant="outline"
+                        className="border-primary/30 text-primary hover:bg-primary/10 h-11 w-full justify-start text-sm"
+                        asChild
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        <Link href="/me/notifications">
+                          <div className="flex items-center gap-2">
+                            <Bell
+                              className={`h-4 w-4 ${unreadNotifications > 0 ? "animate-pulse" : ""}`}
+                            />
+                            <span>{t("nav.notifications")}</span>
+                            {unreadNotifications > 0 && (
+                              <Badge
+                                variant="destructive"
+                                className="ml-auto h-5 px-1.5 text-[10px]"
+                              >
+                                {unreadNotifications > 9 ? "9+" : unreadNotifications}
+                              </Badge>
+                            )}
+                          </div>
+                        </Link>
+                      </Button>
+                    )}
+
                     <Button
                       variant="outline"
-                      className="border-primary/30 text-primary hover:bg-primary/10 h-11 w-full justify-start text-sm"
+                      className="border-muted-foreground/30 hover:bg-muted/50 h-11 w-full justify-start text-sm"
                       asChild
                       onClick={() => setMobileMenuOpen(false)}
                     >
                       <Link href="/feedback">
                         <div className="flex items-center gap-2">
-                          <MessageSquarePlus className="h-4 w-4" />
+                          <MessageSquarePlus
+                            className={`h-4 w-4 ${unreadFeedbackCount > 0 ? "animate-pulse" : ""}`}
+                          />
                           <span>{t("footer.feedback")}</span>
+                          {unreadFeedbackCount > 0 && (
+                            <Badge variant="destructive" className="ml-auto h-5 px-1.5 text-[10px]">
+                              {unreadFeedbackCount > 9 ? "9+" : unreadFeedbackCount}
+                            </Badge>
+                          )}
                         </div>
                       </Link>
                     </Button>
@@ -224,10 +442,20 @@ export function Header() {
                         asChild
                         onClick={() => setMobileMenuOpen(false)}
                       >
-                        <Link href="/admin-panel">
+                        <Link href="/admin-panel/feedback">
                           <div className="flex items-center gap-2">
-                            <Shield className="h-4 w-4" />
+                            <Shield
+                              className={`h-4 w-4 ${adminNeedsAttention > 0 ? "animate-pulse" : ""}`}
+                            />
                             <span>{t("nav.admin")}</span>
+                            {adminNeedsAttention > 0 && (
+                              <Badge
+                                variant="destructive"
+                                className="ml-auto h-5 px-1.5 text-[10px]"
+                              >
+                                {adminNeedsAttention > 9 ? "9+" : adminNeedsAttention}
+                              </Badge>
+                            )}
                           </div>
                         </Link>
                       </Button>

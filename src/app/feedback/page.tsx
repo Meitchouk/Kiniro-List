@@ -1,11 +1,21 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
-import { Send, Loader2, MessageSquare, Bug, Lightbulb, CheckCircle } from "lucide-react";
+import {
+  Send,
+  Loader2,
+  MessageSquare,
+  Bug,
+  Lightbulb,
+  CheckCircle,
+  ChevronDown,
+  ChevronUp,
+  Reply,
+} from "lucide-react";
 import { z } from "zod";
 
 import {
@@ -16,6 +26,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
+  Badge,
 } from "@/components/ds";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { LoginButton } from "@/components/auth";
@@ -30,6 +41,16 @@ const feedbackSchema = z.object({
 
 type FeedbackForm = z.infer<typeof feedbackSchema>;
 
+interface FeedbackMessage {
+  id: string;
+  message: string;
+  isAdmin: boolean;
+  authorId: string;
+  authorEmail: string | null;
+  authorName: string | null;
+  createdAt: string;
+}
+
 interface FeedbackAdminResponse {
   message: string;
   respondedBy: string;
@@ -41,8 +62,10 @@ interface FeedbackEntry {
   id: string;
   type: "suggestion" | "bug" | "comment";
   message: string;
-  status: "new" | "reviewed" | "resolved";
+  status: "new" | "in-review" | "reviewed" | "resolved";
   adminResponse?: FeedbackAdminResponse | null;
+  thread?: FeedbackMessage[];
+  hasUnreadResponse?: boolean;
   createdAt: string | null;
 }
 
@@ -53,6 +76,10 @@ export default function FeedbackPage() {
   const [submitted, setSubmitted] = useState(false);
   const [myFeedback, setMyFeedback] = useState<FeedbackEntry[]>([]);
   const [loadingFeedback, setLoadingFeedback] = useState(false);
+  const [expandedFeedback, setExpandedFeedback] = useState<string | null>(null);
+  const [replyingTo, setReplyingTo] = useState<string | null>(null);
+  const [replyText, setReplyText] = useState("");
+  const [sendingReply, setSendingReply] = useState(false);
 
   const form = useForm<FeedbackForm>({
     resolver: zodResolver(feedbackSchema),
@@ -64,28 +91,83 @@ export default function FeedbackPage() {
 
   const selectedType = form.watch("type");
 
-  // Fetch user's previous feedback
-  useEffect(() => {
+  const fetchFeedback = useCallback(async () => {
     if (!user) return;
 
-    const fetchFeedback = async () => {
-      setLoadingFeedback(true);
-      try {
-        const headers = await getAuthHeaders();
-        const response = await fetch("/api/feedback", { headers });
-        if (response.ok) {
-          const data = await response.json();
-          setMyFeedback(data.feedback || []);
-        }
-      } catch (error) {
-        console.error("Failed to fetch feedback:", error);
-      } finally {
-        setLoadingFeedback(false);
+    setLoadingFeedback(true);
+    try {
+      const headers = await getAuthHeaders();
+      const response = await fetch("/api/feedback", { headers });
+      if (response.ok) {
+        const data = await response.json();
+        setMyFeedback(data.feedback || []);
       }
-    };
-
-    fetchFeedback();
+    } catch (error) {
+      console.error("Failed to fetch feedback:", error);
+    } finally {
+      setLoadingFeedback(false);
+    }
   }, [user, getAuthHeaders]);
+
+  // Fetch user's previous feedback
+  useEffect(() => {
+    fetchFeedback();
+  }, [fetchFeedback]);
+
+  // Mark feedback as read when expanded
+  const handleExpandFeedback = async (feedbackId: string) => {
+    const isExpanding = expandedFeedback !== feedbackId;
+    setExpandedFeedback(isExpanding ? feedbackId : null);
+
+    if (isExpanding) {
+      const feedback = myFeedback.find((f) => f.id === feedbackId);
+      if (feedback?.hasUnreadResponse) {
+        try {
+          const headers = await getAuthHeaders();
+          await fetch("/api/feedback", {
+            method: "PATCH",
+            headers: { ...headers, "Content-Type": "application/json" },
+            body: JSON.stringify({ action: "markAsRead", feedbackId }),
+          });
+          // Update local state
+          setMyFeedback((prev) =>
+            prev.map((f) => (f.id === feedbackId ? { ...f, hasUnreadResponse: false } : f))
+          );
+        } catch (error) {
+          console.error("Failed to mark as read:", error);
+        }
+      }
+    }
+  };
+
+  // Send reply
+  const handleSendReply = async (feedbackId: string) => {
+    if (!replyText.trim()) return;
+
+    setSendingReply(true);
+    try {
+      const headers = await getAuthHeaders();
+      const response = await fetch("/api/feedback", {
+        method: "PATCH",
+        headers: { ...headers, "Content-Type": "application/json" },
+        body: JSON.stringify({ feedbackId, message: replyText }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to send reply");
+      }
+
+      toast.success(t("feedback.replySent"));
+      setReplyText("");
+      setReplyingTo(null);
+      fetchFeedback();
+    } catch (error) {
+      console.error("Failed to send reply:", error);
+      toast.error(t("feedback.replyError"));
+    } finally {
+      setSendingReply(false);
+    }
+  };
 
   const onSubmit = async (data: FeedbackForm) => {
     if (!user) return;
@@ -152,6 +234,12 @@ export default function FeedbackPage() {
         return (
           <span className="rounded-full bg-blue-100 px-2 py-1 text-xs text-blue-700 dark:bg-blue-900 dark:text-blue-300">
             {t("feedback.status.new")}
+          </span>
+        );
+      case "in-review":
+        return (
+          <span className="rounded-full bg-orange-100 px-2 py-1 text-xs text-orange-700 dark:bg-orange-900 dark:text-orange-300">
+            {t("feedback.status.inReview")}
           </span>
         );
       case "reviewed":
@@ -282,13 +370,21 @@ export default function FeedbackPage() {
             {myFeedback.map((item) => {
               const typeOption = typeOptions.find((o) => o.value === item.type);
               const Icon = typeOption?.icon || MessageSquare;
+              const isExpanded = expandedFeedback === item.id;
+              const hasThread = item.thread && item.thread.length > 0;
+              const hasAdminResponse = item.adminResponse || hasThread;
+
               return (
-                <Card key={item.id}>
+                <Card
+                  key={item.id}
+                  className={item.hasUnreadResponse ? "ring-primary/50 ring-2" : ""}
+                >
                   <CardContent className="pt-4">
                     <div className="flex items-start justify-between gap-4">
-                      <div className="flex items-start gap-3">
-                        <Icon className={`mt-1 h-5 w-5 ${typeOption?.color}`} />
-                        <div className="flex-1">
+                      <div className="flex w-full items-start gap-3">
+                        <Icon className={`mt-1 h-5 w-5 shrink-0 ${typeOption?.color}`} />
+                        <div className="min-w-0 flex-1">
+                          {/* Original message */}
                           <p className="text-sm">{item.message}</p>
                           {item.createdAt && (
                             <p className="text-muted-foreground mt-1 text-xs">
@@ -300,28 +396,148 @@ export default function FeedbackPage() {
                             </p>
                           )}
 
-                          {/* Admin Response */}
-                          {item.adminResponse && (
-                            <div className="border-primary/20 bg-primary/5 mt-3 rounded-lg border-l-4 p-3">
-                              <p className="text-primary text-xs font-semibold">
-                                {t("feedback.adminResponseLabel")}
-                              </p>
-                              <p className="mt-1 text-sm">{item.adminResponse.message}</p>
-                              <p className="text-muted-foreground mt-1 text-xs">
-                                {new Date(item.adminResponse.respondedAt).toLocaleDateString(
-                                  userData?.locale,
-                                  {
-                                    year: "numeric",
-                                    month: "short",
-                                    day: "numeric",
-                                  }
-                                )}
-                              </p>
+                          {/* Expand/collapse button for conversation */}
+                          {hasAdminResponse && (
+                            <button
+                              onClick={() => handleExpandFeedback(item.id)}
+                              className="text-primary hover:text-primary/80 mt-2 flex items-center gap-1 text-sm font-medium"
+                            >
+                              {isExpanded ? (
+                                <>
+                                  <ChevronUp className="h-4 w-4" />
+                                  {t("feedback.hideConversation")}
+                                </>
+                              ) : (
+                                <>
+                                  <ChevronDown className="h-4 w-4" />
+                                  {t("feedback.showConversation")}
+                                  {item.hasUnreadResponse && (
+                                    <Badge
+                                      variant="destructive"
+                                      className="ml-2 h-5 px-1.5 text-xs"
+                                    >
+                                      {t("feedback.newResponse")}
+                                    </Badge>
+                                  )}
+                                </>
+                              )}
+                            </button>
+                          )}
+
+                          {/* Conversation thread (expanded) */}
+                          {isExpanded && (
+                            <div className="mt-4 space-y-3">
+                              {/* Legacy admin response (for old feedback without thread) */}
+                              {item.adminResponse && (!item.thread || item.thread.length === 0) && (
+                                <div className="border-primary/20 bg-primary/5 rounded-lg border-l-4 p-3">
+                                  <p className="text-primary text-xs font-semibold">
+                                    {t("feedback.adminResponseLabel")}
+                                  </p>
+                                  <p className="mt-1 text-sm">{item.adminResponse.message}</p>
+                                  <p className="text-muted-foreground mt-1 text-xs">
+                                    {new Date(item.adminResponse.respondedAt).toLocaleDateString(
+                                      userData?.locale,
+                                      {
+                                        year: "numeric",
+                                        month: "short",
+                                        day: "numeric",
+                                      }
+                                    )}
+                                  </p>
+                                </div>
+                              )}
+
+                              {/* Thread messages */}
+                              {item.thread?.map((msg) => (
+                                <div
+                                  key={msg.id}
+                                  className={`rounded-lg border-l-4 p-3 ${
+                                    msg.isAdmin
+                                      ? "border-primary/20 bg-primary/5"
+                                      : "border-muted bg-muted/30"
+                                  }`}
+                                >
+                                  <p
+                                    className={`text-xs font-semibold ${msg.isAdmin ? "text-primary" : "text-muted-foreground"}`}
+                                  >
+                                    {msg.isAdmin
+                                      ? t("feedback.adminResponseLabel")
+                                      : t("feedback.you")}
+                                  </p>
+                                  <p className="mt-1 text-sm whitespace-pre-wrap">{msg.message}</p>
+                                  <p className="text-muted-foreground mt-1 text-xs">
+                                    {new Date(msg.createdAt).toLocaleDateString(userData?.locale, {
+                                      year: "numeric",
+                                      month: "short",
+                                      day: "numeric",
+                                      hour: "2-digit",
+                                      minute: "2-digit",
+                                    })}
+                                  </p>
+                                </div>
+                              ))}
+
+                              {/* Reply form */}
+                              {item.status !== "resolved" && (
+                                <div className="mt-4">
+                                  {replyingTo === item.id ? (
+                                    <div className="space-y-2">
+                                      <textarea
+                                        rows={3}
+                                        placeholder={t("feedback.replyPlaceholder")}
+                                        value={replyText}
+                                        onChange={(e) => setReplyText(e.target.value)}
+                                        className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex w-full rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+                                        disabled={sendingReply}
+                                      />
+                                      <div className="flex gap-2">
+                                        <Button
+                                          size="sm"
+                                          onClick={() => handleSendReply(item.id)}
+                                          disabled={sendingReply || !replyText.trim()}
+                                        >
+                                          {sendingReply ? (
+                                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                          ) : (
+                                            <Send className="mr-2 h-4 w-4" />
+                                          )}
+                                          {t("feedback.sendReply")}
+                                        </Button>
+                                        <Button
+                                          size="sm"
+                                          variant="outline"
+                                          onClick={() => {
+                                            setReplyingTo(null);
+                                            setReplyText("");
+                                          }}
+                                          disabled={sendingReply}
+                                        >
+                                          {t("common.cancel")}
+                                        </Button>
+                                      </div>
+                                    </div>
+                                  ) : (
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      onClick={() => setReplyingTo(item.id)}
+                                    >
+                                      <Reply className="mr-2 h-4 w-4" />
+                                      {t("feedback.reply")}
+                                    </Button>
+                                  )}
+                                </div>
+                              )}
                             </div>
                           )}
                         </div>
                       </div>
-                      {getStatusBadge(item.status)}
+                      <div className="flex shrink-0 flex-col items-end gap-2">
+                        {getStatusBadge(item.status)}
+                        {item.hasUnreadResponse && !isExpanded && (
+                          <span className="bg-primary h-2 w-2 rounded-full" />
+                        )}
+                      </div>
                     </div>
                   </CardContent>
                 </Card>

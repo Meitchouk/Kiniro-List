@@ -3,11 +3,14 @@ import { getAdminFirestore } from "@/lib/firebase/admin";
 import { verifyAdmin, forbiddenResponse } from "@/lib/auth/adminAuth";
 import { z } from "zod";
 import { FieldValue } from "firebase-admin/firestore";
-import type { FeedbackEntry, FeedbackStatus } from "@/lib/types";
+import type { FeedbackEntry, FeedbackStatus, FeedbackMessage } from "@/lib/types";
 import { logEvent, withLogging } from "@/lib/logging";
+import { sendFeedbackResponseEmail, sendFeedbackStatusChangeEmail } from "@/lib/email";
+import { app } from "@/lib/config";
+import type { Locale } from "@/lib/email/templates/base";
 
 const updateFeedbackSchema = z.object({
-  status: z.enum(["new", "reviewed", "resolved"]).optional(),
+  status: z.enum(["new", "in-review", "reviewed", "resolved"]).optional(),
   adminResponse: z
     .string()
     .min(1, "Response cannot be empty")
@@ -18,6 +21,11 @@ const updateFeedbackSchema = z.object({
 /**
  * GET /api/admin/feedback
  * Gets all feedback entries (admin only)
+ * Query params:
+ * - countOnly=true: Only return counts for notifications
+ * - status: Filter by status
+ * - type: Filter by type
+ * - limit: Max number of results
  */
 export const GET = withLogging(
   async function GET(request: NextRequest) {
@@ -29,6 +37,37 @@ export const GET = withLogging(
 
       const db = getAdminFirestore();
       const { searchParams } = new URL(request.url);
+      const countOnly = searchParams.get("countOnly") === "true";
+
+      // For countOnly, just return the counts needed for notifications
+      if (countOnly) {
+        const allFeedback = await db.collection("feedback").get();
+
+        let needsAttention = 0;
+        let newCount = 0;
+        let inReviewCount = 0;
+
+        allFeedback.docs.forEach((doc) => {
+          const data = doc.data();
+          const status = data.status as FeedbackStatus;
+
+          if (status === "new") {
+            newCount++;
+            needsAttention++;
+          } else if (status === "in-review") {
+            inReviewCount++;
+            needsAttention++;
+          }
+        });
+
+        return NextResponse.json({
+          needsAttention,
+          counts: {
+            new: newCount,
+            "in-review": inReviewCount,
+          },
+        });
+      }
 
       // Optional filters
       const status = searchParams.get("status") as FeedbackStatus | null;
@@ -58,6 +97,8 @@ export const GET = withLogging(
           message: data.message,
           status: data.status,
           adminResponse: data.adminResponse || null,
+          thread: data.thread || [],
+          hasUnreadResponse: data.hasUnreadResponse || false,
           createdAt: data.createdAt?.toDate?.()?.toISOString() || null,
           updatedAt: data.updatedAt?.toDate?.()?.toISOString() || null,
         };
@@ -68,6 +109,7 @@ export const GET = withLogging(
       const counts = {
         total: countsSnapshot.size,
         new: 0,
+        "in-review": 0,
         reviewed: 0,
         resolved: 0,
       };
@@ -117,24 +159,147 @@ export const PATCH = withLogging(
         return NextResponse.json({ error: "Feedback not found" }, { status: 404 });
       }
 
+      const feedbackData = feedbackDoc.data()!;
+      const previousStatus = feedbackData.status;
       const updatePayload: Record<string, unknown> = {
         updatedAt: FieldValue.serverTimestamp(),
       };
+
+      // Get user's preferred locale for emails
+      let userLocale: Locale = "en";
+      try {
+        const userDoc = await db.collection("users").doc(feedbackData.userId).get();
+        if (userDoc.exists) {
+          const userData = userDoc.data();
+          userLocale =
+            (userData?.settings?.locale as Locale) || (userData?.locale as Locale) || "en";
+        }
+      } catch (err) {
+        console.error("[api/admin/feedback] Failed to get user locale:", err);
+      }
 
       if (parsed.status) {
         updatePayload.status = parsed.status;
       }
 
       if (parsed.adminResponse) {
+        // Create new message for thread
+        const newMessage: FeedbackMessage = {
+          id: `msg_${Date.now()}`,
+          message: parsed.adminResponse,
+          isAdmin: true,
+          authorId: admin.uid,
+          authorEmail: admin.email,
+          authorName: "Admin",
+          createdAt: new Date().toISOString(),
+        };
+
+        // Add to thread array
+        const currentThread = feedbackData.thread || [];
+        updatePayload.thread = [...currentThread, newMessage];
+
+        // Keep legacy adminResponse for backward compatibility
         updatePayload.adminResponse = {
           message: parsed.adminResponse,
           respondedBy: admin.uid,
           respondedByEmail: admin.email,
           respondedAt: new Date().toISOString(),
         };
+
+        // Mark as having unread response
+        updatePayload.hasUnreadResponse = true;
+
         // Auto-set status to reviewed if responding
         if (!parsed.status) {
           updatePayload.status = "reviewed";
+        }
+
+        // Create in-app notification for the user
+        const notificationRef = db
+          .collection("users")
+          .doc(feedbackData.userId)
+          .collection("notifications")
+          .doc();
+
+        await notificationRef.set({
+          type: "feedback_response",
+          title: "New response to your feedback",
+          message:
+            parsed.adminResponse.substring(0, 100) +
+            (parsed.adminResponse.length > 100 ? "..." : ""),
+          data: {
+            feedbackId: id,
+          },
+          read: false,
+          createdAt: new Date(),
+        });
+
+        // Send email notification to user (async, don't block response)
+        if (feedbackData.userEmail) {
+          // Build thread for email (include the new message)
+          const fullThread = (updatePayload.thread as FeedbackMessage[]).map((msg) => ({
+            message: msg.message,
+            isAdmin: msg.isAdmin,
+            authorName: msg.authorName,
+            createdAt: msg.createdAt,
+          }));
+
+          sendFeedbackResponseEmail(feedbackData.userEmail, {
+            locale: userLocale,
+            displayName: feedbackData.userDisplayName || null,
+            feedbackType: feedbackData.type,
+            originalMessage: feedbackData.message,
+            adminResponse: parsed.adminResponse,
+            feedbackUrl: `${app.baseUrl}/feedback`,
+            thread: fullThread,
+          }).catch((err) => console.error("[api/admin/feedback] Failed to send email:", err));
+        }
+      }
+
+      // Create notification for status change (only if no response was sent, as response already creates notification)
+      if (parsed.status && parsed.status !== previousStatus && !parsed.adminResponse) {
+        const statusMessages: Record<string, string> = {
+          "in-review": "Your feedback is now being reviewed",
+          reviewed: "Your feedback has been reviewed",
+          resolved: "Your feedback has been resolved",
+        };
+
+        const notificationMessage = statusMessages[parsed.status];
+        if (notificationMessage) {
+          const notificationRef = db
+            .collection("users")
+            .doc(feedbackData.userId)
+            .collection("notifications")
+            .doc();
+
+          await notificationRef.set({
+            type: "feedback_response",
+            title: "Feedback status updated",
+            message: notificationMessage,
+            data: {
+              feedbackId: id,
+              newStatus: parsed.status,
+            },
+            read: false,
+            createdAt: new Date(),
+          });
+
+          // Mark as having update so user sees it
+          updatePayload.hasUnreadResponse = true;
+
+          // Send email notification for status change
+          if (feedbackData.userEmail) {
+            sendFeedbackStatusChangeEmail(feedbackData.userEmail, {
+              locale: userLocale,
+              displayName: feedbackData.userDisplayName || null,
+              feedbackType: feedbackData.type,
+              originalMessage: feedbackData.message,
+              newStatus: parsed.status as FeedbackStatus,
+              feedbackUrl: `${app.baseUrl}/feedback`,
+            }).catch((err) =>
+              console.error("[api/admin/feedback] Failed to send status change email:", err)
+            );
+          }
         }
       }
 
