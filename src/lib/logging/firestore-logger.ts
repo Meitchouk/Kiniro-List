@@ -19,14 +19,23 @@ function getDb(): Firestore {
 }
 
 /**
+ * Remove undefined values from an object (Firestore doesn't accept undefined)
+ */
+function removeUndefined(obj: LogEntry): Record<string, unknown> {
+  return Object.fromEntries(Object.entries(obj).filter(([, value]) => value !== undefined));
+}
+
+/**
  * Write a log entry to Firestore
  */
 async function writeToFirestore(entry: LogEntry): Promise<void> {
   try {
     const db = getDb();
     const docRef = db.collection(LOGS_COLLECTION).doc();
+    // Remove undefined values as Firestore doesn't accept them
+    const cleanEntry = removeUndefined(entry);
     await docRef.set({
-      ...entry,
+      ...cleanEntry,
       createdAt: new Date(entry.timestamp),
     });
   } catch (error) {
