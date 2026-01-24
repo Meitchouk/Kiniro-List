@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Menu, Search, Calendar, Clock, BookOpen, MessageSquarePlus } from "lucide-react";
+import { Menu, Search, Calendar, Clock, BookOpen, MessageSquarePlus, Shield } from "lucide-react";
 import { useState } from "react";
 import {
   Button,
@@ -24,7 +24,7 @@ import { useAuth } from "@/components/providers/AuthProvider";
 export function Header() {
   const t = useTranslations();
   const pathname = usePathname();
-  const { user, loading } = useAuth();
+  const { user, userData, loading } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navLinks = [
@@ -108,6 +108,21 @@ export function Header() {
                 </Link>
               </Button>
             </SimpleTooltip>
+            {userData?.isAdmin && (
+              <SimpleTooltip content={t("nav.admin")} side="bottom">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  asChild
+                  className="text-amber-500 hover:text-amber-400"
+                >
+                  <Link href="/admin-panel">
+                    <Shield className="h-5 w-5" />
+                    <span className="sr-only">{t("nav.admin")}</span>
+                  </Link>
+                </Button>
+              </SimpleTooltip>
+            )}
             <LanguageSwitcher />
             <ThemeToggle />
             {!loading && <UserMenu />}
@@ -201,6 +216,22 @@ export function Header() {
                         </div>
                       </Link>
                     </Button>
+
+                    {userData?.isAdmin && (
+                      <Button
+                        variant="outline"
+                        className="h-11 w-full justify-start border-amber-500/30 text-sm text-amber-500 hover:bg-amber-500/10"
+                        asChild
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        <Link href="/admin-panel">
+                          <div className="flex items-center gap-2">
+                            <Shield className="h-4 w-4" />
+                            <span>{t("nav.admin")}</span>
+                          </div>
+                        </Link>
+                      </Button>
+                    )}
 
                     <div className="flex items-center justify-between gap-3">
                       <Typography variant="body2" weight="medium">

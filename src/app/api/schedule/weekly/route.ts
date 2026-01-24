@@ -3,6 +3,7 @@ import { getReleasingAnime } from "@/lib/anilist/client";
 import { upsertManyAnimeCache, getManyAnimeFromCache } from "@/lib/firestore/cache";
 import { checkRateLimit, rateLimitResponse } from "@/lib/redis/ratelimit";
 import { getWeekday } from "@/lib/utils/date";
+import { withLogging } from "@/lib/logging";
 import type { WeeklyScheduleItem, AniListMedia } from "@/lib/types";
 import { getOrSetJSON } from "@/lib/redis/cache";
 
@@ -12,85 +13,88 @@ interface AiringMediaItem {
   episode: number;
 }
 
-export async function GET(request: NextRequest) {
-  try {
-    // Rate limit check
-    const rateLimitResult = await checkRateLimit(request, "calendar");
-    if (!rateLimitResult.success) {
-      return rateLimitResponse(rateLimitResult);
-    }
+export const GET = withLogging(
+  async function GET(request: NextRequest) {
+    try {
+      // Rate limit check
+      const rateLimitResult = await checkRateLimit(request, "calendar");
+      if (!rateLimitResult.success) {
+        return rateLimitResponse(rateLimitResult);
+      }
 
-    // Use ephemeral cache for the weekly schedule (TTL 5 minutes)
-    const result = await getOrSetJSON<{ schedule: Record<number, WeeklyScheduleItem[]> }>(
-      "cache:schedule:weekly",
-      300,
-      async () => {
-        const airingItems: AiringMediaItem[] = [];
-        let page = 1;
-        let hasMore = true;
+      // Use ephemeral cache for the weekly schedule (TTL 5 minutes)
+      const result = await getOrSetJSON<{ schedule: Record<number, WeeklyScheduleItem[]> }>(
+        "cache:schedule:weekly",
+        300,
+        async () => {
+          const airingItems: AiringMediaItem[] = [];
+          let page = 1;
+          let hasMore = true;
 
-        while (hasMore && page <= 3) {
-          const { media, pageInfo } = await getReleasingAnime(page, 50);
+          while (hasMore && page <= 3) {
+            const { media, pageInfo } = await getReleasingAnime(page, 50);
 
-          if (media.length > 0) {
-            await upsertManyAnimeCache(media);
+            if (media.length > 0) {
+              await upsertManyAnimeCache(media);
+            }
+
+            for (const m of media) {
+              if (m.nextAiringEpisode) {
+                airingItems.push({
+                  media: m,
+                  airingAt: m.nextAiringEpisode.airingAt,
+                  episode: m.nextAiringEpisode.episode,
+                });
+              }
+            }
+
+            hasMore = pageInfo.hasNextPage;
+            page++;
           }
 
-          for (const m of media) {
-            if (m.nextAiringEpisode) {
-              airingItems.push({
-                media: m,
-                airingAt: m.nextAiringEpisode.airingAt,
-                episode: m.nextAiringEpisode.episode,
+          const animeIds = airingItems.map((item) => item.media.id);
+          const animeCache = await getManyAnimeFromCache(animeIds);
+
+          const allMedia: WeeklyScheduleItem[] = [];
+          for (const item of airingItems) {
+            const cachedAnime = animeCache.get(item.media.id);
+            if (cachedAnime) {
+              allMedia.push({
+                anime: cachedAnime,
+                airingAt: item.airingAt,
+                episode: item.episode,
+                weekday: getWeekday(item.airingAt),
               });
             }
           }
 
-          hasMore = pageInfo.hasNextPage;
-          page++;
-        }
+          const schedule: Record<number, WeeklyScheduleItem[]> = {
+            0: [],
+            1: [],
+            2: [],
+            3: [],
+            4: [],
+            5: [],
+            6: [],
+          };
 
-        const animeIds = airingItems.map((item) => item.media.id);
-        const animeCache = await getManyAnimeFromCache(animeIds);
-
-        const allMedia: WeeklyScheduleItem[] = [];
-        for (const item of airingItems) {
-          const cachedAnime = animeCache.get(item.media.id);
-          if (cachedAnime) {
-            allMedia.push({
-              anime: cachedAnime,
-              airingAt: item.airingAt,
-              episode: item.episode,
-              weekday: getWeekday(item.airingAt),
-            });
+          for (const item of allMedia) {
+            schedule[item.weekday].push(item);
           }
+
+          for (const day of Object.keys(schedule)) {
+            schedule[Number(day)].sort((a, b) => a.airingAt - b.airingAt);
+          }
+
+          return { schedule };
         }
+      );
 
-        const schedule: Record<number, WeeklyScheduleItem[]> = {
-          0: [],
-          1: [],
-          2: [],
-          3: [],
-          4: [],
-          5: [],
-          6: [],
-        };
-
-        for (const item of allMedia) {
-          schedule[item.weekday].push(item);
-        }
-
-        for (const day of Object.keys(schedule)) {
-          schedule[Number(day)].sort((a, b) => a.airingAt - b.airingAt);
-        }
-
-        return { schedule };
-      }
-    );
-
-    return NextResponse.json(result);
-  } catch (error) {
-    console.error("Weekly schedule error:", error);
-    return NextResponse.json({ error: "Failed to fetch weekly schedule" }, { status: 500 });
-  }
-}
+      return NextResponse.json(result);
+    } catch (error) {
+      console.error("Weekly schedule error:", error);
+      return NextResponse.json({ error: "Failed to fetch weekly schedule" }, { status: 500 });
+    }
+  },
+  { context: "schedule:weekly" }
+);

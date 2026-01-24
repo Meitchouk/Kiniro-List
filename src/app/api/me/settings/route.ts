@@ -4,6 +4,7 @@ import { checkRateLimit, rateLimitResponse } from "@/lib/redis/ratelimit";
 import { getAdminFirestore } from "@/lib/firebase/admin";
 import { FieldValue } from "firebase-admin/firestore";
 import { settingsUpdateSchema } from "@/lib/validation/schemas";
+import { logEvent } from "@/lib/logging";
 
 export async function PATCH(request: NextRequest) {
   try {
@@ -63,6 +64,10 @@ export async function PATCH(request: NextRequest) {
     // Update Firestore
     const db = getAdminFirestore();
     await db.collection("users").doc(uid).update(updateData);
+
+    logEvent.database("update", "users", uid, {
+      settingsUpdated: Object.keys(updates),
+    });
 
     return NextResponse.json({ success: true });
   } catch (error) {

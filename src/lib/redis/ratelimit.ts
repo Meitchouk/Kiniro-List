@@ -3,6 +3,7 @@ import { Redis } from "@upstash/redis";
 import { NextRequest, NextResponse } from "next/server";
 import { getClientIP } from "./ip";
 import { upstash } from "@/lib/config";
+import { logEvent } from "@/lib/logging";
 
 // Create Redis client
 const redis = new Redis({
@@ -71,8 +72,19 @@ export async function checkRateLimit(
   };
 }
 
-export function rateLimitResponse(result: RateLimitResult): NextResponse {
+export function rateLimitResponse(
+  result: RateLimitResult,
+  request?: NextRequest,
+  type?: RateLimitType
+): NextResponse {
   const retryAfter = Math.ceil((result.reset - Date.now()) / 1000);
+
+  // Log rate limit event
+  if (request) {
+    const ip = getClientIP(request);
+    const url = new URL(request.url);
+    logEvent.rateLimit(ip, url.pathname, { type, limit: result.limit });
+  }
 
   return NextResponse.json(
     {

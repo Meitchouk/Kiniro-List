@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { emailSendSchema } from "@/lib/validation/schemas";
 import { sendEmail } from "@/lib/email/zeptomail";
 import { checkRateLimit, rateLimitResponse } from "@/lib/redis/ratelimit";
+import { logEvent } from "@/lib/logging";
 
 export const runtime = "nodejs";
 
@@ -27,6 +28,13 @@ export async function POST(request: NextRequest) {
     }
 
     const result = await sendEmail(parsed.data);
+
+    logEvent.custom(`Email sent: ${parsed.data.subject}`, "email", "info", {
+      to: parsed.data.to,
+      subject: parsed.data.subject,
+      messageId: result.messageId,
+    });
+
     return NextResponse.json({ success: true, messageId: result.messageId });
   } catch (error) {
     console.error("[email] send error:", error);

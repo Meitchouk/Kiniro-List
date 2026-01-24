@@ -1,6 +1,7 @@
 // Server-only AniList GraphQL client
 import type { AniListMedia, MediaSeason, PaginationInfo } from "@/lib/types";
 import { anilist } from "@/lib/config";
+import { logEvent } from "@/lib/logging";
 
 const ANILIST_API = anilist.apiUrl;
 
@@ -18,6 +19,9 @@ interface PageInfo {
 }
 
 async function fetchAniList<T>(query: string, variables: Record<string, unknown> = {}): Promise<T> {
+  const startTime = Date.now();
+  const operationName = extractOperationName(query);
+
   const response = await fetch(ANILIST_API, {
     method: "POST",
     headers: {
@@ -28,17 +32,55 @@ async function fetchAniList<T>(query: string, variables: Record<string, unknown>
     next: { revalidate: 60 }, // Cache for 60 seconds
   });
 
+  const duration = Date.now() - startTime;
+
   if (!response.ok) {
+    logEvent.external("anilist", operationName, response.status, duration, {
+      error: `HTTP ${response.status}`,
+      variables: sanitizeVariables(variables),
+    });
     throw new Error(`AniList API error: ${response.status}`);
   }
 
   const json: GraphQLResponse<T> = await response.json();
 
   if (json.errors?.length) {
+    logEvent.external("anilist", operationName, 400, duration, {
+      error: json.errors[0].message,
+      variables: sanitizeVariables(variables),
+    });
     throw new Error(json.errors[0].message);
   }
 
+  // Log successful calls for important operations
+  if (duration > 1000 || operationName !== "unknown") {
+    logEvent.external("anilist", operationName, 200, duration, {
+      variables: sanitizeVariables(variables),
+    });
+  }
+
   return json.data;
+}
+
+// Extract operation name from GraphQL query
+function extractOperationName(query: string): string {
+  const match = query.match(/query\s+(\w+)/);
+  return match ? match[1] : "unknown";
+}
+
+// Sanitize variables for logging (remove potentially large data)
+function sanitizeVariables(variables: Record<string, unknown>): Record<string, unknown> {
+  const sanitized: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(variables)) {
+    if (typeof value === "string" && value.length > 100) {
+      sanitized[key] = value.substring(0, 100) + "...";
+    } else if (Array.isArray(value) && value.length > 10) {
+      sanitized[key] = `[${value.length} items]`;
+    } else {
+      sanitized[key] = value;
+    }
+  }
+  return sanitized;
 }
 
 // ============ Search Query ============

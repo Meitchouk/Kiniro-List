@@ -237,6 +237,7 @@ export interface UserDocument {
   displayName?: string | null;
   photoURL?: string | null;
   email?: string | null;
+  isAdmin?: boolean;
   createdAt: Date;
   timezone: string;
   calendarView: CalendarView;
@@ -357,6 +358,7 @@ export interface LibraryEntryWithAnime extends LibraryEntry {
 export interface UserResponse extends Omit<UserDocument, "createdAt" | "updatedAt"> {
   createdAt: string;
   updatedAt: string;
+  isAdmin?: boolean;
 }
 
 // ============ Request Types ============
@@ -384,6 +386,31 @@ export interface EmailSendRequest {
   cc?: string | string[];
   bcc?: string | string[];
   replyTo?: string;
+}
+
+// ============ Feedback Types ============
+
+export type FeedbackType = "suggestion" | "bug" | "comment";
+export type FeedbackStatus = "new" | "reviewed" | "resolved";
+
+export interface FeedbackAdminResponse {
+  message: string;
+  respondedBy: string;
+  respondedByEmail: string;
+  respondedAt: string;
+}
+
+export interface FeedbackEntry {
+  id: string;
+  userId: string;
+  userEmail: string | null;
+  userDisplayName: string | null;
+  type: FeedbackType;
+  message: string;
+  status: FeedbackStatus;
+  adminResponse?: FeedbackAdminResponse | null;
+  createdAt: string | null;
+  updatedAt?: string | null;
 }
 
 // ============ Settings Form Types ============

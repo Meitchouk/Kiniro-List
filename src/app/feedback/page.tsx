@@ -30,11 +30,19 @@ const feedbackSchema = z.object({
 
 type FeedbackForm = z.infer<typeof feedbackSchema>;
 
+interface FeedbackAdminResponse {
+  message: string;
+  respondedBy: string;
+  respondedByEmail: string;
+  respondedAt: string;
+}
+
 interface FeedbackEntry {
   id: string;
   type: "suggestion" | "bug" | "comment";
   message: string;
   status: "new" | "reviewed" | "resolved";
+  adminResponse?: FeedbackAdminResponse | null;
   createdAt: string | null;
 }
 
@@ -280,7 +288,7 @@ export default function FeedbackPage() {
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex items-start gap-3">
                         <Icon className={`mt-1 h-5 w-5 ${typeOption?.color}`} />
-                        <div>
+                        <div className="flex-1">
                           <p className="text-sm">{item.message}</p>
                           {item.createdAt && (
                             <p className="text-muted-foreground mt-1 text-xs">
@@ -290,6 +298,26 @@ export default function FeedbackPage() {
                                 day: "numeric",
                               })}
                             </p>
+                          )}
+
+                          {/* Admin Response */}
+                          {item.adminResponse && (
+                            <div className="border-primary/20 bg-primary/5 mt-3 rounded-lg border-l-4 p-3">
+                              <p className="text-primary text-xs font-semibold">
+                                {t("feedback.adminResponseLabel")}
+                              </p>
+                              <p className="mt-1 text-sm">{item.adminResponse.message}</p>
+                              <p className="text-muted-foreground mt-1 text-xs">
+                                {new Date(item.adminResponse.respondedAt).toLocaleDateString(
+                                  userData?.locale,
+                                  {
+                                    year: "numeric",
+                                    month: "short",
+                                    day: "numeric",
+                                  }
+                                )}
+                              </p>
+                            </div>
                           )}
                         </div>
                       </div>

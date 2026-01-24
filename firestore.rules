@@ -35,5 +35,11 @@ service cloud.firestore {
         && request.resource.data.message.size() <= 2000;
       allow update, delete: if false; // Only server (admin SDK) can update/delete
     }
+    
+    // System logs collection: server-side only (admin SDK)
+    // No client access - all operations go through API routes
+    match /system_logs/{logId} {
+      allow read, write: if false; // Only server (admin SDK) can read/write
+    }
   }
 }

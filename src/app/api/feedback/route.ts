@@ -3,6 +3,7 @@ import { getAdminAuth, getAdminFirestore } from "@/lib/firebase/admin";
 import { checkRateLimit, rateLimitResponse } from "@/lib/redis/ratelimit";
 import { z } from "zod";
 import { FieldValue } from "firebase-admin/firestore";
+import { logEvent } from "@/lib/logging";
 
 const feedbackSchema = z.object({
   type: z.enum(["suggestion", "bug", "comment"]),
@@ -63,6 +64,11 @@ export async function POST(request: NextRequest) {
       createdAt: FieldValue.serverTimestamp(),
     });
 
+    logEvent.database("create", "feedback", feedbackRef.id, {
+      userId: user.uid,
+      type,
+    });
+
     return NextResponse.json({
       success: true,
       id: feedbackRef.id,
@@ -119,6 +125,7 @@ export async function GET(request: NextRequest) {
         type: data.type,
         message: data.message,
         status: data.status,
+        adminResponse: data.adminResponse || null,
         createdAt: data.createdAt?.toDate?.()?.toISOString() || null,
       };
     });

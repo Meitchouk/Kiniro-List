@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
       return rateLimitResponse(rateLimitResult);
     }
 
-    const stats = getLogStats();
+    const stats = await getLogStats();
 
     return NextResponse.json({
       success: true,
