@@ -2,7 +2,6 @@
 
 import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { DateTime } from "luxon";
 import {
@@ -15,6 +14,7 @@ import {
   Switch,
   InfoLabel,
 } from "@/components/ds";
+import { OptimizedImage } from "@/components/common/OptimizedImage";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, Clock, PlayCircle, CheckCircle } from "lucide-react";
 import { CrunchyrollIcon } from "@/components/icons/CrunchyrollIcon";
@@ -86,7 +86,7 @@ function CalendarEpisodeCard({ item, timezone, priority = false }: CalendarEpiso
     >
       <Link href={`/anime/${slug}`} className="block">
         <div className="relative overflow-hidden" style={{ height: CARD_IMAGE_HEIGHT }}>
-          <Image
+          <OptimizedImage
             src={cover}
             alt={title}
             fill

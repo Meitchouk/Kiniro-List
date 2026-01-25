@@ -70,6 +70,8 @@ export const libraryUpsertSchema = z.object({
   status: z.enum(["watching", "planned", "completed", "paused", "dropped"]),
   pinned: z.boolean().optional(),
   notes: z.string().max(200).optional(),
+  progress: z.number().int().min(0).max(9999).optional(),
+  episodesWatched: z.array(z.number().int().positive()).max(9999).optional(),
 });
 
 export const libraryDeleteSchema = z.object({

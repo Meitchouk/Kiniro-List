@@ -1,9 +1,9 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { Card, CardContent, Badge, Typography, Flex, Stack } from "@/components/ds";
+import { OptimizedImage } from "@/components/common/OptimizedImage";
 import { Clock, CheckCircle } from "lucide-react";
 import { getLocalizedTitle } from "@/lib/utils/text";
 import { formatAiringTime } from "@/lib/utils/date";
@@ -32,7 +32,13 @@ export function MyCalendarItemCard({ item, timezone }: MyCalendarItemCardProps) 
       >
         <CardContent className="flex gap-3 p-4">
           <div className="relative h-24 w-16 shrink-0 overflow-hidden rounded">
-            <Image src={cover} alt={displayTitle} fill className="object-cover" sizes="64px" />
+            <OptimizedImage
+              src={cover}
+              alt={displayTitle}
+              fill
+              className="object-cover"
+              sizes="64px"
+            />
             {item.isAired && (
               <div className="bg-background/80 absolute inset-0 flex items-center justify-center">
                 <CheckCircle className="text-primary h-6 w-6" />

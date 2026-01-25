@@ -169,13 +169,7 @@ export function Footer() {
               <Typography variant="body2" colorScheme="secondary" className="mb-4">
                 {t("footer.supportDescription")}
               </Typography>
-              <KofiWidget
-                variant="button"
-                size="md"
-                colorScheme="kofi"
-                buttonText={t("footer.supportButton")}
-                icon="coffee"
-              />
+              <KofiWidget variant="badge" badgeStyle="blue" />
             </div>
           </Grid>
         </div>

@@ -2,7 +2,8 @@
 
 import { memo } from "react";
 import { cva, type VariantProps } from "class-variance-authority";
-import { Coffee, Heart } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { OptimizedImage } from "./OptimizedImage";
 import { cn } from "@/lib/utils";
 
 const KOFI_USERNAME = "kinirolist";
@@ -28,6 +29,11 @@ const kofiWidgetVariants = cva("", {
        */
       button:
         "inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 font-medium transition-all duration-200 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2",
+      /**
+       * Official Ko-fi badge - uses brand asset images
+       * Most authentic representation of Ko-fi brand
+       */
+      badge: "inline-block transition-all duration-200 hover:scale-105",
     },
     size: {
       sm: "",
@@ -107,7 +113,7 @@ export interface KofiWidgetProps
     VariantProps<typeof kofiWidgetVariants> {
   /**
    * Custom button text for floating and button variants
-   * @default "Support me"
+   * If not provided, uses translation key 'common.supportKofi'
    */
   buttonText?: string;
   /**
@@ -116,15 +122,10 @@ export interface KofiWidgetProps
    */
   hideFeed?: boolean;
   /**
-   * Icon to show in the widget
-   * @default "coffee"
+   * Badge style for the badge variant
+   * @default "blue"
    */
-  icon?: "coffee" | "heart" | "none";
-  /**
-   * Whether to show icon only (no text) - useful for compact floating button
-   * @default false
-   */
-  iconOnly?: boolean;
+  badgeStyle?: "blue" | "red" | "dark" | "beige";
 }
 
 /**
@@ -154,32 +155,72 @@ export const KofiWidget = memo(function KofiWidget({
   variant = "floating",
   size = "md",
   colorScheme = "kofi",
-  buttonText = "Support me",
+  buttonText,
   hideFeed = true,
-  icon = "coffee",
-  iconOnly = false,
+  badgeStyle = "blue",
   ...props
 }: KofiWidgetProps) {
-  const IconComponent = icon === "coffee" ? Coffee : icon === "heart" ? Heart : null;
+  const t = useTranslations();
+  const defaultButtonText = t("common.supportKofi");
+  const displayText = buttonText || defaultButtonText;
 
-  // Floating variant - custom styled floating button
+  // Badge variant - official Ko-fi badge images
+  if (variant === "badge") {
+    const badgeImages = {
+      blue: "/kofi_brandasset/support_me_on_kofi_blue.png",
+      red: "/kofi_brandasset/support_me_on_kofi_red.png",
+      dark: "/kofi_brandasset/support_me_on_kofi_dark.png",
+      beige: "/kofi_brandasset/support_me_on_kofi_beige.png",
+    };
+
+    return (
+      <a
+        href={KOFI_URL}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label={t("common.supportKofi")}
+        className={cn(kofiWidgetVariants({ variant }), "overflow-hidden rounded-lg", className)}
+        {...(props as React.AnchorHTMLAttributes<HTMLAnchorElement>)}
+      >
+        <OptimizedImage
+          src={badgeImages[badgeStyle]}
+          alt="Support me on Ko-fi"
+          width={223}
+          height={51}
+          className="h-auto w-auto"
+        />
+      </a>
+    );
+  }
+
+  // Floating variant - custom styled floating button with Ko-fi branding
   if (variant === "floating") {
     return (
       <a
         href={KOFI_URL}
         target="_blank"
         rel="noopener noreferrer"
-        aria-label={buttonText}
+        aria-label={displayText}
         className={cn(kofiWidgetVariants({ variant, size, colorScheme }), className)}
         {...(props as React.AnchorHTMLAttributes<HTMLAnchorElement>)}
       >
-        {IconComponent && <IconComponent className={cn("h-5 w-5", iconOnly && "h-6 w-6")} />}
-        {!iconOnly && <span>{buttonText}</span>}
+        {/* Ko-fi logo */}
+        <OptimizedImage
+          src="/kofi_brandasset/kofi_symbol.png"
+          alt="Ko-fi"
+          width={24}
+          height={24}
+          className="h-6 w-6"
+        />
+        <span>
+          {displayText}
+          {colorScheme === "kofi" && " on Ko-fi"}
+        </span>
       </a>
     );
   }
 
-  // Button variant - styled inline link
+  // Button variant - styled inline link with Ko-fi branding
   if (variant === "button") {
     return (
       <a
@@ -189,8 +230,18 @@ export const KofiWidget = memo(function KofiWidget({
         className={cn(kofiWidgetVariants({ variant, size, colorScheme }), className)}
         {...(props as React.AnchorHTMLAttributes<HTMLAnchorElement>)}
       >
-        {IconComponent && <IconComponent className="h-5 w-5" />}
-        {buttonText}
+        {/* Ko-fi logo */}
+        <OptimizedImage
+          src="/kofi_brandasset/kofi_symbol.png"
+          alt="Ko-fi"
+          width={20}
+          height={20}
+          className="h-5 w-5"
+        />
+        <span>
+          {displayText}
+          {colorScheme === "kofi" && " on Ko-fi"}
+        </span>
       </a>
     );
   }

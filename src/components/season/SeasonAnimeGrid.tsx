@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Typography, Grid, Stack } from "@/components/ds";
 import { AnimeCard } from "@/components/anime/AnimeCard";
+import { MobileAnimeList } from "@/components/anime/MobileAnimeList";
 import { Pagination } from "@/components/anime/Pagination";
 import { EmptyState, AnimeFiltersBar } from "@/components/common";
 import type { AnimeFilters } from "@/components/common";
@@ -137,8 +138,19 @@ export function SeasonAnimeGrid({
         />
       ) : (
         <>
-          {/* Anime grid */}
-          <Grid cols={2} smCols={3} mdCols={4} lgCols={5} xlCols={6} gap={4}>
+          {/* Mobile list view - compact horizontal cards */}
+          <MobileAnimeList anime={filteredAnime} />
+
+          {/* Desktop grid view */}
+          <Grid
+            cols={2}
+            mdCols={3}
+            lgCols={4}
+            xlCols={5}
+            xxlCols={6}
+            gap={4}
+            className="hidden md:grid"
+          >
             {filteredAnime.map((item) => (
               <AnimeCard key={item.id} anime={item} />
             ))}

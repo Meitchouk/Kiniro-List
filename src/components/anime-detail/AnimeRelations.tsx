@@ -1,9 +1,9 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { Card, CardContent, CardHeader, CardTitle, Badge, Grid, Typography } from "@/components/ds";
+import { OptimizedImage } from "@/components/common/OptimizedImage";
 import { getLocalizedTitle, createAnimeSlug } from "@/lib/utils/text";
 import type { RelationEdge } from "@/lib/types";
 
@@ -37,11 +37,12 @@ export function AnimeRelations({ relations, maxItems = 6 }: AnimeRelationsProps)
                 className="hover:bg-accent flex gap-3 rounded-lg border p-3 transition-colors"
               >
                 <div className="relative h-20 w-14 shrink-0 overflow-hidden rounded">
-                  <Image
+                  <OptimizedImage
                     src={edge.node.coverImage.large || "/placeholder.png"}
                     alt={getLocalizedTitle(edge.node.title)}
                     fill
                     className="object-cover"
+                    sizes="56px"
                   />
                 </div>
                 <div className="flex-1 space-y-1">

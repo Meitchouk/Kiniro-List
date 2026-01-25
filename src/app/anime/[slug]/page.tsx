@@ -1,11 +1,11 @@
 "use client";
 
 import { useState, use } from "react";
-import Image from "next/image";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { ExternalLink, Trash2 } from "lucide-react";
 import { Button, Stack, Flex, Typography } from "@/components/ds";
+import { OptimizedImage } from "@/components/common/OptimizedImage";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { AnimeDetailSkeleton } from "@/components/anime/AnimeCardSkeleton";
 import { ErrorBanner } from "@/components/anime/ErrorBanner";
@@ -124,7 +124,14 @@ export default function AnimeDetailPage({ params }: { params: Promise<{ slug: st
         {/* Banner */}
         {anime.bannerImage && (
           <div className="relative -mx-4 mb-8 h-56 w-screen overflow-hidden md:mx-0 md:h-64 md:rounded-xl lg:h-80">
-            <Image src={anime.bannerImage} alt={title} fill className="object-cover" priority />
+            <OptimizedImage
+              src={anime.bannerImage}
+              alt={title}
+              fill
+              className="object-cover"
+              priority
+              sizes="100vw"
+            />
             <div className="from-background absolute inset-0 bg-linear-to-t to-transparent" />
           </div>
         )}
@@ -134,7 +141,14 @@ export default function AnimeDetailPage({ params }: { params: Promise<{ slug: st
           <Stack gap={6} className="order-2 shrink-0 lg:order-1 lg:w-80">
             {/* Cover Image */}
             <div className="relative mx-auto h-105 w-75 overflow-hidden rounded-lg shadow-xl">
-              <Image src={coverImage} alt={title} fill className="object-cover" priority />
+              <OptimizedImage
+                src={coverImage}
+                alt={title}
+                fill
+                className="object-cover"
+                priority
+                sizes="300px"
+              />
             </div>
 
             {/* Stats Card */}

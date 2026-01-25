@@ -1,9 +1,9 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { Card, CardContent, Badge, Typography, Flex, Stack } from "@/components/ds";
+import { OptimizedImage } from "@/components/common/OptimizedImage";
 import { Clock } from "lucide-react";
 import { getLocalizedTitle } from "@/lib/utils/text";
 import { formatAiringTime } from "@/lib/utils/date";
@@ -38,7 +38,13 @@ export function ScheduleItemCard({
       <Card className="h-full transition-all hover:-translate-y-1 hover:shadow-lg">
         <CardContent className="flex gap-3 p-4">
           <div className="relative h-24 w-16 shrink-0 overflow-hidden rounded">
-            <Image src={cover} alt={displayTitle} fill className="object-cover" sizes="64px" />
+            <OptimizedImage
+              src={cover}
+              alt={displayTitle}
+              fill
+              className="object-cover"
+              sizes="64px"
+            />
           </div>
           <Stack justify="between" className="flex min-w-0 flex-1">
             <div>
