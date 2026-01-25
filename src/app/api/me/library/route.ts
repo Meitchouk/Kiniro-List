@@ -53,6 +53,8 @@ export const GET = withLogging(
           status: data.status,
           pinned: data.pinned,
           notes: data.notes,
+          progress: data.progress || 0,
+          episodesWatched: data.episodesWatched || [],
           addedAt: data.addedAt.toDate(),
           updatedAt: data.updatedAt.toDate(),
         };
@@ -112,7 +114,7 @@ export const POST = withLogging(
         );
       }
 
-      const { animeId, status, pinned, notes } = parseResult.data;
+      const { animeId, status, pinned, notes, progress, episodesWatched } = parseResult.data;
 
       const db = getAdminFirestore();
       const libraryRef = db.collection("users").doc(uid).collection("library").doc(String(animeId));
@@ -127,6 +129,8 @@ export const POST = withLogging(
         };
         if (pinned !== undefined) updateData.pinned = pinned;
         if (notes !== undefined) updateData.notes = notes;
+        if (progress !== undefined) updateData.progress = progress;
+        if (episodesWatched !== undefined) updateData.episodesWatched = episodesWatched;
 
         await libraryRef.update(updateData);
 
@@ -142,6 +146,8 @@ export const POST = withLogging(
           status,
           pinned: pinned || false,
           notes: notes || "",
+          progress: progress || 0,
+          episodesWatched: episodesWatched || [],
           addedAt: FieldValue.serverTimestamp(),
           updatedAt: FieldValue.serverTimestamp(),
         });

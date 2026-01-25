@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 import { Typography, Flex, Grid, Stack } from "@/components/ds";
 import { AnimeCard } from "@/components/anime/AnimeCard";
 import { AnimeGridSkeleton } from "@/components/anime/AnimeCardSkeleton";
+import { MobileAnimeList, MobileAnimeListSkeleton } from "@/components/anime/MobileAnimeList";
 import { Pagination } from "@/components/anime/Pagination";
 import { ErrorBanner } from "@/components/anime/ErrorBanner";
 import type { AnimeListResponse } from "@/lib/types";
@@ -41,7 +42,12 @@ export function SearchResults({
   }
 
   if (isLoading) {
-    return <AnimeGridSkeleton />;
+    return (
+      <>
+        <MobileAnimeListSkeleton />
+        <AnimeGridSkeleton className="hidden md:grid" />
+      </>
+    );
   }
 
   if (error) {
@@ -71,7 +77,19 @@ export function SearchResults({
             <Pagination pagination={data.pagination} onPageChange={onPageChange} compact />
           </div>
 
-          <Grid cols={2} smCols={3} mdCols={4} lgCols={5} xlCols={6} gap={4}>
+          {/* Mobile list view */}
+          <MobileAnimeList anime={data.anime} />
+
+          {/* Desktop grid view */}
+          <Grid
+            cols={2}
+            mdCols={3}
+            lgCols={4}
+            xlCols={5}
+            xxlCols={6}
+            gap={4}
+            className="hidden md:grid"
+          >
             {data.anime.map((anime) => (
               <AnimeCard key={anime.id} anime={anime} />
             ))}

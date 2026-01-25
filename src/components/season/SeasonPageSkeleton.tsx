@@ -8,7 +8,33 @@ interface SeasonPageSkeletonProps {
   showHeader?: boolean;
 }
 
-function SkeletonCard() {
+/**
+ * Mobile skeleton card - horizontal compact layout
+ */
+function MobileSkeletonCard() {
+  return (
+    <div className="bg-card flex overflow-hidden rounded-xl border shadow">
+      {/* Cover skeleton */}
+      <div className="bg-muted h-28 w-20 shrink-0 animate-pulse" />
+      {/* Content skeleton */}
+      <div className="flex flex-1 flex-col justify-between p-3">
+        <div className="space-y-2">
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-3/4" />
+        </div>
+        <div className="mt-2 flex gap-2">
+          <Skeleton className="h-5 w-12" />
+          <Skeleton className="h-5 w-16" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Desktop skeleton card - vertical poster layout
+ */
+function DesktopSkeletonCard() {
   return (
     <div className="bg-card w-full overflow-hidden rounded-xl border shadow">
       <div className="bg-muted relative aspect-3/4 w-full animate-pulse" />
@@ -21,13 +47,41 @@ function SkeletonCard() {
   );
 }
 
-function SkeletonGrid({ count = 12 }: { count?: number }) {
+/**
+ * Mobile skeleton list
+ */
+function MobileSkeletonList({ count = 8 }: { count?: number }) {
   return (
-    <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+    <div className="flex flex-col gap-3 md:hidden">
       {Array.from({ length: count }).map((_, i) => (
-        <SkeletonCard key={i} />
+        <MobileSkeletonCard key={i} />
       ))}
     </div>
+  );
+}
+
+/**
+ * Desktop skeleton grid
+ */
+function DesktopSkeletonGrid({ count = 12 }: { count?: number }) {
+  return (
+    <div className="hidden md:grid md:grid-cols-4 md:gap-4 lg:grid-cols-5 xl:grid-cols-6">
+      {Array.from({ length: count }).map((_, i) => (
+        <DesktopSkeletonCard key={i} />
+      ))}
+    </div>
+  );
+}
+
+/**
+ * Combined responsive skeleton
+ */
+function ResponsiveSkeleton() {
+  return (
+    <>
+      <MobileSkeletonList count={8} />
+      <DesktopSkeletonGrid count={12} />
+    </>
   );
 }
 
@@ -37,7 +91,7 @@ export function SeasonPageSkeleton({ title, showHeader = true }: SeasonPageSkele
       <div className="flex flex-col">
         <PageHeader title={title} showBack={true} />
         <div className="container mx-auto px-4 py-8">
-          <SkeletonGrid />
+          <ResponsiveSkeleton />
         </div>
       </div>
     );
@@ -46,7 +100,7 @@ export function SeasonPageSkeleton({ title, showHeader = true }: SeasonPageSkele
   return (
     <div className="container mx-auto px-4 py-8">
       <h3 className="mb-6 text-xl font-semibold">{title}</h3>
-      <SkeletonGrid />
+      <ResponsiveSkeleton />
     </div>
   );
 }

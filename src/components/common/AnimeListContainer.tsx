@@ -4,9 +4,10 @@ import { ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import { Typography, Grid } from "@/components/ds";
 import { AnimeGridSkeleton } from "@/components/anime/AnimeCardSkeleton";
+import { MobileAnimeList, MobileAnimeListSkeleton } from "@/components/anime/MobileAnimeList";
 import { Pagination } from "@/components/anime/Pagination";
 import { ErrorBanner } from "@/components/anime/ErrorBanner";
-import type { PaginationInfo } from "@/lib/types";
+import type { PaginationInfo, AnimeCache } from "@/lib/types";
 
 interface AnimeListContainerProps {
   isLoading: boolean;
@@ -18,6 +19,8 @@ interface AnimeListContainerProps {
   onPageChange?: (page: number) => void;
   children: ReactNode;
   header?: ReactNode;
+  /** Anime data for mobile list - if provided, renders optimized mobile view */
+  anime?: AnimeCache[];
 }
 
 /**
@@ -33,11 +36,18 @@ export function AnimeListContainer({
   onPageChange,
   children,
   header,
+  anime,
 }: AnimeListContainerProps) {
   const t = useTranslations();
+  const hasMobileOptimization = !!anime;
 
   if (isLoading) {
-    return <AnimeGridSkeleton />;
+    return (
+      <>
+        {hasMobileOptimization && <MobileAnimeListSkeleton />}
+        <AnimeGridSkeleton className={hasMobileOptimization ? "hidden md:grid" : undefined} />
+      </>
+    );
   }
 
   if (error) {
@@ -63,7 +73,19 @@ export function AnimeListContainer({
         </div>
       )}
 
-      <Grid cols={2} smCols={3} mdCols={4} lgCols={5} xlCols={6} gap={4}>
+      {/* Mobile list view (when anime prop is provided) */}
+      {hasMobileOptimization && <MobileAnimeList anime={anime} />}
+
+      {/* Desktop grid view (or all views when no mobile optimization) */}
+      <Grid
+        cols={2}
+        mdCols={3}
+        lgCols={4}
+        xlCols={5}
+        xxlCols={6}
+        gap={4}
+        className={hasMobileOptimization ? "hidden md:grid" : undefined}
+      >
         {children}
       </Grid>
 

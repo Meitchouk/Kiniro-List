@@ -17,9 +17,14 @@ export function AnimeCardSkeleton() {
   );
 }
 
-export function AnimeGridSkeleton({ count = 12 }: { count?: number }) {
+interface AnimeGridSkeletonProps {
+  count?: number;
+  className?: string;
+}
+
+export function AnimeGridSkeleton({ count = 12, className }: AnimeGridSkeletonProps) {
   return (
-    <Grid cols={2} smCols={3} mdCols={4} lgCols={5} xlCols={6} gap={4}>
+    <Grid cols={2} mdCols={3} lgCols={4} xlCols={5} xxlCols={6} gap={4} className={className}>
       {Array.from({ length: count }).map((_, i) => (
         <AnimeCardSkeleton key={i} />
       ))}

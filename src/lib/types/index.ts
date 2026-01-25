@@ -255,6 +255,8 @@ export interface LibraryEntry {
   updatedAt: Date;
   pinned?: boolean;
   notes?: string;
+  progress?: number;
+  episodesWatched?: number[];
 }
 
 // ============ Email Types ============
@@ -368,6 +370,8 @@ export interface LibraryUpsertRequest {
   status: LibraryStatus;
   pinned?: boolean;
   notes?: string;
+  progress?: number;
+  episodesWatched?: number[];
 }
 
 export interface SettingsUpdateRequest {

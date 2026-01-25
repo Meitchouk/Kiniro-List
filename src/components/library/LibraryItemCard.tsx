@@ -1,13 +1,18 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { Card, CardContent, Badge, Button, Typography, Flex } from "@/components/ds";
 import { LibraryStatusSelect } from "@/components/anime/LibraryStatusSelect";
+import { EpisodeProgressBar } from "./EpisodeProgressBar";
+import { EpisodeControls } from "./EpisodeControls";
+import { EpisodeChecklistDrawer } from "./EpisodeChecklistDrawer";
 import { CrunchyrollIcon } from "@/components/icons/CrunchyrollIcon";
 import { Trash2 } from "lucide-react";
 import { createAnimeSlug } from "@/lib/utils/text";
+import { useEpisodeProgress } from "@/lib/hooks/useEpisodeProgress";
 import type { LibraryStatus, LibraryEntryWithAnime, StreamingLink } from "@/lib/types";
 
 function getCrunchyrollLink(
@@ -40,11 +45,47 @@ export function LibraryItemCard({
   isDeleting = false,
 }: LibraryItemCardProps) {
   const t = useTranslations();
+  const [isChecklistOpen, setIsChecklistOpen] = useState(false);
+
+  const {
+    incrementProgress,
+    decrementProgress,
+    updateFromChecklist,
+    markAllWatched,
+    resetProgress,
+    isUpdating: isProgressUpdating,
+  } = useEpisodeProgress();
 
   const title = item.anime?.title?.english || item.anime?.title?.romaji || `Anime #${item.animeId}`;
   const coverImage = item.anime?.coverImage?.large;
   const slug = item.anime?.slug || createAnimeSlug(title) || String(item.anime?.id || item.animeId);
   const crunchyroll = getCrunchyrollLink(item.anime?.streamingLinks);
+
+  const currentProgress = item.progress || 0;
+  const totalEpisodes = item.anime?.episodes;
+  const episodesWatched = item.episodesWatched || [];
+
+  const handleIncrement = () => {
+    incrementProgress(item.animeId, item.status as LibraryStatus, currentProgress, totalEpisodes);
+  };
+
+  const handleDecrement = () => {
+    decrementProgress(item.animeId, item.status as LibraryStatus, currentProgress, totalEpisodes);
+  };
+
+  const handleChecklistUpdate = (episodes: number[]) => {
+    updateFromChecklist(item.animeId, item.status as LibraryStatus, episodes, totalEpisodes);
+  };
+
+  const handleMarkAll = () => {
+    if (totalEpisodes) {
+      markAllWatched(item.animeId, item.status as LibraryStatus, totalEpisodes);
+    }
+  };
+
+  const handleReset = () => {
+    resetProgress(item.animeId, item.status as LibraryStatus);
+  };
 
   return (
     <Card className="overflow-hidden">
@@ -82,6 +123,23 @@ export function LibraryItemCard({
               </Typography>
             )}
           </Flex>
+
+          {/* Episode Progress Section */}
+          {(totalEpisodes || currentProgress > 0) && (
+            <div className="mb-3 space-y-2">
+              <EpisodeProgressBar current={currentProgress} total={totalEpisodes} compact />
+              <EpisodeControls
+                current={currentProgress}
+                total={totalEpisodes}
+                onIncrement={handleIncrement}
+                onDecrement={handleDecrement}
+                onOpenChecklist={() => setIsChecklistOpen(true)}
+                disabled={isProgressUpdating}
+                compact
+              />
+            </div>
+          )}
+
           <Flex align="center" gap={2} wrap="wrap">
             <LibraryStatusSelect
               value={item.status as LibraryStatus}
@@ -112,6 +170,21 @@ export function LibraryItemCard({
           </Flex>
         </CardContent>
       </div>
+
+      {/* Episode Checklist Drawer */}
+      {totalEpisodes && (
+        <EpisodeChecklistDrawer
+          isOpen={isChecklistOpen}
+          onClose={() => setIsChecklistOpen(false)}
+          animeTitle={title}
+          totalEpisodes={totalEpisodes}
+          episodesWatched={episodesWatched}
+          onUpdateChecklist={handleChecklistUpdate}
+          onMarkAllWatched={handleMarkAll}
+          onResetProgress={handleReset}
+          isUpdating={isProgressUpdating}
+        />
+      )}
     </Card>
   );
 }

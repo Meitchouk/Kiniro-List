@@ -45,6 +45,14 @@ const gridVariants = cva("grid", {
       5: "xl:grid-cols-5",
       6: "xl:grid-cols-6",
     },
+    xxlCols: {
+      1: "2xl:grid-cols-1",
+      2: "2xl:grid-cols-2",
+      3: "2xl:grid-cols-3",
+      4: "2xl:grid-cols-4",
+      5: "2xl:grid-cols-5",
+      6: "2xl:grid-cols-6",
+    },
     gap: {
       0: "gap-0",
       1: "gap-1",
@@ -99,7 +107,21 @@ export interface GridProps
 
 const Grid = React.forwardRef<HTMLDivElement, GridProps>(
   (
-    { className, cols, smCols, mdCols, lgCols, xlCols, gap, gapX, gapY, align, justify, ...props },
+    {
+      className,
+      cols,
+      smCols,
+      mdCols,
+      lgCols,
+      xlCols,
+      xxlCols,
+      gap,
+      gapX,
+      gapY,
+      align,
+      justify,
+      ...props
+    },
     ref
   ) => {
     return (
@@ -112,6 +134,7 @@ const Grid = React.forwardRef<HTMLDivElement, GridProps>(
             mdCols,
             lgCols,
             xlCols,
+            xxlCols,
             gap,
             gapX,
             gapY,
@@ -130,7 +153,7 @@ Grid.displayName = "Grid";
 // Responsive grid preset for common patterns
 export interface ResponsiveGridProps extends Omit<
   GridProps,
-  "cols" | "smCols" | "mdCols" | "lgCols" | "xlCols"
+  "cols" | "smCols" | "mdCols" | "lgCols" | "xlCols" | "xxlCols"
 > {
   /**
    * Preset responsive column configuration
@@ -139,7 +162,7 @@ export interface ResponsiveGridProps extends Omit<
 }
 
 const presetConfigs: Record<string, Partial<VariantProps<typeof gridVariants>>> = {
-  cards: { cols: 2, smCols: 3, mdCols: 4, lgCols: 5, xlCols: 6 },
+  cards: { cols: 2, mdCols: 3, lgCols: 4, xlCols: 5, xxlCols: 6 },
   features: { cols: 1, mdCols: 3 },
   gallery: { cols: 2, mdCols: 3, lgCols: 4 },
   list: { cols: 1, lgCols: 2 },
