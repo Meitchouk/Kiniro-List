@@ -1,9 +1,9 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { Card, CardContent, CardHeader, CardTitle, Badge } from "@/components/ds";
+import { OptimizedImage } from "@/components/common/OptimizedImage";
 import { Star } from "lucide-react";
 import { getLocalizedTitle, createAnimeSlug } from "@/lib/utils/text";
 import type { MediaTitle, MediaCoverImage } from "@/lib/types";
@@ -49,11 +49,12 @@ export function AnimeRecommendations({ recommendations, maxItems = 6 }: AnimeRec
                 className="hover:bg-accent flex gap-3 rounded-lg border p-3 transition-colors"
               >
                 <div className="relative h-20 w-14 shrink-0 overflow-hidden rounded">
-                  <Image
+                  <OptimizedImage
                     src={media.coverImage.large || "/placeholder.png"}
                     alt={getLocalizedTitle(media.title)}
                     fill
                     className="object-cover"
+                    sizes="56px"
                   />
                 </div>
                 <div className="flex-1 space-y-1">

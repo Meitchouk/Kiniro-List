@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
 import { useTranslations } from "next-intl";
 import {
   Card,
@@ -14,6 +13,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ds";
+import { OptimizedImage } from "@/components/common/OptimizedImage";
 import { Play } from "lucide-react";
 
 interface Trailer {
@@ -73,7 +73,7 @@ export function AnimeTrailerCard({ trailer }: AnimeTrailerCardProps) {
           className="group border-border/60 bg-muted/40 relative block w-full overflow-hidden rounded-md border"
         >
           <div className="relative aspect-video overflow-hidden">
-            <Image
+            <OptimizedImage
               src={trailer.thumbnail || "/placeholder.png"}
               alt={t("trailer")}
               fill

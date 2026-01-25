@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { Bell, Tv, MessageSquare, Info, ChevronRight, Loader2 } from "lucide-react";
 import {
@@ -15,6 +14,7 @@ import {
   DropdownMenuTrigger,
   Typography,
 } from "@/components/ds";
+import { OptimizedImage } from "@/components/common/OptimizedImage";
 import { useAuth } from "@/components/providers/AuthProvider";
 import type { UserNotification } from "@/lib/types";
 
@@ -170,7 +170,7 @@ export function NotificationDropdown({
                   {/* Icon or cover */}
                   {notification.data?.animeCover ? (
                     <div className="relative h-12 w-9 shrink-0 overflow-hidden rounded">
-                      <Image
+                      <OptimizedImage
                         src={notification.data.animeCover}
                         alt=""
                         fill

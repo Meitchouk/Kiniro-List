@@ -61,12 +61,7 @@ export default async function RootLayout({
                     </div>
                     <Toaster />
                     {/* Ko-fi Support Widget - Floating button */}
-                    <KofiWidget
-                      variant="floating"
-                      colorScheme="gold"
-                      buttonText="Support ☕"
-                      icon="heart"
-                    />
+                    <KofiWidget variant="floating" colorScheme="kofi" />
                   </AuthProvider>
                 </LoadingProvider>
               </TranslationProvider>

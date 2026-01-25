@@ -39,7 +39,8 @@
     "tryAdjustingFilters": "Try adjusting your filters or search terms.",
     "noDataAvailable": "No data available",
     "nothingToDisplay": "There's nothing to display here yet.",
-    "minutesShort": "min"
+    "minutesShort": "min",
+    "supportKofi": "Support Us"
   },
   "admin": {
     "feedback": {

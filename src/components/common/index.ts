@@ -19,3 +19,5 @@ export {
   SORT_OPTIONS,
 } from "./AnimeFiltersBar";
 export type { AnimeFilters, AnimeFiltersBarProps, SortOption } from "./AnimeFiltersBar";
+export { OptimizedImage, getOptimalAniListImage } from "./OptimizedImage";
+export type { OptimizedImageProps } from "./OptimizedImage";

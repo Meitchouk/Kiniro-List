@@ -1,9 +1,9 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { Card, Badge, Typography, Stack, Flex } from "@/components/ds";
+import { OptimizedImage } from "@/components/common/OptimizedImage";
 import { Skeleton } from "@/components/ui/skeleton";
 import { createAnimeSlug, getLocalizedTitle } from "@/lib/utils/text";
 import { cn } from "@/lib/utils";
@@ -31,7 +31,7 @@ function MobileAnimeCard({ anime, priority = false }: MobileAnimeCardProps) {
         <div className="flex">
           {/* Cover image */}
           <div className="relative h-28 w-20 shrink-0">
-            <Image
+            <OptimizedImage
               src={coverImage}
               alt={title}
               fill

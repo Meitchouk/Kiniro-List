@@ -1,8 +1,8 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { Card, CardContent, Badge, Typography } from "@/components/ds";
+import { OptimizedImage } from "@/components/common/OptimizedImage";
 import { getLocalizedTitle } from "@/lib/utils/text";
 import type { MediaTitle, MediaCoverImage, MediaFormat } from "@/lib/types";
 
@@ -39,7 +39,13 @@ export function MediaCardCompact({
       <Card className="h-full overflow-hidden transition-all hover:-translate-y-1 hover:shadow-lg">
         <div className="flex">
           <div className="relative h-24 w-16 shrink-0">
-            <Image src={cover} alt={displayTitle} fill className="object-cover" sizes="64px" />
+            <OptimizedImage
+              src={cover}
+              alt={displayTitle}
+              fill
+              className="object-cover"
+              sizes="64px"
+            />
           </div>
           <CardContent className="flex min-w-0 flex-1 flex-col justify-between p-3">
             <div>

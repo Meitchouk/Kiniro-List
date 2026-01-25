@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { Card, CardContent, Badge, Button, Typography, Flex } from "@/components/ds";
+import { OptimizedImage } from "@/components/common/OptimizedImage";
 import { LibraryStatusSelect } from "@/components/anime/LibraryStatusSelect";
 import { EpisodeProgressBar } from "./EpisodeProgressBar";
 import { EpisodeControls } from "./EpisodeControls";
@@ -93,7 +93,13 @@ export function LibraryItemCard({
         <Link href={`/anime/${slug}`} className="shrink-0">
           <div className="relative h-36 w-24">
             {coverImage ? (
-              <Image src={coverImage} alt={title} fill className="object-cover" />
+              <OptimizedImage
+                src={coverImage}
+                alt={title}
+                fill
+                className="object-cover"
+                sizes="96px"
+              />
             ) : (
               <div className="bg-muted flex h-full w-full items-center justify-center">
                 <span className="text-muted-foreground text-xs">{t("common.noImage")}</span>

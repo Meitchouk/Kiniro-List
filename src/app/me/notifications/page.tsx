@@ -3,7 +3,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
-import Image from "next/image";
 import {
   Bell,
   Check,
@@ -24,6 +23,7 @@ import {
   Badge,
   Typography,
 } from "@/components/ds";
+import { OptimizedImage } from "@/components/common/OptimizedImage";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { LoginButton } from "@/components/auth";
 import type { UserNotification } from "@/lib/types";
@@ -215,7 +215,7 @@ export default function NotificationsPage() {
                   {/* Notification icon or anime cover */}
                   {notification.data?.animeCover ? (
                     <div className="relative h-16 w-12 shrink-0 overflow-hidden rounded">
-                      <Image
+                      <OptimizedImage
                         src={notification.data.animeCover}
                         alt=""
                         fill

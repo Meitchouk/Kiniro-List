@@ -1,9 +1,9 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { Card, Badge, Typography, Stack, Flex } from "@/components/ds";
+import { OptimizedImage } from "@/components/common/OptimizedImage";
 import { CountdownBadge } from "@/components/anime/CountdownBadge";
 import { CrunchyrollIcon } from "@/components/icons/CrunchyrollIcon";
 import { Clock, Tv, PlayCircle, Star } from "lucide-react";
@@ -59,7 +59,7 @@ export function CalendarItemCard({ item, timezone, isUnknown = false }: Calendar
           <Link href={`/anime/${slug}`} className="shrink-0">
             <div className="relative h-20 w-14 overflow-hidden rounded-md">
               {coverImage ? (
-                <Image
+                <OptimizedImage
                   src={coverImage}
                   alt={animeTitle}
                   fill
@@ -97,7 +97,7 @@ export function CalendarItemCard({ item, timezone, isUnknown = false }: Calendar
         <Link href={`/anime/${slug}`} className="relative shrink-0">
           <div className="relative h-48 w-32 overflow-hidden sm:h-56 sm:w-40">
             {coverImage ? (
-              <Image
+              <OptimizedImage
                 src={coverImage}
                 alt={animeTitle}
                 fill

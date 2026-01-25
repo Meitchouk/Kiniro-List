@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { Card, CardContent, Badge, Typography } from "@/components/ds";
+import { OptimizedImage } from "@/components/common/OptimizedImage";
 import { cn } from "@/lib/utils";
 
 export interface PosterCardProps {
@@ -46,13 +46,13 @@ export function PosterCard({
       >
         {/* Image area - fixed height, image adapts via object-cover */}
         <div className="relative h-62 w-full overflow-hidden">
-          <Image
+          <OptimizedImage
             src={cover}
             alt={title}
             fill
             priority={priority}
             className="object-cover transition-transform group-hover:scale-105"
-            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
+            sizes="200px"
           />
 
           {typeof rank === "number" && (
