@@ -43,6 +43,12 @@ const limiters = {
     analytics: true,
     prefix: "ratelimit:email",
   }),
+  streaming: new Ratelimit({
+    redis,
+    limiter: Ratelimit.slidingWindow(500, "1 m"), // 500 per minute for HLS segments
+    analytics: true,
+    prefix: "ratelimit:streaming",
+  }),
 };
 
 export type RateLimitType = keyof typeof limiters;

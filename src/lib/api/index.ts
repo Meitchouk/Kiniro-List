@@ -26,9 +26,20 @@ export {
   getMyCalendar,
   api,
   sendEmail,
+  // Streaming API
+  getAnimeEpisodes,
+  getStreamingLinks,
+  getEpisodeServers,
+  // External Subtitles API
+  searchExternalSubtitles,
+  getExternalSubtitleDownload,
 } from "./client";
 
-export type { BrowseAnimeParams } from "./client";
+export type {
+  BrowseAnimeParams,
+  ExternalSubtitleResult,
+  ExternalSubtitlesResponse,
+} from "./client";
 
 // Fetch interceptor for loading states
 export { setLoadingCallbacks, clearLoadingCallbacks, fetchWithLoading } from "./fetchInterceptor";

@@ -13,7 +13,7 @@ import {
   Shield,
   Bell,
 } from "lucide-react";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import {
   Button,
   Dialog,
@@ -41,15 +41,28 @@ export function Header() {
   const [adminNeedsAttention, setAdminNeedsAttention] = useState(0);
   const [unreadNotifications, setUnreadNotifications] = useState(0);
 
+  // Use refs to store the latest values without causing effect re-runs
+  const getAuthHeadersRef = useRef(getAuthHeaders);
+  const userRef = useRef(user);
+  const userDataRef = useRef(userData);
+
+  // Keep refs updated
+  useEffect(() => {
+    getAuthHeadersRef.current = getAuthHeaders;
+    userRef.current = user;
+    userDataRef.current = userData;
+  });
+
   // Check for unread feedback responses (for regular users)
+  // Using refs to avoid recreating these functions and triggering effect re-runs
   const checkUnreadFeedback = useCallback(async () => {
-    if (!user) {
+    if (!userRef.current) {
       setUnreadFeedbackCount(0);
       return;
     }
 
     try {
-      const headers = await getAuthHeaders();
+      const headers = await getAuthHeadersRef.current();
       const response = await fetch("/api/feedback?countOnly=true", { headers });
       if (response.ok) {
         const data = await response.json();
@@ -58,17 +71,17 @@ export function Header() {
     } catch (error) {
       console.error("Failed to check unread feedback:", error);
     }
-  }, [user, getAuthHeaders]);
+  }, []); // No dependencies - uses refs
 
   // Check for unread notifications (anime airing, etc.)
   const checkUnreadNotifications = useCallback(async () => {
-    if (!user) {
+    if (!userRef.current) {
       setUnreadNotifications(0);
       return;
     }
 
     try {
-      const headers = await getAuthHeaders();
+      const headers = await getAuthHeadersRef.current();
       const response = await fetch("/api/me/notifications?countOnly=true", { headers });
       if (response.ok) {
         const data = await response.json();
@@ -77,17 +90,17 @@ export function Header() {
     } catch (error) {
       console.error("Failed to check notifications:", error);
     }
-  }, [user, getAuthHeaders]);
+  }, []); // No dependencies - uses refs
 
   // Check for feedback needing admin attention
   const checkAdminNotifications = useCallback(async () => {
-    if (!user || !userData?.isAdmin) {
+    if (!userRef.current || !userDataRef.current?.isAdmin) {
       setAdminNeedsAttention(0);
       return;
     }
 
     try {
-      const headers = await getAuthHeaders();
+      const headers = await getAuthHeadersRef.current();
       const response = await fetch("/api/admin/feedback?countOnly=true", { headers });
       if (response.ok) {
         const data = await response.json();
@@ -96,7 +109,7 @@ export function Header() {
     } catch (error) {
       console.error("Failed to check admin notifications:", error);
     }
-  }, [user, userData?.isAdmin, getAuthHeaders]);
+  }, []); // No dependencies - uses refs
 
   // Adaptive polling: more frequent when active, less when inactive
   useEffect(() => {
@@ -181,7 +194,8 @@ export function Header() {
     if (!pathname.startsWith("/admin-panel/feedback")) {
       checkAdminNotifications();
     }
-  }, [pathname, checkUnreadFeedback, checkUnreadNotifications, checkAdminNotifications]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname]); // Only depend on pathname, functions are stable (use refs)
 
   const navLinks = [
     { href: "/calendar/now", label: t("nav.calendarNow"), icon: Calendar },
