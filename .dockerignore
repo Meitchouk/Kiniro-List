@@ -1,0 +1,81 @@
+# Dependencias
+node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Next.js
+.next/
+out/
+build/
+dist/
+
+# Archivos de entorno
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Logs
+*.log
+logs
+app-logs/
+
+# Archivos del sistema
+.DS_Store
+*.pem
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.settings
+.classpath
+
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Testing
+coverage/
+.nyc_output/
+
+# Firebase (solo ignorar claves privadas)
+firebase/*.json
+firebase/
+
+# Vercel
+.vercel
+
+# TypeScript
+*.tsbuildinfo
+
+# Debug
+*.pid
+*.seed
+*.pid.lock
+
+# Husky
+.husky/
+
+# Documentación y otros
+README.md
+TECHNICAL.md
+TODO.md
+LICENSE
+docs/
+postman/
+
+# Scripts locales
+scripts/
+
+# Temporal
+tmp/
+temp/

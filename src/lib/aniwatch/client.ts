@@ -396,9 +396,10 @@ export async function getStreamingLinks(
   try {
     const category: ServerCategory = dub ? "dub" : "sub";
 
-    // Try hd-1 first, then hd-2 as fallback
+    // Try multiple servers in order of reliability
     let sources: AniwatchStreamingResponse | null = null;
-    const servers = ["hd-1", "hd-2"];
+    const servers = ["hd-1", "hd-2", "megacloud"];
+    let lastError: Error | null = null;
 
     for (const server of servers) {
       try {
@@ -408,12 +409,13 @@ export async function getStreamingLinks(
           break;
         }
       } catch (serverError) {
+        lastError = serverError as Error;
         console.warn(`[AniWatch] Server ${server} failed, trying next...`, serverError);
       }
     }
 
     if (!sources || sources.sources.length === 0) {
-      throw new Error("No streaming sources found");
+      throw lastError || new Error("No streaming sources found");
     }
 
     // Get referer from API response, fallback to hianime.to
