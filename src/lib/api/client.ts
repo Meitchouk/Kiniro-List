@@ -305,3 +305,207 @@ export async function sendEmail(
   });
   return handleResponse(response);
 }
+
+// ============ Streaming API ============
+
+// Types for streaming responses (matching API responses)
+interface StreamingSource {
+  url: string;
+  quality: string;
+  isM3U8: boolean;
+}
+
+interface StreamingSubtitle {
+  url: string;
+  lang: string;
+  label?: string;
+}
+
+interface StreamingResponse {
+  sources: StreamingSource[];
+  subtitles: StreamingSubtitle[];
+  intro?: { start: number; end: number };
+  outro?: { start: number; end: number };
+  headers?: { Referer?: string; [key: string]: string | undefined };
+}
+
+interface NormalizedEpisode {
+  id: string;
+  title: string | null;
+  number: number;
+  description?: string | null;
+  image?: string | null;
+  isFiller?: boolean;
+}
+
+interface ProviderEpisodesResult {
+  provider: string;
+  displayName: string;
+  episodes: NormalizedEpisode[];
+  totalEpisodes: number;
+}
+
+interface MultiProviderEpisodesResponse {
+  anilistId: number;
+  availableProviders: ProviderEpisodesResult[];
+  failedProviders: Array<{ provider: string; error: string }>;
+  dub: boolean;
+}
+
+interface NormalizedServer {
+  name: string;
+  url: string;
+}
+
+interface ServersResponse {
+  servers: NormalizedServer[];
+}
+
+/**
+ * Get episodes for an anime from HiAnime
+ * Returns episodes from HiAnime with failed providers listed separately
+ */
+export async function getAnimeEpisodes(
+  animeId: number,
+  options?: {
+    titleRomaji?: string;
+    titleEnglish?: string;
+    titleNative?: string;
+    dub?: boolean;
+  }
+): Promise<MultiProviderEpisodesResponse> {
+  const params = new URLSearchParams();
+  if (options?.titleRomaji) params.set("titleRomaji", options.titleRomaji);
+  if (options?.titleEnglish) params.set("titleEnglish", options.titleEnglish);
+  if (options?.titleNative) params.set("titleNative", options.titleNative);
+  if (options?.dub) params.set("dub", "true");
+
+  const query = params.toString();
+  const url = query
+    ? `/api/streaming/episodes/${animeId}?${query}`
+    : `/api/streaming/episodes/${animeId}`;
+  const response = await fetchWithLoading(url);
+  return handleResponse(response);
+}
+
+/**
+ * Get streaming links for a specific episode
+ */
+export async function getStreamingLinks(
+  episodeId: string,
+  dub: boolean = false
+): Promise<StreamingResponse> {
+  const params = new URLSearchParams();
+  if (dub) params.set("dub", "true");
+  const query = params.toString();
+  const url = query
+    ? `/api/streaming/watch/${encodeURIComponent(episodeId)}?${query}`
+    : `/api/streaming/watch/${encodeURIComponent(episodeId)}`;
+  const response = await fetchWithLoading(url);
+  return handleResponse(response);
+}
+
+/**
+ * Get available servers for an episode
+ */
+export async function getEpisodeServers(
+  episodeId: string,
+  dub: boolean = false
+): Promise<ServersResponse> {
+  const params = new URLSearchParams();
+  if (dub) params.set("dub", "true");
+  const query = params.toString();
+  const url = query
+    ? `/api/streaming/servers/${encodeURIComponent(episodeId)}?${query}`
+    : `/api/streaming/servers/${encodeURIComponent(episodeId)}`;
+  const response = await fetchWithLoading(url);
+  return handleResponse(response);
+}
+
+// ============ External Subtitles API ============
+
+export interface ExternalSubtitleResult {
+  id: string;
+  language: string;
+  languageCode: string;
+  downloadCount: number;
+  rating: number;
+  release: string;
+  isHD: boolean;
+  isTrusted: boolean;
+  isAiTranslated: boolean;
+  fileId: number;
+  downloadUrl?: string;
+  source: "opensubtitles" | "subdl";
+  matchScore?: number; // 0-100 relevance score
+}
+
+export interface LanguageStats {
+  code: string;
+  name: string;
+  count: number;
+}
+
+export interface ExternalSubtitlesResponse {
+  query: {
+    title: string;
+    episode: number;
+    season?: number;
+    year?: number;
+    filterLanguage?: string;
+  };
+  totalResults: number;
+  filteredCount: number;
+  results: ExternalSubtitleResult[];
+  bestSpanish: ExternalSubtitleResult | null;
+  availableLanguages: LanguageStats[];
+  sourceStats: {
+    opensubtitles: number;
+    subdl: number;
+  };
+}
+
+/**
+ * Search for external subtitles from OpenSubtitles + Subdl (parallel search)
+ */
+export async function searchExternalSubtitles(
+  title: string,
+  episode: number,
+  options?: {
+    season?: number;
+    year?: number;
+    languages?: string[];
+    filterLanguage?: string;
+  }
+): Promise<ExternalSubtitlesResponse> {
+  const params = new URLSearchParams();
+  params.set("title", title);
+  params.set("episode", episode.toString());
+  if (options?.season) params.set("season", options.season.toString());
+  if (options?.year) params.set("year", options.year.toString());
+  if (options?.languages) params.set("languages", options.languages.join(","));
+  if (options?.filterLanguage) params.set("filterLanguage", options.filterLanguage);
+
+  const url = `/api/streaming/subtitles/search?${params.toString()}`;
+  const response = await fetchWithLoading(url);
+  return handleResponse(response);
+}
+
+/**
+ * Get download URL for an external subtitle
+ */
+export async function getExternalSubtitleDownload(
+  subtitle: ExternalSubtitleResult
+): Promise<{ fileId: number; source: string; downloadUrl: string }> {
+  const params = new URLSearchParams();
+  params.set("fileId", subtitle.fileId.toString());
+  params.set("source", subtitle.source);
+  // Pass direct URL for Subdl
+  if (subtitle.downloadUrl) {
+    params.set("downloadUrl", subtitle.downloadUrl);
+  }
+
+  const url = `/api/streaming/subtitles/download?${params.toString()}`;
+  const response = await fetchWithLoading(url);
+  return handleResponse(response);
+}

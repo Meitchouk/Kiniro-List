@@ -1,0 +1,86 @@
+{
+  "description": "Example response from /api/streaming/episodes/{animeId} endpoint",
+  "endpoint": "/api/streaming/episodes/182255",
+  "response": {
+    "anilistId": 182255,
+    "availableProviders": [
+      {
+        "provider": "animepahe",
+        "displayName": "AnimePahe",
+        "episodes": [
+          {
+            "id": "animepahe-episode-id-1",
+            "title": "Episode 1 Title",
+            "number": 1,
+            "description": null,
+            "image": "https://example.com/thumb1.jpg",
+            "isFiller": false
+          },
+          {
+            "id": "animepahe-episode-id-2",
+            "title": "Episode 2 Title",
+            "number": 2,
+            "description": null,
+            "image": "https://example.com/thumb2.jpg",
+            "isFiller": false
+          }
+        ],
+        "totalEpisodes": 2
+      },
+      {
+        "provider": "hianime",
+        "displayName": "HiAnime",
+        "episodes": [
+          {
+            "id": "hianime-ep-1",
+            "title": "Episode 1",
+            "number": 1,
+            "description": null,
+            "image": null,
+            "isFiller": false
+          }
+        ],
+        "totalEpisodes": 1
+      },
+      {
+        "provider": "animekai",
+        "displayName": "AnimeKai",
+        "episodes": [
+          {
+            "id": "animekai-ep-1",
+            "title": null,
+            "number": 1,
+            "description": null,
+            "image": null,
+            "isFiller": false
+          }
+        ],
+        "totalEpisodes": 1
+      }
+    ],
+    "failedProviders": [
+      {
+        "provider": "animeunity",
+        "error": "Request failed with status code 405"
+      },
+      {
+        "provider": "animesaturn",
+        "error": "Timeout: Provider took too long to respond"
+      }
+    ],
+    "dub": false
+  },
+  "notes": {
+    "caching": "Results are cached in Redis for 10 minutes",
+    "timeout": "Each provider has a 15 second timeout",
+    "providers_tried": [
+      "animepahe",
+      "hianime", 
+      "animekai",
+      "animesaturn",
+      "animeunity"
+    ],
+    "selection_logic": "Frontend auto-selects first available provider, user can switch between working providers",
+    "episode_id_format": "Each provider uses its own episode ID format - use the same provider when requesting streaming links"
+  }
+}

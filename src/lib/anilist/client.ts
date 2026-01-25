@@ -239,6 +239,7 @@ query ($id: Int!) {
           title {
             romaji
             english
+            native
           }
           coverImage {
             large
