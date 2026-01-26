@@ -49,6 +49,10 @@ export default function AnimeDetailPage({ params }: { params: Promise<{ slug: st
   const [selectedStatus, setSelectedStatus] = useState<LibraryStatus>("watching");
   const [selectedEpisode, setSelectedEpisode] = useState<Episode | null>(null);
   const [episodes, setEpisodes] = useState<Episode[]>([]);
+  const [streamingAvailability, setStreamingAvailability] = useState<{
+    isLoading: boolean;
+    hasContent: boolean;
+  }>({ isLoading: true, hasContent: false });
 
   // Setup auth headers for API calls (only once when user changes)
   useEffect(() => {
@@ -264,7 +268,7 @@ export default function AnimeDetailPage({ params }: { params: Promise<{ slug: st
 
           {/* Watch Tab */}
           <TabsContent value="watch">
-            {/* Official Streaming Banner */}
+            {/* Official Streaming Banner - Always visible when available */}
             {officialStreamingLinks.length > 0 && (
               <div className="mb-4 flex items-center gap-3 rounded-lg border border-orange-500/30 bg-linear-to-r from-orange-500/10 to-amber-500/10 px-4 py-3">
                 <Heart className="h-5 w-5 shrink-0 text-orange-500" />
@@ -293,69 +297,92 @@ export default function AnimeDetailPage({ params }: { params: Promise<{ slug: st
               </div>
             )}
 
-            {/* Desktop: Side by side layout | Mobile: Stacked */}
-            <div className="flex flex-col gap-6 lg:flex-row lg:items-start">
-              {/* Video Player - Always visible, sticky on desktop */}
-              <div className="w-full lg:sticky lg:top-4 lg:flex-1">
-                <div className="aspect-video w-full overflow-hidden rounded-lg bg-black">
-                  {selectedEpisode ? (
-                    <VideoPlayer
-                      episode={selectedEpisode}
-                      animeTitle={title}
-                      onClose={() => setSelectedEpisode(null)}
-                      onNextEpisode={() => {
-                        const currentIndex = episodes.findIndex(
-                          (ep) => ep.id === selectedEpisode.id
-                        );
-                        if (currentIndex < episodes.length - 1) {
-                          setSelectedEpisode(episodes[currentIndex + 1]);
+            {/* Show streaming section only when we have content or are loading */}
+            {streamingAvailability.isLoading || streamingAvailability.hasContent ? (
+              <div className="flex flex-col gap-6 lg:flex-row lg:items-start">
+                {/* Video Player - visible when streaming is available */}
+                <div className="w-full lg:sticky lg:top-4 lg:flex-1">
+                  <div className="aspect-video w-full overflow-hidden rounded-lg bg-black">
+                    {selectedEpisode ? (
+                      <VideoPlayer
+                        episode={selectedEpisode}
+                        animeTitle={title}
+                        onClose={() => setSelectedEpisode(null)}
+                        onNextEpisode={() => {
+                          const currentIndex = episodes.findIndex(
+                            (ep) => ep.id === selectedEpisode.id
+                          );
+                          if (currentIndex < episodes.length - 1) {
+                            setSelectedEpisode(episodes[currentIndex + 1]);
+                          }
+                        }}
+                        onPreviousEpisode={() => {
+                          const currentIndex = episodes.findIndex(
+                            (ep) => ep.id === selectedEpisode.id
+                          );
+                          if (currentIndex > 0) {
+                            setSelectedEpisode(episodes[currentIndex - 1]);
+                          }
+                        }}
+                        hasNextEpisode={
+                          episodes.findIndex((ep) => ep.id === selectedEpisode.id) <
+                          episodes.length - 1
                         }
-                      }}
-                      onPreviousEpisode={() => {
-                        const currentIndex = episodes.findIndex(
-                          (ep) => ep.id === selectedEpisode.id
-                        );
-                        if (currentIndex > 0) {
-                          setSelectedEpisode(episodes[currentIndex - 1]);
+                        hasPreviousEpisode={
+                          episodes.findIndex((ep) => ep.id === selectedEpisode.id) > 0
                         }
-                      }}
-                      hasNextEpisode={
-                        episodes.findIndex((ep) => ep.id === selectedEpisode.id) <
-                        episodes.length - 1
-                      }
-                      hasPreviousEpisode={
-                        episodes.findIndex((ep) => ep.id === selectedEpisode.id) > 0
-                      }
-                    />
-                  ) : (
-                    <div className="flex h-full w-full flex-col items-center justify-center text-white">
-                      <Play className="mb-4 h-16 w-16 opacity-50" />
-                      <Typography variant="body1" colorScheme="secondary">
-                        {t("streaming.selectEpisode")}
-                      </Typography>
-                    </div>
-                  )}
+                      />
+                    ) : (
+                      <div className="flex h-full w-full flex-col items-center justify-center text-white">
+                        <Play className="mb-4 h-16 w-16 opacity-50" />
+                        <Typography variant="body1" colorScheme="secondary">
+                          {t("streaming.selectEpisode")}
+                        </Typography>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Episodes List */}
+                <div className="lg:border-border lg:bg-card w-full lg:h-[calc(100vh-8rem)] lg:w-80 lg:shrink-0 lg:overflow-hidden lg:rounded-lg lg:border">
+                  <EpisodeList
+                    animeId={animeId}
+                    titleRomaji={anime.title.romaji}
+                    titleEnglish={anime.title.english || undefined}
+                    titleNative={anime.title.native || undefined}
+                    format={anime.format || undefined}
+                    totalEpisodes={anime.episodes || undefined}
+                    year={anime.seasonYear || anime.startDate?.year || undefined}
+                    relatedSeasons={anime.relations?.edges?.filter(
+                      (e) => e.relationType === "SEQUEL" || e.relationType === "PREQUEL"
+                    )}
+                    allRelations={anime.relations?.edges}
+                    onSelectEpisode={(episode, allEpisodes) => {
+                      setSelectedEpisode(episode);
+                      setEpisodes(allEpisodes);
+                    }}
+                    selectedEpisodeId={selectedEpisode?.id}
+                    onAvailabilityChange={setStreamingAvailability}
+                  />
                 </div>
               </div>
-
-              {/* Episodes List - Full height scrollable on desktop */}
-              <div className="lg:border-border lg:bg-card w-full lg:h-[calc(100vh-8rem)] lg:w-80 lg:shrink-0 lg:overflow-hidden lg:rounded-lg lg:border">
-                <EpisodeList
-                  animeId={animeId}
-                  titleRomaji={anime.title.romaji}
-                  titleEnglish={anime.title.english || undefined}
-                  titleNative={anime.title.native || undefined}
-                  relatedSeasons={anime.relations?.edges?.filter(
-                    (e) => e.relationType === "SEQUEL" || e.relationType === "PREQUEL"
-                  )}
-                  onSelectEpisode={(episode, allEpisodes) => {
-                    setSelectedEpisode(episode);
-                    setEpisodes(allEpisodes);
-                  }}
-                  selectedEpisodeId={selectedEpisode?.id}
-                />
+            ) : (
+              /* No streaming available - show friendly message */
+              <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-gray-300 bg-gray-50 py-16 dark:border-gray-700 dark:bg-gray-900/50">
+                <Play className="mb-4 h-16 w-16 text-gray-400" />
+                <Typography variant="h4" className="mb-2 text-gray-600 dark:text-gray-400">
+                  {t("streaming.notAvailable") || "Streaming not available"}
+                </Typography>
+                <Typography
+                  variant="body2"
+                  colorScheme="secondary"
+                  className="max-w-md text-center"
+                >
+                  {t("streaming.notAvailableDescription") ||
+                    "We couldn't find streaming sources for this title. Try the official streaming services above if available."}
+                </Typography>
               </div>
-            </div>
+            )}
           </TabsContent>
 
           {/* Info Tab */}

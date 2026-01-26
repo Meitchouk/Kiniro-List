@@ -12,6 +12,7 @@ import type {
   AniwatchServersResponse,
   AniwatchStreamingResponse,
   AniwatchAnimeInfo,
+  AniwatchAnime,
   ServerCategory,
   NormalizedEpisode,
   NormalizedStreamingLinks,
@@ -201,41 +202,119 @@ function extractSeasonFromTitle(title: string): number | null {
 
 /**
  * Calculate similarity score between two strings
+ * Uses multiple methods for better accuracy
+ * Returns a value between 0 and 1
  */
-function calculateSimilarity(str1: string, str2: string): number {
-  const s1 = normalizeForComparison(str1);
-  const s2 = normalizeForComparison(str2);
+function calculateSimilarity(searchTitle: string, candidateTitle: string): number {
+  const s1 = normalizeForComparison(searchTitle);
+  const s2 = normalizeForComparison(candidateTitle);
 
   if (s1 === s2) return 1;
+  if (!s1 || !s2) return 0;
 
-  // Check if one contains the other
-  if (s1.includes(s2) || s2.includes(s1)) {
-    const longer = Math.max(s1.length, s2.length);
-    const shorter = Math.min(s1.length, s2.length);
-    return shorter / longer;
+  // Extract words, filtering out common/short words
+  const commonWords = new Set([
+    "season",
+    "part",
+    "the",
+    "no",
+    "of",
+    "and",
+    "to",
+    "wa",
+    "ga",
+    "movie",
+    "tv",
+    "ova",
+    "ona",
+    "special",
+  ]);
+  const getSignificantWords = (str: string) => {
+    return str.split(" ").filter((w) => w.length > 2 && !commonWords.has(w) && !/^\d+$/.test(w));
+  };
+
+  const searchWords = getSignificantWords(s1);
+  const candidateWords = getSignificantWords(s2);
+
+  if (searchWords.length === 0 || candidateWords.length === 0) return 0;
+
+  const searchWordSet = new Set(searchWords);
+  const candidateWordSet = new Set(candidateWords);
+
+  // Count exact matches
+  const exactMatches = [...searchWordSet].filter((w) => candidateWordSet.has(w));
+
+  // Count partial matches (for romanization differences like "shimetsu" vs "shibuya")
+  let partialMatches = 0;
+  for (const w1 of searchWordSet) {
+    if (exactMatches.includes(w1)) continue;
+    for (const w2 of candidateWordSet) {
+      if (exactMatches.includes(w2)) continue;
+      if (w1.length >= 4 && w2.length >= 4) {
+        const prefix = Math.min(4, Math.min(w1.length, w2.length));
+        if (w1.substring(0, prefix) === w2.substring(0, prefix)) {
+          partialMatches += 0.5;
+          break;
+        }
+      }
+    }
   }
 
-  // Word-based similarity
-  const words1 = new Set(s1.split(" "));
-  const words2 = new Set(s2.split(" "));
-  const intersection = [...words1].filter((w) => words2.has(w));
-  const union = new Set([...words1, ...words2]);
+  // Require at least one significant word match beyond just the franchise name
+  if (exactMatches.length === 0 && partialMatches < 1) {
+    return 0;
+  }
 
-  return intersection.length / union.size;
+  const totalMatches = exactMatches.length + partialMatches;
+
+  // KEY CHANGE: Consider BOTH how many search words matched AND how many candidate words matched
+  // This penalizes when the candidate is much simpler than the search (e.g., "Jujutsu Kaisen" vs "Jujutsu Kaisen: Shibuya...")
+  const searchCoverage = totalMatches / searchWordSet.size; // How much of our search is covered
+  const candidateCoverage = totalMatches / candidateWordSet.size; // How much of candidate matches
+
+  // If the search title has many more words than the candidate matches, penalize heavily
+  // e.g., searching "Jujutsu Kaisen Shibuya Jihen Tokubetsu..." but finding "Jujutsu Kaisen"
+  // should score low because we're missing most of the search terms
+  if (searchWords.length > 3 && searchCoverage < 0.4) {
+    // Complex search title but candidate only matches a small portion
+    return searchCoverage * 0.5; // Heavy penalty
+  }
+
+  // Balance between search coverage and candidate coverage
+  // Prioritize search coverage (finding what we're looking for)
+  const score = searchCoverage * 0.7 + candidateCoverage * 0.3;
+
+  // Cap at 0.85 for partial matches (only exact full matches get higher)
+  return Math.min(score, 0.85);
+}
+
+/**
+ * Search hints from AniList metadata for better matching
+ */
+interface SearchHints {
+  format?: string; // TV, MOVIE, OVA, ONA, SPECIAL, etc.
+  totalEpisodes?: number;
+  year?: number;
 }
 
 /**
  * Search for an anime on HiAnime by AniList title
- * Returns the best match's HiAnime ID with improved season matching
+ * Searches with all title variants and returns the best match globally
  */
 export async function findAnimeByTitle(
   titleRomaji?: string,
   titleEnglish?: string,
   titleNative?: string,
-  seasonHint?: number // Optional hint for which season we're looking for
+  seasonHint?: number, // Optional hint for which season we're looking for
+  hints?: SearchHints // Additional metadata hints from AniList
 ): Promise<string | null> {
-  // Try English title first, then Romaji, then Native
-  const searchQueries = [titleEnglish, titleRomaji, titleNative].filter(Boolean) as string[];
+  // All search queries to try
+  const searchQueries = [titleRomaji, titleEnglish, titleNative].filter(Boolean) as string[];
+
+  if (searchQueries.length === 0) {
+    console.warn("[AniWatch] No titles provided for search");
+    return null;
+  }
 
   // Detect season from provided titles
   let targetSeason = seasonHint || null;
@@ -249,26 +328,81 @@ export async function findAnimeByTitle(
     }
   }
 
-  console.log(`[AniWatch] Searching for anime with target season: ${targetSeason || 1}`);
+  // Log search info including hints
+  const hintsInfo = hints
+    ? `format=${hints.format || "?"}, eps=${hints.totalEpisodes || "?"}, year=${hints.year || "?"}`
+    : "no hints";
+  console.log(
+    `[AniWatch] Searching with ${searchQueries.length} title variants, target season: ${targetSeason || 1}, hints: ${hintsInfo}`
+  );
 
+  // Collect all results from all search queries
+  interface ScoredResult {
+    anime: AniwatchAnime;
+    score: number;
+    detectedSeason: number;
+    matchedQuery: string;
+    bestTitleScore: number;
+  }
+
+  const allCandidates: Map<string, ScoredResult> = new Map();
+
+  // Search with each title variant
   for (const query of searchQueries) {
     try {
       const results = await searchAnime(query);
 
-      if (results.animes.length === 0) continue;
+      if (results.animes.length === 0) {
+        console.log(`[AniWatch] No results for query: "${query}"`);
+        continue;
+      }
 
-      // Score each result
-      const scoredResults = results.animes.map((anime) => {
+      console.log(`[AniWatch] Found ${results.animes.length} results for: "${query}"`);
+
+      // Score each result against ALL provided titles (not just the search query)
+      for (const anime of results.animes) {
+        // Calculate similarity against all titles and pick the best
+        const titleScores = searchQueries.map((title) => ({
+          title,
+          nameScore: calculateSimilarity(title, anime.name || ""),
+          jnameScore: calculateSimilarity(title, anime.jname || ""),
+        }));
+
+        // Best score across all title comparisons
+        const bestTitleMatch = titleScores.reduce<{
+          score: number;
+          title: string;
+          matchedName: string;
+        }>(
+          (best, current) => {
+            const currentMax = Math.max(current.nameScore, current.jnameScore);
+            if (currentMax > best.score) {
+              return {
+                score: currentMax,
+                title: current.title,
+                matchedName:
+                  (current.nameScore > current.jnameScore ? anime.name : anime.jname) || "",
+              };
+            }
+            return best;
+          },
+          { score: 0, title: "", matchedName: "" }
+        );
+
+        // CRITICAL: Skip candidates with very low title similarity
+        // This prevents selecting completely unrelated anime
+        const MIN_TITLE_SIMILARITY = 0.25;
+        if (bestTitleMatch.score < MIN_TITLE_SIMILARITY) {
+          continue; // Skip this candidate entirely
+        }
+
+        // Calculate total score - title similarity is now the PRIMARY factor
         let score = 0;
 
-        // Base similarity score (0-100)
-        const nameSimilarity = Math.max(
-          calculateSimilarity(query, anime.name || ""),
-          calculateSimilarity(query, anime.jname || "")
-        );
-        score += nameSimilarity * 50;
+        // Base similarity score (0-70) - increased weight for title matching
+        score += bestTitleMatch.score * 70;
 
-        // Season matching (0-50)
+        // Season matching (0-15)
         const animeSeason =
           extractSeasonFromTitle(anime.name || "") ||
           extractSeasonFromTitle(anime.jname || "") ||
@@ -276,49 +410,134 @@ export async function findAnimeByTitle(
         const effectiveTargetSeason = targetSeason || 1;
 
         if (animeSeason === effectiveTargetSeason) {
-          score += 50; // Perfect season match
-        } else if (Math.abs(animeSeason - effectiveTargetSeason) === 1) {
-          score += 10; // Close season (off by 1)
-        }
-        // Penalize wrong seasons significantly
-        if (animeSeason !== effectiveTargetSeason) {
-          score -= Math.abs(animeSeason - effectiveTargetSeason) * 15;
+          score += 15; // Perfect season match
+        } else {
+          // Penalize wrong seasons
+          score -= Math.abs(animeSeason - effectiveTargetSeason) * 8;
         }
 
-        // Prefer TV over Special/OVA for main content
-        if (anime.type === "TV") {
-          score += 5;
-        } else if (anime.type === "Special" || anime.type === "OVA") {
-          score -= 10;
+        // FORMAT MATCHING (0-15) - Use hints from AniList
+        if (hints?.format) {
+          const anilistFormat = hints.format.toUpperCase();
+          const hiAnimeType = (anime.type || "").toUpperCase();
+
+          // Map AniList formats to HiAnime types
+          const formatMatches =
+            (anilistFormat === "MOVIE" && hiAnimeType === "MOVIE") ||
+            (anilistFormat === "TV" && hiAnimeType === "TV") ||
+            (anilistFormat === "TV_SHORT" && hiAnimeType === "TV") ||
+            (anilistFormat === "OVA" && hiAnimeType === "OVA") ||
+            (anilistFormat === "ONA" && hiAnimeType === "ONA") ||
+            (anilistFormat === "SPECIAL" && hiAnimeType === "SPECIAL");
+
+          if (formatMatches) {
+            score += 15; // Strong bonus for matching format
+          } else {
+            // Penalize mismatched formats (movie vs TV is a big mismatch)
+            const isMajorMismatch =
+              (anilistFormat === "MOVIE" && hiAnimeType === "TV") ||
+              (anilistFormat === "TV" && hiAnimeType === "MOVIE");
+            score -= isMajorMismatch ? 20 : 5;
+          }
+        } else {
+          // No format hint - use default type preference
+          if (anime.type === "TV") {
+            score += 5;
+          } else if (anime.type === "Movie") {
+            score += 3;
+          }
         }
 
-        return { anime, score, detectedSeason: animeSeason };
-      });
+        // EPISODE COUNT MATCHING (0-10) - Use hints from AniList
+        const candidateEpisodes = (anime.episodes?.sub || 0) + (anime.episodes?.dub || 0);
+        if (hints?.totalEpisodes && candidateEpisodes > 0) {
+          const epDiff = Math.abs(candidateEpisodes - hints.totalEpisodes);
+          if (epDiff === 0) {
+            score += 10; // Exact episode count match
+          } else if (epDiff <= 2) {
+            score += 5; // Close match (airing anime may have fewer)
+          } else if (epDiff > 10) {
+            score -= 10; // Big mismatch - probably wrong anime
+          }
+        } else if (candidateEpisodes > 0) {
+          score += 2; // Has episodes available
+        }
 
-      // Sort by score descending
-      scoredResults.sort((a, b) => b.score - a.score);
-
-      // Log top 3 candidates for debugging
-      console.log(
-        `[AniWatch] Top candidates for "${query}" (target season: ${targetSeason || 1}):`
-      );
-      scoredResults.slice(0, 3).forEach((r, i) => {
-        console.log(
-          `  ${i + 1}. "${r.anime.name}" (${r.anime.id}) - Season: ${r.detectedSeason}, Score: ${r.score.toFixed(1)}`
-        );
-      });
-
-      const bestMatch = scoredResults[0];
-      if (bestMatch && bestMatch.score > 0) {
-        console.log(`[AniWatch] Selected: "${bestMatch.anime.name}" (id: ${bestMatch.anime.id})`);
-        return bestMatch.anime.id;
+        // Check if we already have this anime from another query
+        const existing = allCandidates.get(anime.id);
+        if (!existing || score > existing.score) {
+          allCandidates.set(anime.id, {
+            anime,
+            score,
+            detectedSeason: animeSeason,
+            matchedQuery: query,
+            bestTitleScore: bestTitleMatch.score,
+          });
+        }
       }
     } catch (error) {
       console.warn(`[AniWatch] Search failed for "${query}":`, error);
     }
   }
 
-  return null;
+  if (allCandidates.size === 0) {
+    console.warn("[AniWatch] No candidates found from any search query");
+    return null;
+  }
+
+  // Sort all candidates by score
+  const sortedCandidates = [...allCandidates.values()].sort((a, b) => b.score - a.score);
+
+  // Log top candidates for debugging (including type and episodes)
+  console.log(
+    `[AniWatch] Top ${Math.min(5, sortedCandidates.length)} candidates (from ${allCandidates.size} unique):`
+  );
+  sortedCandidates.slice(0, 5).forEach((r, i) => {
+    const eps = (r.anime.episodes?.sub || 0) + (r.anime.episodes?.dub || 0);
+    console.log(`  ${i + 1}. "${r.anime.name}" (${r.anime.id})`);
+    console.log(
+      `     Type: ${r.anime.type || "?"}, Eps: ${eps}, Title: ${(r.bestTitleScore * 100).toFixed(0)}%, Total: ${r.score.toFixed(1)}`
+    );
+  });
+
+  const bestMatch = sortedCandidates[0];
+
+  // Require minimum thresholds to avoid false matches
+  const MIN_SCORE_THRESHOLD = 40; // Total score threshold
+  const MIN_TITLE_SCORE = 0.35; // Title similarity threshold
+
+  if (bestMatch.bestTitleScore < MIN_TITLE_SCORE) {
+    console.warn(
+      `[AniWatch] Best match title score (${(bestMatch.bestTitleScore * 100).toFixed(0)}%) below threshold (${MIN_TITLE_SCORE * 100}%)`
+    );
+    return null;
+  }
+
+  if (bestMatch.score < MIN_SCORE_THRESHOLD) {
+    console.warn(
+      `[AniWatch] Best match total score (${bestMatch.score.toFixed(1)}) below threshold (${MIN_SCORE_THRESHOLD})`
+    );
+    return null;
+  }
+
+  // Additional check: if we're looking for a movie with 1 episode, reject TV series
+  if (hints?.format === "MOVIE" && hints?.totalEpisodes === 1) {
+    const candidateType = (bestMatch.anime.type || "").toUpperCase();
+    const candidateEps =
+      (bestMatch.anime.episodes?.sub || 0) + (bestMatch.anime.episodes?.dub || 0);
+
+    if (candidateType === "TV" && candidateEps > 2) {
+      console.warn(
+        `[AniWatch] Rejecting TV series (${candidateEps} eps) when looking for MOVIE (1 ep)`
+      );
+      return null;
+    }
+  }
+
+  console.log(
+    `[AniWatch] ✓ Selected: "${bestMatch.anime.name}" (id: ${bestMatch.anime.id}, score: ${bestMatch.score.toFixed(1)})`
+  );
+  return bestMatch.anime.id;
 }
 
 // ============ Normalized API (compatible with existing code) ============

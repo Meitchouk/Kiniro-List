@@ -1,9 +1,21 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
-import { ChevronDown, ChevronUp, Server, AlertTriangle, CheckCircle, Layers } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronUp,
+  Server,
+  AlertTriangle,
+  CheckCircle,
+  Layers,
+  Film,
+  Tv,
+  Play,
+  Sparkles,
+} from "lucide-react";
 import { Button, Badge, Skeleton } from "@/components/ds";
 import {
   Select,
@@ -12,6 +24,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { OptimizedImage } from "@/components/common/OptimizedImage";
 import { getAnimeEpisodes, getAnimeDetail } from "@/lib/api";
 import type { Episode, ProviderResult } from "@/lib/types/streaming";
 import type { RelationEdge } from "@/lib/types";
@@ -27,6 +40,17 @@ interface SeasonInfo {
   titleNative?: string;
   seasonNumber: number;
   isCurrent: boolean;
+  format?: string | null;
+  coverImage?: string | null;
+}
+
+/** Related anime that we can play (anime and movies only) */
+interface RelatedAnimeInfo {
+  id: number;
+  title: string;
+  coverImage?: string | null;
+  format?: string | null;
+  relationType: string;
 }
 
 interface EpisodeListProps {
@@ -39,14 +63,38 @@ interface EpisodeListProps {
   titleEnglish?: string;
   /** Anime title in native language for HiAnime search */
   titleNative?: string;
+  /** Anime format (TV, MOVIE, OVA, etc.) for better matching */
+  format?: string;
+  /** Total episodes count for better matching */
+  totalEpisodes?: number;
+  /** Air date year for better matching */
+  year?: number;
   /** Related anime (prequels/sequels) for season navigation */
   relatedSeasons?: RelationEdge[];
+  /** All related anime for the related section */
+  allRelations?: RelationEdge[];
+  /** Callback when availability changes (loading, hasContent, error) */
+  onAvailabilityChange?: (state: { isLoading: boolean; hasContent: boolean }) => void;
 }
 
 const EPISODES_PER_PAGE = 24;
 
 /** Maximum depth to search for related seasons */
 const MAX_SEASON_DEPTH = 10;
+
+/** Relation types we support (anime only, no manga/music) */
+const SUPPORTED_RELATION_TYPES = [
+  "PREQUEL",
+  "SEQUEL",
+  "SIDE_STORY",
+  "SPIN_OFF",
+  "ALTERNATIVE",
+  "PARENT",
+  "CHARACTER",
+];
+
+/** Format types we support */
+const SUPPORTED_FORMATS = ["TV", "TV_SHORT", "MOVIE", "SPECIAL", "OVA", "ONA"];
 
 /**
  * Recursively fetch all seasons in a franchise by following PREQUEL/SEQUEL relations
@@ -184,12 +232,18 @@ export function EpisodeList({
   titleRomaji,
   titleEnglish,
   titleNative,
+  format,
+  totalEpisodes: expectedEpisodes,
+  year,
   relatedSeasons,
+  allRelations,
+  onAvailabilityChange,
 }: EpisodeListProps) {
   const t = useTranslations("streaming");
   const [selectedProvider, setSelectedProvider] = useState<string | null>(null);
   const [expanded, setExpanded] = useState(true);
   const [visibleEpisodes, setVisibleEpisodes] = useState(EPISODES_PER_PAGE);
+  const [showRelated, setShowRelated] = useState(false);
 
   // Seasons state (loaded async)
   const [seasons, setSeasons] = useState<SeasonInfo[]>([]);
@@ -197,6 +251,31 @@ export function EpisodeList({
 
   // Track selected season (default to current anime)
   const [selectedSeasonId, setSelectedSeasonId] = useState<number>(animeId);
+
+  // Filter related anime to only supported types (anime/movies, not manga/music)
+  const supportedRelatedAnime = useMemo<RelatedAnimeInfo[]>(() => {
+    if (!allRelations) return [];
+
+    return allRelations
+      .filter((rel) => {
+        // Only ANIME type
+        if (rel.node.type !== "ANIME") return false;
+        // Only supported relation types
+        if (!rel.relationType || !SUPPORTED_RELATION_TYPES.includes(rel.relationType)) return false;
+        // Only supported formats (exclude music, manga adaptations etc)
+        if (rel.node.format && !SUPPORTED_FORMATS.includes(rel.node.format)) return false;
+        // Exclude prequels/sequels as they're in the season selector
+        if (rel.relationType === "PREQUEL" || rel.relationType === "SEQUEL") return false;
+        return true;
+      })
+      .map((rel) => ({
+        id: rel.node.id,
+        title: getLocalizedTitle(rel.node.title),
+        coverImage: rel.node.coverImage.large || rel.node.coverImage.extraLarge,
+        format: rel.node.format,
+        relationType: rel.relationType || "RELATED",
+      }));
+  }, [allRelations]);
 
   // Load all seasons recursively
   useEffect(() => {
@@ -270,6 +349,9 @@ export function EpisodeList({
         titleRomaji: effectiveTitleRomaji,
         titleEnglish: effectiveTitleEnglish,
         titleNative: effectiveTitleNative,
+        format,
+        totalEpisodes: expectedEpisodes,
+        year,
       }),
     staleTime: 10 * 60 * 1000, // 10 minutes (matches backend cache)
     retry: 1,
@@ -282,12 +364,26 @@ export function EpisodeList({
     }
   }, [data, selectedProvider]);
 
+  // Notify parent about availability changes
+  useEffect(() => {
+    if (onAvailabilityChange) {
+      const hasContent = (data?.availableProviders?.length ?? 0) > 0;
+      onAvailabilityChange({ isLoading, hasContent });
+    }
+  }, [isLoading, data?.availableProviders?.length, onAvailabilityChange]);
+
   // Reset state when season changes
   const handleSeasonChange = (seasonId: string) => {
     const newSeasonId = parseInt(seasonId, 10);
     setSelectedSeasonId(newSeasonId);
     setSelectedProvider(null);
     setVisibleEpisodes(EPISODES_PER_PAGE);
+  };
+
+  // Navigate to related anime (opens in same tab via URL change)
+  const handleNavigateToRelated = (relatedId: number) => {
+    // Navigate using the router - this will be handled by the parent component
+    window.location.href = `/anime/${relatedId}`;
   };
 
   // Get current provider data
@@ -315,31 +411,58 @@ export function EpisodeList({
     setVisibleEpisodes(EPISODES_PER_PAGE);
   };
 
+  // Get format icon
+  const getFormatIcon = (format?: string | null) => {
+    switch (format) {
+      case "MOVIE":
+        return <Film className="h-3 w-3" />;
+      case "TV":
+      case "TV_SHORT":
+        return <Tv className="h-3 w-3" />;
+      default:
+        return <Play className="h-3 w-3" />;
+    }
+  };
+
+  // Get relation type label
+  const getRelationLabel = (relationType: string) => {
+    const labels: Record<string, string> = {
+      SIDE_STORY: t("sideStory") || "Side Story",
+      SPIN_OFF: t("spinOff") || "Spin-off",
+      ALTERNATIVE: t("alternative") || "Alternative",
+      PARENT: t("parent") || "Parent",
+      CHARACTER: t("character") || "Character",
+      PREQUEL: t("prequel") || "Prequel",
+      SEQUEL: t("sequel") || "Sequel",
+    };
+    return labels[relationType] || relationType;
+  };
+
   // Season selector (only show if there are multiple seasons or still loading)
   const seasonSelector = (loadingSeasons || seasons.length > 1) && (
     <div className="flex items-center gap-2">
-      <Layers className="text-muted-foreground h-4 w-4" />
+      <Layers className="text-muted-foreground h-4 w-4 shrink-0" />
       {loadingSeasons ? (
-        <Skeleton className="h-8 w-[100px]" />
+        <Skeleton className="h-8 w-24" />
       ) : (
         <Select value={selectedSeasonId.toString()} onValueChange={handleSeasonChange}>
-          <SelectTrigger className="h-8 w-auto max-w-[140px]">
+          <SelectTrigger className="h-8 w-auto max-w-65 min-w-30">
             <SelectValue>
-              <span className="truncate">
-                {t("season")} {selectedSeason?.seasonNumber || 1}
-              </span>
+              <span className="truncate text-sm">{selectedSeason?.title || t("season")}</span>
             </SelectValue>
           </SelectTrigger>
-          <SelectContent className="max-w-[250px]">
-            {seasons.map((season) => (
-              <SelectItem key={season.id} value={season.id.toString()}>
+          <SelectContent className="max-w-100" align="start">
+            {seasons.map((season, index) => (
+              <SelectItem key={season.id} value={season.id.toString()} className="py-2">
                 <div className="flex items-center gap-2">
-                  <span className="shrink-0 font-medium">S{season.seasonNumber}</span>
-                  <span className="text-muted-foreground truncate text-xs">{season.title}</span>
+                  <span className="text-muted-foreground flex h-5 w-5 shrink-0 items-center justify-center rounded text-[10px] font-medium">
+                    {index + 1}
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <span className="block text-sm">{season.title}</span>
+                  </div>
                   {season.isCurrent && (
-                    <Badge variant="secondary" className="shrink-0 px-1 py-0 text-[10px]">
-                      {t("current") || "NOW"}
-                    </Badge>
+                    <CheckCircle className="text-primary h-3.5 w-3.5 shrink-0" />
                   )}
                 </div>
               </SelectItem>
@@ -393,36 +516,9 @@ export function EpisodeList({
     );
   }
 
-  // Error state or no providers available
+  // No providers available - return null, parent will handle visibility
   if (error || availableProviders.length === 0) {
-    return (
-      <div className="flex h-full flex-col">
-        <div className="border-border flex items-center justify-between border-b p-3">
-          <span className="font-semibold">{t("episodes")}</span>
-        </div>
-        <div className="flex flex-1 flex-col items-center justify-center p-4">
-          <AlertTriangle className="mb-3 h-8 w-8 text-orange-500" />
-          <p className="text-muted-foreground mb-2 text-center text-sm">
-            {t("noProvidersAvailable") || "No streaming sources available"}
-          </p>
-          {failedProviders.length > 0 && (
-            <div className="text-muted-foreground mb-4 text-center text-xs">
-              <p className="mb-1">{t("failedProviders") || "Failed providers"}:</p>
-              <ul className="space-y-1">
-                {failedProviders.map((fp) => (
-                  <li key={fp.provider} className="text-red-400">
-                    {fp.provider}: {fp.error}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-          <Button variant="outline" size="sm" onClick={() => refetch()}>
-            {t("retry")}
-          </Button>
-        </div>
-      </div>
-    );
+    return null;
   }
 
   return (
@@ -431,16 +527,74 @@ export function EpisodeList({
       {seasons.length > 1 && (
         <div className="border-border bg-muted/30 flex items-center gap-2 border-b px-3 py-2">
           {seasonSelector}
-          {selectedSeason && !selectedSeason.isCurrent && (
-            <span className="text-muted-foreground flex-1 truncate text-xs">
-              {selectedSeason.title}
-            </span>
+        </div>
+      )}
+
+      {/* Related Anime Section (collapsible) */}
+      {supportedRelatedAnime.length > 0 && (
+        <div className="border-border border-b">
+          <button
+            className="hover:bg-muted/30 flex w-full items-center justify-between px-3 py-2 text-left transition-colors"
+            onClick={() => setShowRelated(!showRelated)}
+          >
+            <div className="flex items-center gap-2">
+              <Sparkles className="text-primary h-4 w-4" />
+              <span className="text-sm font-medium">{t("relatedAnime") || "Related"}</span>
+              <Badge variant="outline" className="text-[10px]">
+                {supportedRelatedAnime.length}
+              </Badge>
+            </div>
+            {showRelated ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+          </button>
+
+          {showRelated && (
+            <div className="border-border max-h-48 overflow-y-auto border-t bg-black/5 p-2 dark:bg-white/5">
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-1">
+                {supportedRelatedAnime.map((related) => (
+                  <button
+                    key={related.id}
+                    onClick={() => handleNavigateToRelated(related.id)}
+                    className="hover:bg-muted/50 flex items-center gap-2 rounded-lg p-2 text-left transition-colors"
+                  >
+                    {/* Cover Image */}
+                    <div className="relative h-12 w-9 shrink-0 overflow-hidden rounded bg-gray-200 dark:bg-gray-800">
+                      {related.coverImage ? (
+                        <OptimizedImage
+                          src={related.coverImage}
+                          alt={related.title}
+                          fill
+                          className="object-cover"
+                          sizes="36px"
+                        />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center">
+                          {getFormatIcon(related.format)}
+                        </div>
+                      )}
+                    </div>
+                    {/* Info */}
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-xs font-medium">{related.title}</p>
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-muted-foreground flex items-center gap-1 text-[10px]">
+                          {getFormatIcon(related.format)}
+                          {related.format || "ANIME"}
+                        </span>
+                        <span className="text-primary text-[10px]">
+                          {getRelationLabel(related.relationType)}
+                        </span>
+                      </div>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
           )}
         </div>
       )}
 
       {/* Header with provider info */}
-      <div className="border-border flex items-center justify-between border-b p-3">
+      <div className="border-border flex flex-wrap items-center justify-between gap-2 border-b p-3">
         <button
           className="flex items-center gap-2 text-sm font-semibold"
           onClick={() => setExpanded(!expanded)}
@@ -474,12 +628,12 @@ export function EpisodeList({
               <p className="text-muted-foreground text-sm">{t("noEpisodes")}</p>
             </div>
           ) : (
-            <div className="p-1">
+            <div className="p-1.5">
               {episodes.slice(0, visibleEpisodes).map((episode) => (
                 <button
                   key={episode.id}
                   className={cn(
-                    "hover:bg-muted/50 flex w-full items-center gap-3 rounded px-3 py-2 text-left text-sm transition-colors",
+                    "hover:bg-muted/50 mb-1 flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm transition-colors",
                     episode.isFiller && "border-l-2 border-orange-500",
                     selectedEpisodeId === episode.id &&
                       "bg-primary text-primary-foreground hover:bg-primary/90"
@@ -488,23 +642,30 @@ export function EpisodeList({
                 >
                   <span
                     className={cn(
-                      "flex h-7 w-7 shrink-0 items-center justify-center rounded text-xs font-medium",
-                      selectedEpisodeId === episode.id ? "bg-primary-foreground/20" : "bg-muted"
+                      "flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-xs font-bold",
+                      selectedEpisodeId === episode.id
+                        ? "bg-primary-foreground/20"
+                        : "bg-primary/10 text-primary"
                     )}
                   >
                     {episode.number}
                   </span>
-                  <span className="flex-1 truncate">
-                    {episode.title || `${t("episode")} ${episode.number}`}
-                  </span>
-                  {episode.isFiller && (
-                    <span className="shrink-0 text-xs text-orange-500">{t("filler")}</span>
+                  <div className="min-w-0 flex-1">
+                    <span className="block truncate font-medium">
+                      {episode.title || `${t("episode")} ${episode.number}`}
+                    </span>
+                    {episode.isFiller && (
+                      <span className="text-[10px] text-orange-500">{t("filler")}</span>
+                    )}
+                  </div>
+                  {selectedEpisodeId === episode.id && (
+                    <Play className="h-4 w-4 shrink-0 animate-pulse" />
                   )}
                 </button>
               ))}
 
               {(hasMoreEpisodes || visibleEpisodes > EPISODES_PER_PAGE) && (
-                <div className="border-border flex justify-center gap-2 border-t p-2">
+                <div className="border-border mt-2 flex justify-center gap-2 border-t pt-2">
                   {hasMoreEpisodes && (
                     <Button variant="ghost" size="sm" onClick={handleShowMore}>
                       <ChevronDown className="mr-1 h-4 w-4" />

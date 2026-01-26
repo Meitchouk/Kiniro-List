@@ -322,11 +322,25 @@ interface StreamingSubtitle {
 }
 
 interface StreamingResponse {
-  sources: StreamingSource[];
-  subtitles: StreamingSubtitle[];
+  // Common fields
+  provider?: string;
+  type?: "direct" | "embed"; // "direct" for HLS streams, "embed" for iframe embeds
+
+  // HiAnime (direct streaming) fields
+  sources?: StreamingSource[];
+  subtitles?: StreamingSubtitle[];
   intro?: { start: number; end: number };
   outro?: { start: number; end: number };
   headers?: { Referer?: string; [key: string]: string | undefined };
+
+  // AnimeFLV (embed) fields
+  servers?: Array<{
+    name: string;
+    url: string;
+    type: "embed" | "download";
+  }>;
+  episodeNumber?: number;
+  animeTitle?: string;
 }
 
 interface NormalizedEpisode {
@@ -371,6 +385,9 @@ export async function getAnimeEpisodes(
     titleRomaji?: string;
     titleEnglish?: string;
     titleNative?: string;
+    format?: string;
+    totalEpisodes?: number;
+    year?: number;
     dub?: boolean;
   }
 ): Promise<MultiProviderEpisodesResponse> {
@@ -378,6 +395,9 @@ export async function getAnimeEpisodes(
   if (options?.titleRomaji) params.set("titleRomaji", options.titleRomaji);
   if (options?.titleEnglish) params.set("titleEnglish", options.titleEnglish);
   if (options?.titleNative) params.set("titleNative", options.titleNative);
+  if (options?.format) params.set("format", options.format);
+  if (options?.totalEpisodes) params.set("totalEpisodes", String(options.totalEpisodes));
+  if (options?.year) params.set("year", String(options.year));
   if (options?.dub) params.set("dub", "true");
 
   const query = params.toString();
@@ -390,13 +410,16 @@ export async function getAnimeEpisodes(
 
 /**
  * Get streaming links for a specific episode
+ * @param episodeId - Episode ID (format depends on provider)
+ * @param options - Optional settings including dub preference and provider
  */
 export async function getStreamingLinks(
   episodeId: string,
-  dub: boolean = false
+  options: { dub?: boolean; provider?: "hianime" | "animeflv" | "animeflv-adfree" } = {}
 ): Promise<StreamingResponse> {
   const params = new URLSearchParams();
-  if (dub) params.set("dub", "true");
+  if (options.dub) params.set("dub", "true");
+  if (options.provider) params.set("provider", options.provider);
   const query = params.toString();
   const url = query
     ? `/api/streaming/watch/${encodeURIComponent(episodeId)}?${query}`

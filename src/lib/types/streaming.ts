@@ -13,6 +13,7 @@ export interface Episode {
   description?: string | null;
   image?: string | null;
   isFiller?: boolean;
+  provider?: string; // The streaming provider this episode belongs to
 }
 
 // ============ Provider Types ============
@@ -66,10 +67,20 @@ export interface ServersResponse {
 
 // ============ Default Provider ============
 
-// With AniWatch, we only have HiAnime as the provider
+// Available streaming providers
 export const DEFAULT_PROVIDER = "hianime";
-export type StreamingProvider = "hianime";
+export type StreamingProvider = "hianime" | "animeflv";
 
 export const PROVIDER_DISPLAY_NAMES: Record<StreamingProvider, string> = {
   hianime: "HiAnime",
+  animeflv: "AnimeFLV (ES)",
+};
+
+// Provider-specific info
+export const PROVIDER_INFO: Record<
+  StreamingProvider,
+  { language: string; region: string; hasDirectStream: boolean }
+> = {
+  hianime: { language: "en", region: "Global", hasDirectStream: true },
+  animeflv: { language: "es", region: "LATAM", hasDirectStream: false },
 };

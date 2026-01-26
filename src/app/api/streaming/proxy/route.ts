@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { NextRequest, NextResponse } from "next/server";
 import { checkRateLimit, rateLimitResponse } from "@/lib/redis";
 
@@ -192,12 +193,15 @@ export async function GET(request: NextRequest) {
     const isLikelySegment = mightBeVideoSegment(url) || url.endsWith(".ts") || url.endsWith(".m4s");
     const contentCategory = isLikelyM3u8 ? "PLAYLIST" : isLikelySegment ? "SEGMENT" : "OTHER";
 
-    console.log(`[PROXY ${contentCategory}] ${urlForLog}`);
-    console.log(
-      `  └─ Status: ${serverStatus} | Server-CT: ${contentType} | Size: ${buffer.byteLength}b`
-    );
-    console.log(`  └─ Detected: ${detectedType || "unknown"} | Bytes[0-15]: ${firstBytesHex}`);
-    console.log(`  └─ ASCII: "${firstBytesAscii}"`);
+    // Verbose segment logging - only log playlists, not every segment
+    if (contentCategory === "PLAYLIST") {
+      console.log(`[PROXY ${contentCategory}] ${urlForLog}`);
+      console.log(
+        `  └─ Status: ${serverStatus} | Server-CT: ${contentType} | Size: ${buffer.byteLength}b`
+      );
+    }
+    // console.log(`  └─ Detected: ${detectedType || "unknown"} | Bytes[0-15]: ${firstBytesHex}`);
+    // console.log(`  └─ ASCII: "${firstBytesAscii}"`);
 
     // Check if content looks like an error page (HTML)
     if (
@@ -365,20 +369,20 @@ export async function GET(request: NextRequest) {
 
       if (bytes.length > 0 && bytes[0] === 0x47) {
         finalContentType = "video/mp2t";
-        console.log(`Proxy: Detected MPEG-TS by sync byte 0x47 | First bytes: ${firstBytesHex}`);
+        // console.log(`Proxy: Detected MPEG-TS by sync byte 0x47 | First bytes: ${firstBytesHex}`);
       } else if (bytes.length >= 8) {
         // Check for fMP4
         const boxType = String.fromCharCode(bytes[4], bytes[5], bytes[6], bytes[7]);
         if (["ftyp", "moov", "moof", "mdat", "styp", "sidx"].includes(boxType)) {
           finalContentType = "video/mp4";
-          console.log(
-            `Proxy: Detected fMP4 by box type '${boxType}' | First bytes: ${firstBytesHex}`
-          );
+          // console.log(
+          //   `Proxy: Detected fMP4 by box type '${boxType}' | First bytes: ${firstBytesHex}`
+          // );
         } else {
-          // URL suggests video but bytes don't match - log for diagnosis
-          console.log(
-            `Proxy: URL suggests video but unknown format | First bytes: ${firstBytesHex} | Box type attempt: '${boxType}'`
-          );
+          // URL suggests video but bytes don't match - commented out to reduce noise
+          // console.log(
+          //   `Proxy: URL suggests video but unknown format | First bytes: ${firstBytesHex} | Box type attempt: '${boxType}'`
+          // );
           // Still assume MPEG-TS as many providers use non-standard formats
           finalContentType = "video/mp2t";
         }
@@ -404,7 +408,7 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    console.log(`  └─ Final Content-Type: ${finalContentType}`);
+    // console.log(`  └─ Final Content-Type: ${finalContentType}`);
 
     // Warn if we're sending something that doesn't look like valid video
     if (finalContentType.includes("video") && bytes[0] !== 0x47 && buffer.byteLength > 188) {

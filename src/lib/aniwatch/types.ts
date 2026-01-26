@@ -172,6 +172,7 @@ export interface NormalizedEpisode {
   description?: string | null;
   image?: string | null;
   isFiller?: boolean;
+  provider?: string; // The streaming provider this episode belongs to
 }
 
 export interface NormalizedStreamingSource {
