@@ -15,4 +15,4 @@ build:
     NEXT_PUBLIC_STORAGE_ENCRYPTION_KEY: ${NEXT_PUBLIC_STORAGE_ENCRYPTION_KEY}
 
 run:
-  web: npm start
+  web: node server.js
