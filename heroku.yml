@@ -14,10 +14,5 @@ build:
     NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL}
     NEXT_PUBLIC_STORAGE_ENCRYPTION_KEY: ${NEXT_PUBLIC_STORAGE_ENCRYPTION_KEY}
 
-release:
-  command:
-    - npm run build
-  image: web
-
 run:
   web: npm start
