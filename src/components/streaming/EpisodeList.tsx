@@ -357,10 +357,12 @@ export function EpisodeList({
     retry: 1,
   });
 
-  // Auto-select first available provider when data loads
+  // Auto-select provider when data loads - prioritize AnimeFLV
   useEffect(() => {
     if (data?.availableProviders?.length && !selectedProvider) {
-      setSelectedProvider(data.availableProviders[0].provider);
+      // Prefer AnimeFLV if available, otherwise use first provider
+      const animeFLV = data.availableProviders.find(p => p.provider === "animeflv");
+      setSelectedProvider(animeFLV?.provider || data.availableProviders[0].provider);
     }
   }, [data, selectedProvider]);
 

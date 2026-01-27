@@ -10,7 +10,8 @@
     "format": "eslint . && tsc --noEmit && prettier --write \"src/**/*.{ts,tsx,js,jsx,css}\" \"scripts/**/*.{ts,js}\"",
     "format:check": "prettier --check \"src/**/*.{ts,tsx,js,jsx,css}\" \"scripts/**/*.{ts,js}\"",
     "env:init": "node scripts/env-init.js",
-    "env:from-firebase": "node scripts/env-from-firebase.js"
+    "env:from-firebase": "node scripts/env-from-firebase.js",
+    "docker": "docker rm -f kiniro-list-app 2>nul & docker compose up --build -d && echo Container started at http://localhost:3000"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",

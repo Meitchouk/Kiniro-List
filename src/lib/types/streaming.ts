@@ -68,7 +68,7 @@ export interface ServersResponse {
 // ============ Default Provider ============
 
 // Available streaming providers
-export const DEFAULT_PROVIDER = "hianime";
+export const DEFAULT_PROVIDER = "animeflv";
 export type StreamingProvider = "hianime" | "animeflv";
 
 export const PROVIDER_DISPLAY_NAMES: Record<StreamingProvider, string> = {
