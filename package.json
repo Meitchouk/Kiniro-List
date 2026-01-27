@@ -10,8 +10,7 @@
     "format": "eslint . && tsc --noEmit && prettier --write \"src/**/*.{ts,tsx,js,jsx,css}\" \"scripts/**/*.{ts,js}\"",
     "format:check": "prettier --check \"src/**/*.{ts,tsx,js,jsx,css}\" \"scripts/**/*.{ts,js}\"",
     "env:init": "node scripts/env-init.js",
-    "env:from-firebase": "node scripts/env-from-firebase.js",
-    "prepare": "husky"
+    "env:from-firebase": "node scripts/env-from-firebase.js"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",
@@ -31,6 +30,7 @@
     "@upstash/redis": "^1.34.3",
     "@vercel/analytics": "^1.6.1",
     "@vercel/speed-insights": "^1.3.1",
+    "animeflv-scraper": "^0.1.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "firebase": "^11.1.0",
@@ -63,7 +63,6 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "15.1.6",
-    "husky": "^9.1.7",
     "lint-staged": "^16.2.7",
     "prettier": "^3.7.4",
     "prettier-plugin-tailwindcss": "^0.7.2",

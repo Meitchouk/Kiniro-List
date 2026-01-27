@@ -843,6 +843,7 @@
     "seekForward": "Adelantar",
     "seekBackward": "Retroceder",
     "nextEpisode": "Siguiente episodio",
+    "next": "Sig.",
     "previousEpisode": "Episodio anterior",
     "supportOfficial": "¡Apoya al anime! Míralo en plataformas oficiales:",
     "resumingPlayback": "Retomando desde donde lo dejaste",
@@ -867,6 +868,21 @@
     "allLanguages": "Todos los idiomas",
     "bestMatch": "Mejor coincidencia",
     "parallelSearch": "Búsqueda paralela",
-    "recommended": "REC"
+    "recommended": "REC",
+    "adFree": "Sin Anuncios",
+    "adFreeOn": "Sin Anuncios ON",
+    "enableAdFree": "Activar modo sin anuncios (experimental)",
+    "disableAdFree": "Desactivar modo sin anuncios",
+    "embedPlayerNote": "Usando reproductor externo",
+    "relatedAnime": "Relacionados",
+    "sideStory": "Historia secundaria",
+    "spinOff": "Spin-off",
+    "alternative": "Alternativo",
+    "parent": "Principal",
+    "character": "Personaje",
+    "prequel": "Precuela",
+    "sequel": "Secuela",
+    "notAvailable": "Streaming no disponible",
+    "notAvailableDescription": "No encontramos fuentes de streaming para este título. Prueba los servicios de streaming oficiales si están disponibles."
   }
 }
