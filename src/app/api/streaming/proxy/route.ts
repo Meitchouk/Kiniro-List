@@ -148,14 +148,25 @@ export async function GET(request: NextRequest) {
     }
 
     // Fetch the content with required headers
+    // These headers are crucial for bypassing anti-bot protection on streaming CDNs
     const response = await fetch(url, {
       headers: {
         Referer: referer,
         Origin: new URL(referer).origin,
         "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
         Accept: "*/*",
         "Accept-Language": "en-US,en;q=0.9",
+        "Accept-Encoding": "gzip, deflate, br",
+        "sec-ch-ua": '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"',
+        "sec-ch-ua-mobile": "?0",
+        "sec-ch-ua-platform": '"Windows"',
+        "sec-fetch-dest": "empty",
+        "sec-fetch-mode": "cors",
+        "sec-fetch-site": "cross-site",
+        Connection: "keep-alive",
+        "Cache-Control": "no-cache",
+        Pragma: "no-cache",
       },
     });
 
