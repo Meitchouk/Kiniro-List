@@ -3,6 +3,7 @@ import {
   getAnimeEpisodesByTitles as getAnimeFLVEpisodes,
   type NormalizedAnimeFLVEpisode,
 } from "@/lib/animeflv";
+import { isHiAnimeAvailable } from "@/lib/streaming/hianime-health";
 // import { getSupportedServers } from "@/lib/extractors";
 import { checkRateLimit, rateLimitResponse, getOrSetJSON } from "@/lib/redis";
 import { animeIdSchema } from "@/lib/validation";
@@ -144,14 +145,22 @@ export async function GET(
 
     // Use Redis cache to avoid repeated API calls
     // Cache key includes title hash and hints to differentiate requests
-    // v5: added format/episodes/year hints for better matching
+    // v6: added CDN health check to filter unavailable providers
     const titleHash = titleEnglish || titleRomaji || titleNative || "unknown";
     const hintsHash = `${format || ""}-${totalEpisodes || ""}-${year || ""}`;
-    const cacheKey = `streaming:v5:episodes:${id}:${titleHash}:${hintsHash}:${dub ? "dub" : "sub"}`;
+    
+    // Check if HiAnime CDN is accessible from this server
+    // This is cached for 10 minutes, so it's fast
+    const hiAnimeAvailable = await isHiAnimeAvailable();
+    
+    // Include availability status in cache key so we re-fetch if status changes
+    const availabilityKey = hiAnimeAvailable ? "hianime-ok" : "hianime-blocked";
+    const cacheKey = `streaming:v6:episodes:${id}:${titleHash}:${hintsHash}:${availabilityKey}:${dub ? "dub" : "sub"}`;
 
     const result = await getOrSetJSON<{
       availableProviders: ProviderEpisodesResult[];
       failedProviders: Array<{ provider: string; error: string }>;
+      hiAnimeBlocked?: boolean;
     }>(
       cacheKey,
       600, // Cache for 10 minutes
@@ -159,24 +168,43 @@ export async function GET(
         const availableProviders: ProviderEpisodesResult[] = [];
         const failedProviders: Array<{ provider: string; error: string }> = [];
 
-        // Fetch from all providers in parallel
-        const [hiAnimeResult, animeFLVResult] = await Promise.allSettled([
-          fetchHiAnimeEpisodes(titleRomaji, titleEnglish, titleNative, hints),
-          fetchAnimeFLVEpisodes(titleRomaji, titleEnglish, titleNative),
-        ]);
-
-        // Process HiAnime result
-        if (hiAnimeResult.status === "fulfilled" && hiAnimeResult.value) {
-          availableProviders.push(hiAnimeResult.value);
+        // Only fetch HiAnime if CDN is accessible
+        const fetchPromises: Promise<ProviderEpisodesResult | null>[] = [];
+        
+        if (hiAnimeAvailable) {
+          fetchPromises.push(fetchHiAnimeEpisodes(titleRomaji, titleEnglish, titleNative, hints));
         } else {
-          const errorMsg =
-            hiAnimeResult.status === "rejected"
-              ? hiAnimeResult.reason?.message || "Unknown error"
-              : "Anime not found on HiAnime";
-          failedProviders.push({ provider: "hianime", error: errorMsg });
+          // Mark HiAnime as blocked without fetching
+          failedProviders.push({ 
+            provider: "hianime", 
+            error: "CDN blocked from this server (403)" 
+          });
+        }
+        
+        // Always fetch AnimeFLV
+        fetchPromises.push(fetchAnimeFLVEpisodes(titleRomaji, titleEnglish, titleNative));
+
+        const results = await Promise.allSettled(fetchPromises);
+        
+        // Process results based on what we fetched
+        let resultIndex = 0;
+        
+        // Process HiAnime result (if we fetched it)
+        if (hiAnimeAvailable) {
+          const hiAnimeResult = results[resultIndex++];
+          if (hiAnimeResult.status === "fulfilled" && hiAnimeResult.value) {
+            availableProviders.push(hiAnimeResult.value);
+          } else {
+            const errorMsg =
+              hiAnimeResult.status === "rejected"
+                ? hiAnimeResult.reason?.message || "Unknown error"
+                : "Anime not found on HiAnime";
+            failedProviders.push({ provider: "hianime", error: errorMsg });
+          }
         }
 
         // Process AnimeFLV result
+        const animeFLVResult = results[resultIndex];
         if (animeFLVResult.status === "fulfilled" && animeFLVResult.value) {
           availableProviders.push(animeFLVResult.value);
 
@@ -203,7 +231,11 @@ export async function GET(
           failedProviders.push({ provider: "animeflv", error: errorMsg });
         }
 
-        return { availableProviders, failedProviders };
+        return { 
+          availableProviders, 
+          failedProviders,
+          hiAnimeBlocked: !hiAnimeAvailable
+        };
       }
     );
 
@@ -212,6 +244,7 @@ export async function GET(
         {
           error: "No episodes found from any provider",
           failedProviders: result?.failedProviders || [],
+          hiAnimeBlocked: result?.hiAnimeBlocked || false,
         },
         { status: 404 }
       );
@@ -221,6 +254,7 @@ export async function GET(
       anilistId: id,
       availableProviders: result.availableProviders,
       failedProviders: result.failedProviders,
+      hiAnimeBlocked: result.hiAnimeBlocked || false,
       dub,
     });
   } catch (error) {
