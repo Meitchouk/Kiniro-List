@@ -4,6 +4,10 @@ import createNextIntlPlugin from "next-intl/plugin";
 const withNextIntl = createNextIntlPlugin("./src/lib/i18n/request.ts");
 
 const nextConfig: NextConfig = {
+  // Habilitar salida standalone para Docker
+  output: "standalone",
+  // Externalize consumet packages to avoid webpack bundling issues
+  serverExternalPackages: ["@consumet/extensions", "got-scraping", "got", "cheerio"],
   images: {
     remotePatterns: [
       {

@@ -17,7 +17,7 @@ const kofiWidgetVariants = cva("", {
        * Opens Ko-fi in a new tab
        */
       floating:
-        "fixed bottom-6 left-6 z-50 flex items-center gap-2 rounded-full px-4 py-3 font-medium shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-offset-2",
+        "fixed bottom-6 right-6 z-50 flex items-center gap-2 rounded-full px-4 py-3 font-medium shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-offset-2",
       /**
        * Embedded iframe panel for displaying Ko-fi page
        * Useful for settings pages or dedicated support sections

@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, useCallback, ReactNode } from "react";
 import { User } from "firebase/auth";
 import {
   onAuthChange,
@@ -174,26 +174,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const getAuthHeaders = async (options?: {
-    forceRefresh?: boolean;
-  }): Promise<Record<string, string>> => {
-    const token = await getIdToken(options?.forceRefresh);
-    const timezone = userData?.timezone || getTimezone();
-    const locale = userData?.locale || "en";
-    const theme = userData?.theme || "system";
+  const getAuthHeaders = useCallback(
+    async (options?: { forceRefresh?: boolean }): Promise<Record<string, string>> => {
+      const token = await getIdToken(options?.forceRefresh);
+      const timezone = userData?.timezone || getTimezone();
+      const locale = userData?.locale || "en";
+      const theme = userData?.theme || "system";
 
-    const headers: Record<string, string> = {
-      "x-timezone": timezone,
-      "x-locale": locale,
-      "x-theme": theme,
-    };
+      const headers: Record<string, string> = {
+        "x-timezone": timezone,
+        "x-locale": locale,
+        "x-theme": theme,
+      };
 
-    if (token) {
-      headers["Authorization"] = `Bearer ${token}`;
-    }
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
 
-    return headers;
-  };
+      return headers;
+    },
+    [userData?.timezone, userData?.locale, userData?.theme]
+  );
 
   const refetchUser = async () => {
     if (user) {
