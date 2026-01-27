@@ -15,7 +15,8 @@ build:
     NEXT_PUBLIC_STORAGE_ENCRYPTION_KEY: ${NEXT_PUBLIC_STORAGE_ENCRYPTION_KEY}
 
 release:
-  command: npm run build
+  command:
+    - npm run build
   image: web
 
 run:
