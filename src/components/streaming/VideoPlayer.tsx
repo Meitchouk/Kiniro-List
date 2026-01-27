@@ -1110,14 +1110,6 @@ export function VideoPlayer({
               style={{ border: "none" }}
             />
           )}
-
-          {/* Info banner for embed providers */}
-          <div className="absolute right-0 bottom-0 left-0 bg-linear-to-t from-black/80 to-transparent p-3 opacity-0 transition-opacity group-hover:opacity-100">
-            <p className="text-xs text-gray-300">
-              📺 {streamingData?.provider === "animeflv" ? "AnimeFLV" : streamingData?.provider} -{" "}
-              {t("embedPlayerNote") || "Using external player"}
-            </p>
-          </div>
         </>
       ) : (
         /* Native Video Element with HLS.js for direct streaming providers */
