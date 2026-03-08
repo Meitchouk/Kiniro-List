@@ -19,10 +19,19 @@ function getDb(): Firestore {
 }
 
 /**
- * Remove undefined values from an object (Firestore doesn't accept undefined)
+ * Remove undefined values from an object deeply (Firestore doesn't accept undefined at any depth)
  */
-function removeUndefined(obj: LogEntry): Record<string, unknown> {
-  return Object.fromEntries(Object.entries(obj).filter(([, value]) => value !== undefined));
+function removeUndefined(obj: Record<string, unknown>): Record<string, unknown> {
+  return Object.fromEntries(
+    Object.entries(obj)
+      .filter(([, value]) => value !== undefined)
+      .map(([key, value]) => [
+        key,
+        value !== null && typeof value === "object" && !Array.isArray(value)
+          ? removeUndefined(value as Record<string, unknown>)
+          : value,
+      ])
+  );
 }
 
 /**

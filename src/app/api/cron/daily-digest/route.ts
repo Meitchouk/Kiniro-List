@@ -57,7 +57,9 @@ export async function GET(request: NextRequest) {
 
     let sent = 0;
     let skipped = 0;
+    let notificationsSent = 0;
     const errors: string[] = [];
+    const emailErrors: string[] = [];
 
     for (const userDoc of usersSnapshot.docs) {
       try {
@@ -298,6 +300,7 @@ export async function GET(request: NextRequest) {
         }
         await notificationBatch.commit();
 
+        notificationsSent += digestItems.length;
         console.log(
           `[cron/daily-digest] Created ${digestItems.length} notifications for user ${userData.uid}`
         );
@@ -317,7 +320,7 @@ export async function GET(request: NextRequest) {
             `[cron/daily-digest] Sent digest to ${userData.email} with ${digestItems.length} episodes`
           );
         } else {
-          errors.push(`Failed to send to ${userData.email}`);
+          emailErrors.push(`${userData.email}`);
         }
       } catch (userError) {
         const errorMsg = userError instanceof Error ? userError.message : "Unknown error";
@@ -327,21 +330,25 @@ export async function GET(request: NextRequest) {
     }
 
     console.log(
-      `[cron/daily-digest] Completed: sent=${sent}, skipped=${skipped}, errors=${errors.length}`
+      `[cron/daily-digest] Completed: emailsSent=${sent}, notificationsSent=${notificationsSent}, skipped=${skipped}, processingErrors=${errors.length}, emailErrors=${emailErrors.length}`
     );
 
     const duration = Date.now() - startTime;
     logEvent.cron("daily-digest", "completed", duration, {
       sent,
+      notificationsSent,
       skipped,
       errorCount: errors.length,
+      emailErrorCount: emailErrors.length,
     });
 
     return NextResponse.json({
       success: true,
       sent,
+      notificationsSent,
       skipped,
       errors: errors.length > 0 ? errors : undefined,
+      emailErrors: emailErrors.length > 0 ? emailErrors : undefined,
     });
   } catch (error) {
     console.error("[cron/daily-digest] Fatal error:", error);

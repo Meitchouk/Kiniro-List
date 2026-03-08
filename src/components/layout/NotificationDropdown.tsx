@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { Bell, Tv, MessageSquare, Info, ChevronRight, Loader2 } from "lucide-react";
+import { Bell, Tv, MessageSquare, Info, ChevronRight, Loader2, Check, Trash2 } from "lucide-react";
 import {
   Button,
   DropdownMenu,
@@ -37,7 +37,7 @@ export function NotificationDropdown({
     setLoading(true);
     try {
       const headers = await getAuthHeaders();
-      const response = await fetch("/api/me/notifications?limit=5", { headers });
+      const response = await fetch("/api/me/notifications?unreadOnly=true&limit=15", { headers });
       if (response.ok) {
         const data = await response.json();
         setNotifications(data.notifications || []);
@@ -56,9 +56,7 @@ export function NotificationDropdown({
     }
   }, [open, fetchNotifications]);
 
-  const markAsRead = async (notificationId: string, e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const markAsRead = async (notificationId: string) => {
     try {
       const headers = await getAuthHeaders();
       await fetch("/api/me/notifications", {
@@ -66,12 +64,39 @@ export function NotificationDropdown({
         headers: { ...headers, "Content-Type": "application/json" },
         body: JSON.stringify({ notificationId }),
       });
-      setNotifications((prev) =>
-        prev.map((n) => (n.id === notificationId ? { ...n, read: true } : n))
-      );
+      setNotifications((prev) => prev.filter((n) => n.id !== notificationId));
       onUnreadCountChange();
     } catch (error) {
       console.error("Failed to mark as read:", error);
+    }
+  };
+
+  const markAllAsRead = async () => {
+    try {
+      const headers = await getAuthHeaders();
+      await fetch("/api/me/notifications", {
+        method: "PATCH",
+        headers: { ...headers, "Content-Type": "application/json" },
+        body: JSON.stringify({ markAllRead: true }),
+      });
+      setNotifications([]);
+      onUnreadCountChange();
+    } catch (error) {
+      console.error("Failed to mark all as read:", error);
+    }
+  };
+
+  const deleteNotification = async (notificationId: string) => {
+    try {
+      const headers = await getAuthHeaders();
+      await fetch(`/api/me/notifications?id=${encodeURIComponent(notificationId)}`, {
+        method: "DELETE",
+        headers,
+      });
+      setNotifications((prev) => prev.filter((n) => n.id !== notificationId));
+      onUnreadCountChange();
+    } catch (error) {
+      console.error("Failed to delete notification:", error);
     }
   };
 
@@ -131,10 +156,13 @@ export function NotificationDropdown({
       <DropdownMenuContent align="end" className="w-80">
         <DropdownMenuLabel className="flex items-center justify-between">
           <span>{t("notifications.title")}</span>
-          {unreadCount > 0 && (
-            <span className="text-muted-foreground text-xs font-normal">
-              {t("notifications.unreadCount", { count: unreadCount })}
-            </span>
+          {notifications.length > 0 && (
+            <button
+              onClick={markAllAsRead}
+              className="text-muted-foreground hover:text-primary text-xs font-normal underline-offset-2 hover:underline"
+            >
+              {t("notifications.markAllRead")}
+            </button>
           )}
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
@@ -152,58 +180,77 @@ export function NotificationDropdown({
           </div>
         ) : (
           <>
-            {notifications.map((notification) => (
-              <DropdownMenuItem key={notification.id} asChild className="cursor-pointer p-0">
-                <Link
-                  href={getNotificationLink(notification)}
-                  className="flex w-full items-start gap-3 p-3"
-                  onClick={() => {
-                    if (!notification.read) {
-                      markAsRead(notification.id, {
-                        preventDefault: () => {},
-                        stopPropagation: () => {},
-                      } as React.MouseEvent);
-                    }
-                    setOpen(false);
-                  }}
-                >
-                  {/* Icon or cover */}
-                  {notification.data?.animeCover ? (
-                    <div className="relative h-12 w-9 shrink-0 overflow-hidden rounded">
-                      <OptimizedImage
-                        src={notification.data.animeCover}
-                        alt=""
-                        fill
-                        className="object-cover"
-                        sizes="36px"
-                      />
-                    </div>
-                  ) : (
-                    <div className="bg-muted flex h-9 w-9 shrink-0 items-center justify-center rounded-full">
-                      {getNotificationIcon(notification.type)}
-                    </div>
-                  )}
+            {notifications.slice(0, 5).map((notification) => (
+              <DropdownMenuItem
+                key={notification.id}
+                className="cursor-pointer p-0"
+                onSelect={(e) => e.preventDefault()}
+              >
+                <div className="flex w-full items-start gap-2 p-3">
+                  {/* Clickable main area */}
+                  <Link
+                    href={getNotificationLink(notification)}
+                    className="flex min-w-0 flex-1 items-start gap-3"
+                    onClick={() => {
+                      markAsRead(notification.id);
+                      setOpen(false);
+                    }}
+                  >
+                    {/* Icon or cover */}
+                    {notification.data?.animeCover ? (
+                      <div className="relative h-12 w-9 shrink-0 overflow-hidden rounded">
+                        <OptimizedImage
+                          src={notification.data.animeCover}
+                          alt=""
+                          fill
+                          className="object-cover"
+                          sizes="36px"
+                        />
+                      </div>
+                    ) : (
+                      <div className="bg-muted flex h-9 w-9 shrink-0 items-center justify-center rounded-full">
+                        {getNotificationIcon(notification.type)}
+                      </div>
+                    )}
 
-                  {/* Content */}
-                  <div className="min-w-0 flex-1">
-                    <p
-                      className={`line-clamp-1 text-sm ${!notification.read ? "font-semibold" : "font-normal"}`}
+                    {/* Content */}
+                    <div className="min-w-0 flex-1">
+                      <p className="line-clamp-1 text-sm font-semibold">
+                        {notification.title}
+                      </p>
+                      <p className="text-muted-foreground line-clamp-2 text-xs">
+                        {notification.message}
+                      </p>
+                      <p className="text-muted-foreground/70 mt-1 text-[10px]">
+                        {formatTimeAgo(notification.createdAt)}
+                      </p>
+                    </div>
+                  </Link>
+
+                  {/* Action buttons */}
+                  <div className="flex shrink-0 flex-col gap-1 pt-1">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        markAsRead(notification.id);
+                      }}
+                      title={t("notifications.markAsRead")}
+                      className="text-muted-foreground hover:text-primary rounded p-0.5 transition-colors"
                     >
-                      {notification.title}
-                    </p>
-                    <p className="text-muted-foreground line-clamp-2 text-xs">
-                      {notification.message}
-                    </p>
-                    <p className="text-muted-foreground/70 mt-1 text-[10px]">
-                      {formatTimeAgo(notification.createdAt)}
-                    </p>
+                      <Check className="h-3.5 w-3.5" />
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        deleteNotification(notification.id);
+                      }}
+                      title={t("notifications.delete")}
+                      className="text-muted-foreground hover:text-destructive rounded p-0.5 transition-colors"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
                   </div>
-
-                  {/* Unread indicator */}
-                  {!notification.read && (
-                    <div className="bg-primary h-2 w-2 shrink-0 rounded-full" />
-                  )}
-                </Link>
+                </div>
               </DropdownMenuItem>
             ))}
           </>
