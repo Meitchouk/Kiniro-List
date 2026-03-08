@@ -34,6 +34,7 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url);
     const countOnly = searchParams.get("countOnly") === "true";
+    const unreadOnly = searchParams.get("unreadOnly") === "true";
     const limit = Math.min(parseInt(searchParams.get("limit") || "50"), 100);
 
     const db = getAdminFirestore();
@@ -52,7 +53,10 @@ export async function GET(request: NextRequest) {
     }
 
     // Get notifications
-    const snapshot = await notificationsRef.orderBy("createdAt", "desc").limit(limit).get();
+    const baseQuery = unreadOnly
+      ? notificationsRef.where("read", "==", false)
+      : notificationsRef;
+    const snapshot = await baseQuery.orderBy("createdAt", "desc").limit(limit).get();
 
     const notifications: UserNotification[] = snapshot.docs.map((doc) => {
       const data = doc.data();

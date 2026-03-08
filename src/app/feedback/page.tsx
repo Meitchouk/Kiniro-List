@@ -15,6 +15,8 @@ import {
   ChevronDown,
   ChevronUp,
   Reply,
+  Check,
+  CheckCheck,
 } from "lucide-react";
 import { z } from "zod";
 
@@ -80,6 +82,7 @@ export default function FeedbackPage() {
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const [replyText, setReplyText] = useState("");
   const [sendingReply, setSendingReply] = useState(false);
+  const [flashingIds, setFlashingIds] = useState<Set<string>>(new Set());
 
   const form = useForm<FeedbackForm>({
     resolver: zodResolver(feedbackSchema),
@@ -113,6 +116,59 @@ export default function FeedbackPage() {
   useEffect(() => {
     fetchFeedback();
   }, [fetchFeedback]);
+
+  // Mark a single feedback response as read (explicit button)
+  const markFeedbackAsRead = async (feedbackId: string) => {
+    setFlashingIds((prev) => new Set(prev).add(feedbackId));
+    try {
+      const headers = await getAuthHeaders();
+      await fetch("/api/feedback", {
+        method: "PATCH",
+        headers: { ...headers, "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "markAsRead", feedbackId }),
+      });
+      setMyFeedback((prev) =>
+        prev.map((f) => (f.id === feedbackId ? { ...f, hasUnreadResponse: false } : f))
+      );
+    } catch (error) {
+      console.error("Failed to mark feedback as read:", error);
+    } finally {
+      setTimeout(() => {
+        setFlashingIds((prev) => {
+          const s = new Set(prev);
+          s.delete(feedbackId);
+          return s;
+        });
+      }, 500);
+    }
+  };
+
+  // Mark all unread feedback responses as read with stagger animation
+  const markAllFeedbackAsRead = async () => {
+    const unreadIds = myFeedback.filter((f) => f.hasUnreadResponse).map((f) => f.id);
+    if (unreadIds.length === 0) return;
+    const headers = await getAuthHeaders();
+    unreadIds.forEach((id, i) => {
+      setTimeout(() => setFlashingIds((prev) => new Set(prev).add(id)), i * 100);
+    });
+    try {
+      await Promise.all(
+        unreadIds.map((feedbackId) =>
+          fetch("/api/feedback", {
+            method: "PATCH",
+            headers: { ...headers, "Content-Type": "application/json" },
+            body: JSON.stringify({ action: "markAsRead", feedbackId }),
+          })
+        )
+      );
+      await new Promise((r) => setTimeout(r, unreadIds.length * 100 + 400));
+      setMyFeedback((prev) => prev.map((f) => ({ ...f, hasUnreadResponse: false })));
+    } catch (error) {
+      console.error("Failed to mark all feedback as read:", error);
+    } finally {
+      setFlashingIds(new Set());
+    }
+  };
 
   // Mark feedback as read when expanded
   const handleExpandFeedback = async (feedbackId: string) => {
@@ -206,6 +262,8 @@ export default function FeedbackPage() {
       setIsSubmitting(false);
     }
   };
+
+  const unreadFeedbackCount = myFeedback.filter((f) => f.hasUnreadResponse).length;
 
   const typeOptions = [
     {
@@ -365,7 +423,15 @@ export default function FeedbackPage() {
       {/* Previous Feedback */}
       {myFeedback.length > 0 && (
         <div>
-          <h2 className="mb-4 text-xl font-semibold">{t("feedback.myFeedback")}</h2>
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="text-xl font-semibold">{t("feedback.myFeedback")}</h2>
+            {unreadFeedbackCount > 1 && (
+              <Button variant="outline" size="sm" onClick={markAllFeedbackAsRead}>
+                <CheckCheck className="mr-2 h-4 w-4" />
+                {t("feedback.markAllRead")}
+              </Button>
+            )}
+          </div>
           <div className="space-y-4">
             {myFeedback.map((item) => {
               const typeOption = typeOptions.find((o) => o.value === item.type);
@@ -377,7 +443,13 @@ export default function FeedbackPage() {
               return (
                 <Card
                   key={item.id}
-                  className={item.hasUnreadResponse ? "ring-primary/50 ring-2" : ""}
+                  className={`transition-all duration-300 ${
+                    flashingIds.has(item.id)
+                      ? "ring-green-500/50 ring-2 bg-green-500/5"
+                      : item.hasUnreadResponse
+                        ? "ring-primary/50 ring-2"
+                        : ""
+                  }`}
                 >
                   <CardContent className="pt-4">
                     <div className="flex items-start justify-between gap-4">
@@ -534,8 +606,14 @@ export default function FeedbackPage() {
                       </div>
                       <div className="flex shrink-0 flex-col items-end gap-2">
                         {getStatusBadge(item.status)}
-                        {item.hasUnreadResponse && !isExpanded && (
-                          <span className="bg-primary h-2 w-2 rounded-full" />
+                        {item.hasUnreadResponse && (
+                          <button
+                            onClick={() => markFeedbackAsRead(item.id)}
+                            title={t("feedback.markAsRead")}
+                            className="text-muted-foreground hover:text-primary rounded p-0.5 transition-colors"
+                          >
+                            <Check className="h-4 w-4" />
+                          </button>
                         )}
                       </div>
                     </div>
